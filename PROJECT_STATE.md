@@ -3,7 +3,7 @@
 **Version:** 1.2.21
 **Date:** October 23, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.21 explicitly approved and deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Implements cross-subdomain SSO cookie bridge (`ward_auth_session`) across `.blackstoneward.org` so authenticated admin sessions are recognized across Youth Hub (`youth.blackstoneward.org`).
+**State:** Version 1.2.21 explicitly approved and deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and staging (`test.blackstoneward.org`). Implements cross-subdomain SSO cookie bridge (`ward_auth_session`) across `.blackstoneward.org` so authenticated admin sessions are recognized across Youth Hub (`youth.blackstoneward.org`).
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
