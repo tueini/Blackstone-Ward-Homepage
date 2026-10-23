@@ -188,6 +188,51 @@ function normalizePhone(phoneStr) {
   return phoneStr.startsWith('+') ? phoneStr : `+${digits}`;
 }
 
+// ================= CROSS-SUBDOMAIN SSO COOKIE BRIDGE =================
+function getSSOCookieDomain() {
+  const hostname = window.location.hostname;
+  // If running on production blackstoneward.org or its subdomains (except test/staging), share across .blackstoneward.org
+  if (hostname.endsWith('blackstoneward.org') && !hostname.startsWith('test.') && !hostname.includes('staging')) {
+    return '.blackstoneward.org';
+  }
+  // Fall back to current hostname on localhost or staging
+  return hostname;
+}
+
+function setSSOCookie(profile) {
+  if (!profile) return;
+  try {
+    const ssoPayload = { ...profile };
+    delete ssoPayload.passwordHash; // Protect credentials from cookie storage
+    if (!ssoPayload.authenticatedAt) {
+      ssoPayload.authenticatedAt = new Date().toISOString();
+    }
+    const val = encodeURIComponent(JSON.stringify(ssoPayload));
+    const domain = getSSOCookieDomain();
+    const domainAttr = (domain === 'localhost' || domain === '127.0.0.1') ? '' : `; domain=${domain}`;
+    const secureAttr = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `ward_auth_session=${val}; path=/; max-age=604800; SameSite=Lax${domainAttr}${secureAttr}`;
+  } catch (err) {
+    console.warn("SSO cookie set error:", err);
+  }
+}
+
+function clearSSOCookie() {
+  try {
+    const domain = getSSOCookieDomain();
+    const domainAttr = (domain === 'localhost' || domain === '127.0.0.1') ? '' : `; domain=${domain}`;
+    const secureAttr = window.location.protocol === 'https:' ? '; Secure' : '';
+    // Clear cookie on configured domain
+    document.cookie = `ward_auth_session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainAttr}${secureAttr}; SameSite=Lax`;
+    // Explicitly clear across root .blackstoneward.org domain
+    document.cookie = `ward_auth_session=; path=/; domain=.blackstoneward.org; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${secureAttr}; SameSite=Lax`;
+    // Also clear host-only cookie
+    document.cookie = `ward_auth_session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT${secureAttr}; SameSite=Lax`;
+  } catch (err) {
+    console.warn("SSO cookie clear error:", err);
+  }
+}
+
 // ================= AUTHENTICATION =================
 const AUTHORIZED_MASTER_HASHES = [
   "103a9f4c69d7331576e1a7b7f96ce781e3336f7b304424373aea1f263c581a3d", // yutehub!1830 (Youth Hub master)
@@ -379,6 +424,7 @@ async function handleVerifyPhoneCode(e) {
       await setDoc(doc(db, "ward_leaders", "leader_duane_harris"), initialAdmin);
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(initialAdmin));
       sessionStorage.setItem('wardAdminAuth', 'true');
+      setSSOCookie(initialAdmin);
       checkAuth();
       return;
     }
@@ -408,6 +454,7 @@ async function handleVerifyPhoneCode(e) {
     if (matchedLeader) {
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(matchedLeader));
       sessionStorage.setItem('wardAdminAuth', 'true');
+      setSSOCookie(matchedLeader);
       checkAuth();
     } else {
       err.textContent = `Phone ${phone} verified, but not found in registered ward leaders. Please contact an administrator.`;
@@ -469,6 +516,7 @@ async function initPasskeyAutofill() {
       }
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
       sessionStorage.setItem('wardAdminAuth', 'true');
+      setSSOCookie(profile);
       checkAuth();
     }
   } catch (err) {
@@ -590,6 +638,7 @@ async function handlePasskeyLogin() {
       }
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
       sessionStorage.setItem('wardAdminAuth', 'true');
+      setSSOCookie(profile);
       checkAuth();
     }
   } catch (e) {
@@ -630,6 +679,7 @@ function checkAuth() {
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
     }
     currentLeaderProfile = profile;
+    setSSOCookie(profile);
 
     const badge = document.getElementById('leader-identity-badge');
     const nameEl = document.getElementById('leader-display-name');
@@ -778,6 +828,7 @@ async function handleLogin(e) {
       }
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
       sessionStorage.setItem('wardAdminAuth', 'true');
+      setSSOCookie(profile);
       input.value = '';
       if (btn) btn.textContent = 'Sign In with Password';
       checkAuth();
@@ -812,6 +863,7 @@ async function handleLogin(e) {
         }
         sessionStorage.setItem('wardLeaderProfile', JSON.stringify(matchedLeader));
         sessionStorage.setItem('wardAdminAuth', 'true');
+        setSSOCookie(matchedLeader);
         input.value = '';
         if (btn) btn.textContent = 'Sign In with Password';
         checkAuth();
@@ -832,6 +884,7 @@ async function handleLogin(e) {
     if (matchingLeader) {
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(matchingLeader));
       sessionStorage.setItem('wardAdminAuth', 'true');
+      setSSOCookie(matchingLeader);
       input.value = '';
       if (btn) btn.textContent = 'Sign In with Password';
       checkAuth();
@@ -858,6 +911,7 @@ async function handleLogin(e) {
 }
 
 async function handleLogout() {
+  clearSSOCookie();
   sessionStorage.removeItem('wardAdminAuth');
   sessionStorage.removeItem('wardLeaderProfile');
   currentLeaderProfile = null;

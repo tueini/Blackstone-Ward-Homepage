@@ -1,5 +1,15 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.21 — October 23, 2026
+
+- After explicit approval, deployed to beta Hosting (`test-blackstoneward`). Verified live deployment on `test.blackstoneward.org`.
+- **Cross-Subdomain SSO Cookie Bridge (`ward_auth_session`)**:
+  - Implemented cross-subdomain single sign-on cookie bridge in `public/admin/admin-app.js` enabling seamless session recognition across the Youth Hub (`youth.blackstoneward.org`) when a leader logs into the Ward Admin Portal (`blackstoneward.org/admin`).
+  - Added `getSSOCookieDomain()`, `setSSOCookie()`, and `clearSSOCookie()` helper functions. In production, sets cookies with `domain=.blackstoneward.org` (with fallback to the current host on localhost and staging preview domains).
+  - Integrated `setSSOCookie()` into all successful login flows (Phone SMS OTP, WebAuthn Passkey / TouchID / FaceID, and Password authentication) with automatic password hash stripping for credential safety.
+  - Updated `handleLogout()` to clear `ward_auth_session` across `.blackstoneward.org`, host-only, and active domain scopes.
+- Synchronized package, content, HTML, and asset version references to v1.2.21. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.20 — October 22, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.20.

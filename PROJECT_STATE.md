@@ -1,14 +1,19 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.20
-**Date:** October 22, 2026
+**Version:** 1.2.21
+**Date:** October 23, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.20 explicitly approved and deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and staging (`test.blackstoneward.org`). Features 3-line text wrapping on calendar chips (`line-clamp-3`), +5px wider desktop cells, taller day cells, multi-month calendar persistence, and WebAuthn TouchID/FaceID login. Source code is tracked in GitHub repository `https://github.com/tueini/Blackstone-Ward-Homepage`.
+**State:** Version 1.2.21 explicitly approved and deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Implements cross-subdomain SSO cookie bridge (`ward_auth_session`) across `.blackstoneward.org` so authenticated admin sessions are recognized across Youth Hub (`youth.blackstoneward.org`).
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Cross-Subdomain SSO Cookie Bridge (`ward_auth_session`):
+  - **Shared Cookie Authentication**: Implemented `ward_auth_session` cookie bridge in `public/admin/admin-app.js` with `.blackstoneward.org` domain scoping in production (falling back to current hostname on localhost and staging preview domains).
+  - **Login Flow Integration**: Connected cookie issuance to Phone SMS OTP verification, WebAuthn Passkey (TouchID/FaceID) login, and Password login handlers, including automatic password hash stripping for security.
+  - **Clean Session Teardown**: Updated `handleLogout()` to thoroughly clear `ward_auth_session` across all domain scopes.
 
 - Dedicated GitHub Repository (`Blackstone-Ward-Homepage`):
   - Initialized Git on branch `main` in `Website-New/`.
