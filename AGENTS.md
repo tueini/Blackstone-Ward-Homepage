@@ -29,3 +29,9 @@ These standing rules are derived directly from `AG_Best_Practices.md` and govern
 - **Shared Instance**: The Beta and Production environments share the exact same Firestore instance (`blackstoneward-b861c`).
 - **No Destructive Testing**: Never run broad "Delete All" scripts in Beta, as they will wipe live production data.
 - **Security Rule Bleed**: Any `firestore.rules` deployed from Beta instantly apply to the live Production site. Proceed with extreme caution.
+
+## 6. Automated GitHub Push Protocol
+- **Authenticated Push**: GitHub authentication is securely handled via the system-authenticated GitHub CLI (`gh`) and macOS Keychain on this machine.
+- **Direct Push**: When instructed to push to GitHub (e.g., *"commit and push to GitHub"*), the agent stages, commits with the synchronized version number, and pushes directly to `origin main` on `https://github.com/tueini/Blackstone-Ward-Homepage`.
+- **Zero Air Gap Required**: No manual Personal Access Tokens or external terminal operations are required from the human operator.
+
