@@ -1,0 +1,24 @@
+{
+  "hosting": {
+    "target": "staging",
+    "public": "public",
+    "cleanUrls": true,
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {"source": "**", "headers": [
+        {"key": "X-Content-Type-Options", "value": "nosniff"},
+        {"key": "Referrer-Policy", "value": "strict-origin-when-cross-origin"}
+      ]},
+      {"source": "/data/ward.json", "headers": [{"key": "Cache-Control", "value": "public, max-age=60"}]},
+      {"source": "/security-config.js", "headers": [{"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"}]}
+    ],
+    "redirects": [
+      { "source": "/YW{,/**}", "destination": "https://youth.blackstoneward.org/YW", "type": 301 },
+      { "source": "/Priests{,/**}", "destination": "https://youth.blackstoneward.org/Priests", "type": 301 },
+      { "source": "/Teachers{,/**}", "destination": "https://youth.blackstoneward.org/Teachers", "type": 301 },
+      { "source": "/Deacons{,/**}", "destination": "https://youth.blackstoneward.org/Deacons", "type": 301 },
+      { "source": "/Primary{,/**}", "destination": "https://youth.blackstoneward.org/Primary", "type": 301 },
+      { "source": "/Combined{,/**}", "destination": "https://youth.blackstoneward.org/Combined", "type": 301 }
+    ]
+  }
+}

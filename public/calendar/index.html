@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Activity calendar and upcoming ward events for the Blackstone Ward in Franklin, Massachusetts.">
+  <meta name="theme-color" content="#FAF6EF">
+  <title>Activity Calendar — Blackstone Ward</title>
+  <link rel="icon" href="/assets/ward-logo.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/seasons.css">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/site.css">
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #FAF6EF; color: #152548; }
+    .font-serif { font-family: 'Newsreader', Georgia, Cambria, serif; }
+  </style>
+</head>
+<body data-season="fall" class="min-h-screen flex flex-col bg-[#FAF6EF]">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-[#E9DECE] sticky top-0 z-30 shadow-2xs">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3" aria-label="Blackstone Ward Home">
+        <img src="/assets/ward-logo-horizontal-v1.0.6.png" alt="Blackstone Ward" class="h-10 w-auto object-contain">
+      </a>
+      <nav class="flex items-center gap-4 text-xs font-semibold">
+        <a href="/" class="text-[#536484] hover:text-[#152548] transition">Home</a>
+        <a href="/calendar/" class="text-[#152548] font-bold border-b-2 border-[#152548] pb-1">Calendar</a>
+        <a href="/spotlights/" class="text-[#536484] hover:text-[#152548] transition">Spotlights</a>
+        <a href="/admin/" class="text-[#A74319] hover:underline transition">Admin</a>
+        <a href="/#contact" class="text-[#536484] hover:text-[#152548] transition hidden sm:inline">Contact us</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Layout (Activity Calendar + Sidebar) -->
+  <main class="max-w-6xl mx-auto px-4 py-8 sm:py-10 flex-1 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+      <!-- LEFT: Activity Calendar Card (2 Cols) -->
+      <div class="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 lg:py-8 lg:px-[14.5px] border border-[#E9DECE] shadow-sm space-y-6">
+        
+        <!-- Header & View Switcher -->
+        <div class="flex items-center justify-between gap-4">
+          <h1 class="text-2xl sm:text-3xl font-serif font-bold text-[#152548] tracking-tight">Activity calendar</h1>
+          
+          <div class="inline-flex p-1 bg-slate-100 rounded-full border border-slate-200">
+            <button type="button" id="tab-btn-cal" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-[#152548] text-white shadow-xs transition cursor-pointer">
+              Calendar
+            </button>
+            <button type="button" id="tab-btn-list" class="px-4 py-1.5 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-800 transition cursor-pointer">
+              List
+            </button>
+          </div>
+        </div>
+
+        <!-- Month Navigation -->
+        <div class="flex items-center gap-3">
+          <button type="button" id="btn-prev-month" class="w-8 h-8 rounded-full border border-slate-200 hover:border-slate-400 text-slate-600 flex items-center justify-center transition cursor-pointer" aria-label="Previous month">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <h2 id="calendar-month-heading" class="text-xl font-serif font-bold text-[#152548] min-w-[170px]">October 2026</h2>
+          <button type="button" id="btn-next-month" class="w-8 h-8 rounded-full border border-slate-200 hover:border-slate-400 text-slate-600 flex items-center justify-center transition cursor-pointer" aria-label="Next month">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <!-- CALENDAR VIEW -->
+        <div id="calendar-grid-view" class="space-y-6">
+          <div class="overflow-x-auto">
+            <div class="min-w-[575px]">
+              <!-- Day Headers -->
+              <div class="grid grid-cols-7 text-center pb-2 text-[11px] font-bold text-slate-400 tracking-wider uppercase">
+                <div>SUN</div>
+                <div>MON</div>
+                <div>TUE</div>
+                <div>WED</div>
+                <div>THU</div>
+                <div>FRI</div>
+                <div>SAT</div>
+              </div>
+
+              <!-- Month Day Cells Grid -->
+              <div id="calendar-days-grid" class="grid grid-cols-7 border-t border-l border-[#E9DECE]">
+                <!-- Dynamically rendered -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Legend -->
+          <div class="flex flex-wrap items-center gap-4 text-xs font-medium text-slate-600 pt-4 border-t border-[#E9DECE]">
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#007B91]"></span>Ward</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#8B5CF6]"></span>Bishopric</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#3B82F6]"></span>EQ</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#EC4899]"></span>RS</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#F59E0B]"></span>SS</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#10B981]"></span>Youth</span>
+          </div>
+
+          <!-- Bottom Footer Navigation -->
+          <div class="flex items-center justify-between text-xs font-semibold text-[#007B91] pt-2">
+            <button type="button" id="btn-jump-today" class="hover:underline flex items-center gap-1 cursor-pointer">
+              ‹ Today / Current month
+            </button>
+            <button type="button" id="btn-download-schedule" class="hover:underline flex items-center gap-1 cursor-pointer">
+              Download schedule ↓
+            </button>
+          </div>
+        </div>
+
+        <!-- LIST VIEW (Hidden by default) -->
+        <div id="calendar-list-view" class="space-y-4 hidden">
+          <div id="calendar-list-container" class="divide-y divide-[#E9DECE]">
+            <!-- Injected dynamically -->
+          </div>
+
+          <div class="flex items-center justify-between text-xs font-semibold text-[#007B91] pt-4 border-t border-[#E9DECE]">
+            <button type="button" id="btn-jump-today-list" class="hover:underline flex items-center gap-1 cursor-pointer">
+              ‹ Today / Current month
+            </button>
+            <button type="button" id="btn-download-schedule-list" class="hover:underline flex items-center gap-1 cursor-pointer">
+              Download schedule ↓
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Sidebar Cards (1 Col) -->
+      <div class="space-y-6">
+
+        <!-- Card 1: UP NEXT -->
+        <div id="up-next-card" class="bg-white rounded-3xl p-6 sm:p-7 border border-[#E9DECE] shadow-sm space-y-4">
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700">UP NEXT</span>
+          <div class="flex items-start gap-4">
+            <div id="up-next-date-box" class="w-14 h-14 rounded-2xl bg-purple-100 text-purple-900 flex flex-col items-center justify-center shrink-0 border border-purple-200/60 shadow-2xs">
+              <span id="up-next-month-abbr" class="text-[10px] font-bold uppercase tracking-wider text-purple-700 leading-none">OCT</span>
+              <span id="up-next-day-num" class="text-2xl font-bold leading-tight">24</span>
+            </div>
+            <div class="space-y-1 min-w-0 flex-1">
+              <h3 id="up-next-title" class="text-xl font-serif font-bold text-[#152548] leading-snug">Halloween Party</h3>
+              <p id="up-next-location" class="text-xs text-slate-600 flex items-center gap-1.5 truncate">
+                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="truncate">Meetinghouse</span>
+              </p>
+              <p id="up-next-time" class="text-xs text-slate-600 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/></svg>
+                <span>7:00 PM</span>
+              </p>
+            </div>
+          </div>
+          <button type="button" id="btn-view-up-next" class="w-full py-3 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition active:scale-95 cursor-pointer">
+            <span>View activity</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+
+        <!-- Card 2: Good to know -->
+        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-[#E9DECE] shadow-sm space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center border border-sky-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          </div>
+          <h3 class="text-lg font-serif font-bold text-[#152548]">Good to know</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Check each activity for meeting times and what to bring.
+          </p>
+          <a href="/#contact" class="text-xs font-semibold text-[#007B91] hover:underline inline-flex items-center gap-1">
+            <span>Need help?</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Event Detail Modal -->
+  <div id="event-detail-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white border border-[#E9DECE] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative my-8 space-y-4">
+      <button type="button" id="modal-close-btn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 transition cursor-pointer" aria-label="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      
+      <div id="modal-badge-container"></div>
+      <h3 id="modal-event-title" class="text-2xl font-serif font-bold text-[#152548]">Event Title</h3>
+      
+      <div class="space-y-2 text-xs text-slate-600 pt-2 border-t border-[#E9DECE]">
+        <p class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="modal-event-date" class="font-medium text-[#152548]">Date</span>
+        </p>
+        <p class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/></svg>
+          <span id="modal-event-time">Time</span>
+        </p>
+        <p class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span id="modal-event-location">Location</span>
+        </p>
+      </div>
+
+      <div id="modal-event-desc-box" class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200 hidden">
+        <p id="modal-event-desc"></p>
+      </div>
+
+      <div class="pt-2 flex items-center justify-between gap-3">
+        <button type="button" id="btn-modal-download-single-ics" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#152548] font-semibold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>Add to Calendar</span>
+        </button>
+        <button type="button" id="btn-modal-close" class="px-5 py-2.5 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-xl text-xs transition cursor-pointer">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-[#E9DECE] py-6 text-center text-xs text-[#536484] mt-auto">
+    <div class="max-w-6xl mx-auto px-4 space-y-2">
+      <p>Blackstone Ward • Blackstone Valley Massachusetts Stake</p>
+      <div class="flex items-center justify-center gap-4 text-xs font-semibold text-[#007B91]">
+        <a href="/" class="hover:underline">Ward Homepage</a>
+        <span>•</span>
+        <a href="/spotlights/" class="hover:underline">Spotlights</a>
+        <span>•</span>
+        <a href="/admin/" class="hover:underline">Admin Portal</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase & Calendar Module -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrWB07WNqObtjiZb_NntJQZ0dhHyLRBas",
+      authDomain: "blackstoneward-b861c.firebaseapp.com",
+      projectId: "blackstoneward-b861c",
+      storageBucket: "blackstoneward-b861c.firebasestorage.app",
+      messagingSenderId: "609425206588",
+      appId: "1:609425206588:web:99ae3cb602c82e212dc239",
+      measurementId: "G-0T68YN4Y2P"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const MONTH_NAMES = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    const MONTH_ABBRS = [
+      "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+      "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+    ];
+
+    let eventsList = [];
+    let displayedYear = new Date().getFullYear();
+    let displayedMonth = new Date().getMonth(); // 0-indexed
+    let activeModalEvent = null;
+    let currentView = 'calendar'; // 'calendar' | 'list'
+
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return '';
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function getCategoryMeta(cat) {
+      const c = (cat || '').toLowerCase().trim();
+      if (c === 'bishopric') {
+        return { label: 'Bishopric', dot: 'bg-[#8B5CF6]', pill: 'bg-purple-100/80 text-purple-900 border-purple-200/70', badge: 'bg-purple-100 text-purple-800' };
+      }
+      if (c === 'eq' || c.includes('elder')) {
+        return { label: 'EQ', dot: 'bg-[#3B82F6]', pill: 'bg-blue-100/80 text-blue-900 border-blue-200/70', badge: 'bg-blue-100 text-blue-800' };
+      }
+      if (c === 'rs' || c.includes('relief')) {
+        return { label: 'RS', dot: 'bg-[#EC4899]', pill: 'bg-pink-100/80 text-pink-900 border-pink-200/70', badge: 'bg-pink-100 text-pink-800' };
+      }
+      if (c === 'ss' || c.includes('sunday school') || c === 'sunday') {
+        return { label: 'SS', dot: 'bg-[#F59E0B]', pill: 'bg-amber-100/80 text-amber-900 border-amber-200/70', badge: 'bg-amber-100 text-amber-800' };
+      }
+      if (c === 'youth' || c.includes('combined') || c.includes('primary') || c === 'physical' || c === 'social') {
+        return { label: 'Youth', dot: 'bg-[#10B981]', pill: 'bg-emerald-100/80 text-emerald-900 border-emerald-200/70', badge: 'bg-emerald-100 text-emerald-800' };
+      }
+      return { label: 'Ward', dot: 'bg-[#007B91]', pill: 'bg-teal-100/80 text-teal-900 border-teal-200/70', badge: 'bg-teal-100 text-teal-800' };
+    }
+
+    function formatTimeDisplay(timeStr) {
+      if (!timeStr) return '';
+      if (/^\d{1,2}:\d{2}\s*(AM|PM)?$/i.test(timeStr)) {
+        if (!timeStr.toLowerCase().includes('am') && !timeStr.toLowerCase().includes('pm')) {
+          const [h, m] = timeStr.split(':').map(Number);
+          const ampm = h >= 12 ? 'PM' : 'AM';
+          const hr = h % 12 || 12;
+          return `${hr}:${String(m).padStart(2, '0')} ${ampm}`;
+        }
+        return timeStr;
+      }
+      return timeStr;
+    }
+
+    function renderMonth() {
+      const heading = document.getElementById('calendar-month-heading');
+      if (heading) heading.textContent = `${MONTH_NAMES[displayedMonth]} ${displayedYear}`;
+
+      const grid = document.getElementById('calendar-days-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const today = new Date();
+      const todayDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      const firstDayIdx = new Date(displayedYear, displayedMonth, 1).getDay(); // 0 = Sun, 6 = Sat
+      const daysInMonth = new Date(displayedYear, displayedMonth + 1, 0).getDate();
+      const daysInPrevMonth = new Date(displayedYear, displayedMonth, 0).getDate();
+
+      const prevMonthYear = displayedMonth === 0 ? displayedYear - 1 : displayedYear;
+      const prevMonthIdx = displayedMonth === 0 ? 11 : displayedMonth - 1;
+
+      const nextMonthYear = displayedMonth === 11 ? displayedYear + 1 : displayedYear;
+      const nextMonthIdx = displayedMonth === 11 ? 0 : displayedMonth + 1;
+
+      // 1. Previous Month Overflow Days
+      for (let i = firstDayIdx - 1; i >= 0; i--) {
+        const dNum = daysInPrevMonth - i;
+        const dStr = `${prevMonthYear}-${String(prevMonthIdx + 1).padStart(2, '0')}-${String(dNum).padStart(2, '0')}`;
+        const dayEvents = eventsList.filter(e => (e.date || '').slice(0, 10) === dStr);
+        renderDayCell(grid, dNum, dayEvents, false, dStr === todayDateStr);
+      }
+
+      // 2. Current Month Days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dStr = `${displayedYear}-${String(displayedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayEvents = eventsList.filter(e => (e.date || '').slice(0, 10) === dStr);
+        renderDayCell(grid, day, dayEvents, true, dStr === todayDateStr);
+      }
+
+      // 3. Next Month Overflow Days
+      const totalCells = firstDayIdx + daysInMonth;
+      const remainingCells = totalCells <= 35 ? (35 - totalCells) : (42 - totalCells);
+      for (let day = 1; day <= remainingCells; day++) {
+        const dStr = `${nextMonthYear}-${String(nextMonthIdx + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayEvents = eventsList.filter(e => (e.date || '').slice(0, 10) === dStr);
+        renderDayCell(grid, day, dayEvents, false, dStr === todayDateStr);
+      }
+
+      renderList();
+      renderUpNext();
+    }
+
+    function renderDayCell(container, dayNumber, dayEvents, isCurrentMonth, isToday) {
+      const cell = document.createElement('div');
+      cell.className = `border-r border-b border-[#E9DECE] min-h-[120px] sm:min-h-[130px] p-1.5 flex flex-col justify-start transition ${
+        isToday ? 'ring-2 ring-inset ring-[#F59E0B] bg-[#FFFBEB]/40' : (isCurrentMonth ? 'bg-white' : 'bg-slate-50/50')
+      }`;
+
+      // Date number
+      const numSpan = document.createElement('span');
+      numSpan.className = `text-xs mb-1 pl-1 select-none ${
+        isToday ? 'font-bold text-[#F59E0B]' : (isCurrentMonth ? 'font-bold text-[#152548]' : 'font-normal text-slate-300')
+      }`;
+      numSpan.textContent = dayNumber;
+      cell.appendChild(numSpan);
+
+      // Events chips
+      const chipsWrap = document.createElement('div');
+      chipsWrap.className = 'space-y-1 overflow-hidden flex-1';
+
+      dayEvents.forEach(ev => {
+        const meta = getCategoryMeta(ev.category || ev.cat);
+        const chip = document.createElement('div');
+        chip.className = `px-1.5 py-1 rounded text-[10px] font-normal ${meta.pill} border flex items-start gap-1.5 cursor-pointer hover:shadow-2xs transition`;
+        chip.title = `${ev.title} (${ev.time || ''})`;
+        chip.innerHTML = `
+          <span class="w-1.5 h-1.5 rounded-full ${meta.dot} shrink-0 mt-0.5"></span>
+          <span class="whitespace-normal break-words leading-tight line-clamp-3">${escapeHtml(ev.title)}</span>
+        `;
+        chip.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openEventModal(ev);
+        });
+        chipsWrap.appendChild(chip);
+      });
+
+      cell.appendChild(chipsWrap);
+      container.appendChild(cell);
+    }
+
+    function renderList() {
+      const listContainer = document.getElementById('calendar-list-container');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+
+      const sorted = [...eventsList].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      if (sorted.length === 0) {
+        listContainer.innerHTML = `
+          <div class="py-12 text-center text-slate-400">
+            <p class="font-serif text-lg text-slate-500 font-bold">No upcoming activities scheduled.</p>
+            <p class="text-xs mt-1">Check back soon for new announcements and activities.</p>
+          </div>
+        `;
+        return;
+      }
+
+      sorted.forEach(ev => {
+        const meta = getCategoryMeta(ev.category || ev.cat);
+        const dateObj = ev.date ? new Date(`${ev.date}T12:00:00`) : null;
+        const monthAbbr = dateObj ? MONTH_ABBRS[dateObj.getMonth()] : '—';
+        const dayNum = dateObj ? dateObj.getDate() : '—';
+
+        const row = document.createElement('div');
+        row.className = 'py-4 flex items-start gap-4 hover:bg-slate-50/80 p-3 rounded-2xl transition cursor-pointer';
+        row.innerHTML = `
+          <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-900 flex flex-col items-center justify-center shrink-0 border border-purple-200/60 shadow-2xs">
+            <span class="text-[9px] font-bold uppercase tracking-wider text-purple-700 leading-none">${monthAbbr}</span>
+            <span class="text-xl font-bold leading-tight">${dayNum}</span>
+          </div>
+          <div class="flex-1 min-w-0 space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${meta.badge}">
+                <span class="w-1.5 h-1.5 rounded-full ${meta.dot}"></span>
+                ${meta.label}
+              </span>
+              <span class="text-xs text-slate-400">${escapeHtml(ev.time || '')}</span>
+            </div>
+            <h4 class="font-serif font-bold text-base text-[#152548] truncate">${escapeHtml(ev.title)}</h4>
+            ${ev.location ? `<p class="text-xs text-slate-500 truncate">📍 ${escapeHtml(ev.location)}</p>` : ''}
+          </div>
+          <button type="button" class="text-xs font-semibold text-[#007B91] hover:underline self-center shrink-0">
+            Details →
+          </button>
+        `;
+        row.addEventListener('click', () => openEventModal(ev));
+        listContainer.appendChild(row);
+      });
+    }
+
+    function renderUpNext() {
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      const upcoming = [...eventsList]
+        .filter(e => (e.date || '') >= todayStr)
+        .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+      const nextEv = upcoming[0] || eventsList[0];
+      const card = document.getElementById('up-next-card');
+      if (!card || !nextEv) return;
+
+      const dateObj = nextEv.date ? new Date(`${nextEv.date}T12:00:00`) : new Date();
+      const monthAbbr = MONTH_ABBRS[dateObj.getMonth()];
+      const dayNum = dateObj.getDate();
+
+      document.getElementById('up-next-month-abbr').textContent = monthAbbr;
+      document.getElementById('up-next-day-num').textContent = dayNum;
+      document.getElementById('up-next-title').textContent = nextEv.title || 'Ward Activity';
+      
+      const locEl = document.getElementById('up-next-location');
+      if (locEl) locEl.querySelector('span').textContent = nextEv.location || 'Franklin Stake Center';
+
+      const timeEl = document.getElementById('up-next-time');
+      if (timeEl) timeEl.querySelector('span').textContent = formatTimeDisplay(nextEv.time) || 'TBA';
+
+      const viewBtn = document.getElementById('btn-view-up-next');
+      if (viewBtn) {
+        viewBtn.onclick = () => openEventModal(nextEv);
+      }
+    }
+
+    function openEventModal(ev) {
+      if (!ev) return;
+      activeModalEvent = ev;
+      const modal = document.getElementById('event-detail-modal');
+      if (!modal) return;
+
+      const meta = getCategoryMeta(ev.category || ev.cat);
+      const badgeBox = document.getElementById('modal-badge-container');
+      if (badgeBox) {
+        badgeBox.innerHTML = `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${meta.badge}">
+            <span class="w-2 h-2 rounded-full ${meta.dot}"></span>
+            ${meta.label}
+          </span>
+        `;
+      }
+
+      document.getElementById('modal-event-title').textContent = ev.title || 'Ward Activity';
+      
+      let dateFormatted = ev.date || '';
+      if (ev.date) {
+        const d = new Date(`${ev.date}T12:00:00`);
+        dateFormatted = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      }
+      document.getElementById('modal-event-date').textContent = dateFormatted;
+      document.getElementById('modal-event-time').textContent = formatTimeDisplay(ev.time) || 'Time to be announced';
+      document.getElementById('modal-event-location').textContent = ev.location || 'Franklin Stake Center';
+
+      const descBox = document.getElementById('modal-event-desc-box');
+      const descText = document.getElementById('modal-event-desc');
+      if (ev.description || ev.desc) {
+        descText.textContent = ev.description || ev.desc;
+        descBox.classList.remove('hidden');
+      } else {
+        descBox.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('event-detail-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function generateIcs(events) {
+      if (!events || events.length === 0) return '';
+      let ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Blackstone Ward//Activity Calendar//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'X-WR-CALNAME:Blackstone Ward Activities'
+      ];
+
+      events.forEach(ev => {
+        if (!ev.date) return;
+        const d = ev.date.replace(/-/g, '');
+        let dtStart = d;
+        let dtEnd = d;
+        if (ev.time) {
+          const match = ev.time.match(/(\d{1,2}):(\d{2})/);
+          if (match) {
+            let h = parseInt(match[1], 10);
+            const m = match[2];
+            if (ev.time.toLowerCase().includes('pm') && h < 12) h += 12;
+            if (ev.time.toLowerCase().includes('am') && h === 12) h = 0;
+            const hStr = String(h).padStart(2, '0');
+            dtStart = `${d}T${hStr}${m}00`;
+            dtEnd = `${d}T${String(h + 1).padStart(2, '0')}${m}00`;
+          }
+        }
+        ics.push(
+          'BEGIN:VEVENT',
+          `UID:${ev.id || 'ev_' + Date.now() + Math.random()}@blackstoneward.org`,
+          `SUMMARY:${(ev.title || 'Ward Activity').replace(/,/g, '\\,')}`,
+          `DESCRIPTION:${(ev.description || '').replace(/\n/g, '\\n')}`,
+          `LOCATION:${(ev.location || 'Franklin Stake Center').replace(/,/g, '\\,')}`,
+          dtStart.includes('T') ? `DTSTART:${dtStart}` : `DTSTART;VALUE=DATE:${dtStart}`,
+          dtEnd.includes('T') ? `DTEND:${dtEnd}` : `DTEND;VALUE=DATE:${dtEnd}`,
+          'END:VEVENT'
+        );
+      });
+
+      ics.push('END:VCALENDAR');
+      return ics.join('\r\n');
+    }
+
+    function downloadScheduleFile() {
+      const icsData = generateIcs(eventsList);
+      if (!icsData) {
+        alert("No calendar events to download.");
+        return;
+      }
+      const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `blackstone-ward-calendar-${displayedYear}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function downloadSingleEventIcs(ev) {
+      if (!ev) return;
+      const icsData = generateIcs([ev]);
+      const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${(ev.title || 'ward-activity').toLowerCase().replace(/[^a-z0-9]/g, '-')}.ics`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    async function loadData() {
+      // 1. Initial local load
+      try {
+        const local = JSON.parse(localStorage.getItem('local_ward_events') || '[]');
+        if (Array.isArray(local) && local.length > 0) {
+          eventsList = local.filter(e => Boolean(e.date || e.startAt));
+          try { localStorage.setItem('local_ward_events', JSON.stringify(eventsList)); } catch (_) {}
+          renderMonth();
+        }
+      } catch (_) {}
+
+      // 2. Fallback to ward.json
+      if (eventsList.length === 0) {
+        try {
+          const res = await fetch('/data/ward.json');
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data.events)) {
+              eventsList = data.events.map((e, idx) => ({
+                id: `ward_json_${idx}`,
+                title: e.title,
+                date: (e.startAt || '').slice(0, 10),
+                time: e.startAt ? new Date(e.startAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '',
+                location: e.location,
+                category: e.title.toLowerCase().includes('temple') ? 'spiritual' :
+                          (e.title.toLowerCase().includes('halloween') ? 'social' :
+                          (e.title.toLowerCase().includes('conference') ? 'spiritual' : 'ward')),
+                published: e.published !== false
+              })).filter(e => Boolean(e.date || e.startAt));
+              renderMonth();
+            }
+          }
+        } catch (_) {}
+      }
+
+      // 3. Live Firestore subscription for Ward_events
+      try {
+        onSnapshot(collection(db, "Ward_events"), (snapshot) => {
+          const list = [];
+          snapshot.forEach(docSnap => {
+            const d = docSnap.data();
+            if (d.date || d.startAt) {
+              list.push({ id: docSnap.id, ...d });
+            }
+          });
+          eventsList = list;
+          try { localStorage.setItem('local_ward_events', JSON.stringify(eventsList)); } catch (_) {}
+          renderMonth();
+        }, (err) => {
+          console.warn("Firestore Ward_events read:", err);
+        });
+      } catch (_) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData();
+
+      // Month pagination
+      document.getElementById('btn-prev-month').addEventListener('click', () => {
+        displayedMonth--;
+        if (displayedMonth < 0) {
+          displayedMonth = 11;
+          displayedYear--;
+        }
+        renderMonth();
+      });
+
+      document.getElementById('btn-next-month').addEventListener('click', () => {
+        displayedMonth++;
+        if (displayedMonth > 11) {
+          displayedMonth = 0;
+          displayedYear++;
+        }
+        renderMonth();
+      });
+
+      // Jump to today
+      const jumpToday = () => {
+        const now = new Date();
+        displayedYear = now.getFullYear();
+        displayedMonth = now.getMonth();
+        renderMonth();
+      };
+      document.getElementById('btn-jump-today')?.addEventListener('click', jumpToday);
+      document.getElementById('btn-jump-today-list')?.addEventListener('click', jumpToday);
+
+      // Download ICS
+      document.getElementById('btn-download-schedule')?.addEventListener('click', downloadScheduleFile);
+      document.getElementById('btn-download-schedule-list')?.addEventListener('click', downloadScheduleFile);
+      document.getElementById('btn-modal-download-single-ics')?.addEventListener('click', () => {
+        if (activeModalEvent) downloadSingleEventIcs(activeModalEvent);
+      });
+
+      // View toggle (Calendar vs List)
+      const tabCal = document.getElementById('tab-btn-cal');
+      const tabList = document.getElementById('tab-btn-list');
+      const gridView = document.getElementById('calendar-grid-view');
+      const listView = document.getElementById('calendar-list-view');
+
+      tabCal?.addEventListener('click', () => {
+        currentView = 'calendar';
+        tabCal.className = 'px-4 py-1.5 rounded-full text-xs font-semibold bg-[#152548] text-white shadow-xs transition cursor-pointer';
+        tabList.className = 'px-4 py-1.5 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-800 transition cursor-pointer';
+        gridView?.classList.remove('hidden');
+        listView?.classList.add('hidden');
+      });
+
+      tabList?.addEventListener('click', () => {
+        currentView = 'list';
+        tabList.className = 'px-4 py-1.5 rounded-full text-xs font-semibold bg-[#152548] text-white shadow-xs transition cursor-pointer';
+        tabCal.className = 'px-4 py-1.5 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-800 transition cursor-pointer';
+        listView?.classList.remove('hidden');
+        gridView?.classList.add('hidden');
+      });
+
+      // Modal close handlers
+      document.getElementById('modal-close-btn')?.addEventListener('click', closeModal);
+      document.getElementById('btn-modal-close')?.addEventListener('click', closeModal);
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+      });
+      document.getElementById('event-detail-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'event-detail-modal') closeModal();
+      });
+    });
+  </script>
+</body>
+</html>

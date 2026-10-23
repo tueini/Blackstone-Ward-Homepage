@@ -1,0 +1,642 @@
+/* ==========================================================================
+   Blackstone Ward Youth Hub - Admin Portal Stylesheet
+   Theme: Seasons-Based Warm Cream Editorial & Panoramic Parallax
+   Version: 7.17.0
+   ========================================================================== */
+
+:root {
+  --navy: #152548;
+  --navy-deep: #0e1a34;
+  --teal: #007b91;
+  --teal-light: #e2f4f6;
+  --teal-hover: #006375;
+  --copper: #a74319;
+  --copper-light: #fbeee7;
+  --muted: #536484;
+  --muted-light: #7b8ba6;
+  --border: #e9dece;
+  --border-light: #f2ebe1;
+  --white: #ffffff;
+  --cream: #faf6ef;
+  --panel-soft: #fbefe4;
+  --panel-border: #efd4c0;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --card-shadow: 0 4px 20px -2px rgba(21, 37, 72, 0.06);
+  --card-shadow-hover: 0 10px 30px -4px rgba(21, 37, 72, 0.12);
+}
+
+html {
+  background-color: var(--cream);
+}
+
+body.admin-body {
+  background-color: var(--cream);
+  color: var(--navy);
+  font-family: var(--sans);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Parallax Engine & Scenic Canvas
+   ========================================================================== */
+.parallax {
+  position: relative;
+  overflow: hidden;
+}
+
+.parallax .scene-image {
+  position: absolute;
+  inset: -40px 0;
+  background-image: var(--scene, url('/assets/autumn-landscape.png'));
+  background-size: cover;
+  background-position: center 30%;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.parallax .scene-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Login Gate (Scenic Parallax Hero)
+   ========================================================================== */
+#login-view {
+  background-color: var(--cream);
+  overflow: hidden;
+}
+
+#login-view .scene-wash {
+  background: radial-gradient(circle at center, rgba(var(--page-rgb, 250, 246, 239), 0.78) 0%, rgba(var(--page-rgb, 250, 246, 239), 0.94) 85%);
+}
+
+.admin-login-card {
+  position: relative;
+  z-index: 10;
+  width: 92%;
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px 32px;
+  box-shadow: 0 25px 50px -12px rgba(21, 37, 72, 0.16);
+  text-align: center;
+}
+
+.admin-login-card select,
+.admin-login-card input {
+  background: #ffffff !important;
+  color: var(--navy) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 12px !important;
+  font-family: var(--sans) !important;
+  transition: all 0.2s ease;
+}
+
+.admin-login-card select:focus,
+.admin-login-card input:focus {
+  border-color: var(--teal) !important;
+  box-shadow: 0 0 0 3px rgba(0, 123, 145, 0.18) !important;
+  outline: none;
+}
+
+.admin-login-btn {
+  background: var(--teal) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border-radius: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.admin-login-btn:hover {
+  background: var(--teal-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -4px rgba(0, 123, 145, 0.35) !important;
+}
+
+/* ==========================================================================
+   Dashboard Panoramic Parallax Hero Header
+   ========================================================================== */
+.admin-hero-banner {
+  position: relative;
+  min-height: 180px;
+  border-bottom: 1px solid var(--border);
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.admin-hero-banner .scene-wash {
+  background: linear-gradient(180deg, rgba(var(--page-rgb, 250, 246, 239), 0.40) 0%, rgba(var(--page-rgb, 250, 246, 239), 0.94) 100%);
+}
+
+.admin-hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.admin-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.admin-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.admin-brand-link:hover {
+  opacity: 0.85;
+}
+
+.admin-brand-logo {
+  height: 38px;
+  width: auto;
+  object-contain: fit;
+}
+
+.admin-brand-badge {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: var(--copper-light);
+  color: var(--copper);
+  border: 1px solid rgba(167, 67, 25, 0.25);
+}
+
+.admin-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-admin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: var(--navy);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(21, 37, 72, 0.05);
+}
+
+.btn-admin-pill:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  transform: translateY(-1px);
+}
+
+.btn-admin-pill.logout {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+
+.btn-admin-pill.logout:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+}
+
+.admin-hero-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-hero-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 4px;
+}
+
+.admin-hero-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--navy);
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   Sidebar Navigation (Warm Cream Glass)
+   ========================================================================== */
+#admin-sidebar {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid var(--border) !important;
+}
+
+#admin-sidebar .nav-tab {
+  color: var(--muted) !important;
+  font-weight: 600 !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  border-left: none !important;
+  transition: all 0.2s ease !important;
+}
+
+#admin-sidebar .nav-tab:hover {
+  background: var(--teal-light) !important;
+  color: var(--teal) !important;
+}
+
+#admin-sidebar .nav-tab.active {
+  background: var(--navy) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px rgba(21, 37, 72, 0.16) !important;
+}
+
+#settings-tab {
+  color: var(--copper) !important;
+  background: transparent !important;
+  transition: all 0.2s ease !important;
+}
+
+#settings-tab:hover {
+  background: var(--copper-light) !important;
+}
+
+#settings-tab.active {
+  background: var(--copper) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(167, 67, 25, 0.2) !important;
+}
+
+/* ==========================================================================
+   Sub-Tabs Navigation (Activities / Lessons / Birthdays & Settings Modules)
+   ========================================================================== */
+#dashboard-tabs,
+#system-settings-container .flex.gap-4 {
+  border-bottom: 2px solid var(--border-light) !important;
+  gap: 12px !important;
+}
+
+.dash-tab,
+.settings-tab {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  padding: 10px 18px !important;
+  color: var(--muted) !important;
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -2px !important;
+  transition: all 0.2s ease !important;
+}
+
+.dash-tab:hover,
+.settings-tab:hover {
+  color: var(--navy) !important;
+}
+
+.dash-tab.active,
+.settings-tab.active {
+  color: var(--teal) !important;
+  border-bottom-color: var(--teal) !important;
+  font-weight: 800 !important;
+}
+
+/* ==========================================================================
+   Main Content Area & Management Cards
+   ========================================================================== */
+main {
+  background-color: transparent !important;
+  padding: 24px 32px !important;
+}
+
+/* Card Containers */
+#dashboard-view .bg-slate-900,
+#dashboard-view .bg-slate-800,
+#dashboard-view .border-slate-700\/50,
+#dashboard-view .border-slate-800,
+#dashboard-view .border-pink-500\/30 {
+  background-color: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--card-shadow) !important;
+  border-radius: 20px !important;
+}
+
+/* Typography Overrides inside legacy dark-card containers converted to white */
+#dashboard-view .bg-slate-900 p.text-white,
+#dashboard-view .bg-slate-800 p.text-white,
+#dashboard-view .bg-slate-900 span.text-white:not(button *),
+#dashboard-view .bg-slate-800 span.text-white:not(button *) {
+  color: var(--navy) !important;
+}
+
+/* Ensure all primary dark action buttons, toggle pills, and dark badges have crisp white text */
+#dashboard-view button.bg-\[\#152548\],
+#dashboard-view button.bg-\[\#0E1A34\],
+#dashboard-view button.bg-\[\#007B91\],
+#dashboard-view button[class*="bg-[#152548]"],
+#dashboard-view button[class*="bg-[#0E1A34]"],
+#dashboard-view button[class*="bg-[#007B91]"],
+#dashboard-view button.text-white,
+#dashboard-view #btn-view-calendar,
+#dashboard-view #btn-view-list.bg-\[\#152548\],
+#dashboard-view #btn-view-list[class*="bg-[#152548]"],
+#dashboard-view #btn-add-event,
+#dashboard-view #btn-add-leader,
+#dashboard-view #btn-add-announcement,
+#dashboard-view #btn-add-spotlight,
+#dashboard-view #btn-admin-edit-up-next,
+#dashboard-view #event-save-btn,
+#dashboard-view #ann-save-btn,
+#dashboard-view #spot-save-btn,
+#dashboard-view #leader-save-btn {
+  color: #ffffff !important;
+}
+
+#dashboard-view button.bg-\[\#152548\] *,
+#dashboard-view button.bg-\[\#0E1A34\] *,
+#dashboard-view button.bg-\[\#007B91\] *,
+#dashboard-view button[class*="bg-[#152548]"] *,
+#dashboard-view button[class*="bg-[#0E1A34]"] *,
+#dashboard-view button[class*="bg-[#007B91]"] *,
+#dashboard-view button.text-white *,
+#dashboard-view #btn-view-calendar *,
+#dashboard-view #btn-view-list.bg-\[\#152548\] *,
+#dashboard-view #btn-view-list[class*="bg-[#152548]"] *,
+#dashboard-view #btn-add-event *,
+#dashboard-view #btn-add-leader *,
+#dashboard-view #btn-add-announcement *,
+#dashboard-view #btn-add-spotlight *,
+#dashboard-view #btn-admin-edit-up-next *,
+#dashboard-view #event-save-btn *,
+#dashboard-view #ann-save-btn *,
+#dashboard-view #spot-save-btn *,
+#dashboard-view #leader-save-btn * {
+  color: #ffffff !important;
+}
+
+/* Avatar badge initials & dark icon circles */
+#dashboard-view #leader-avatar-initials,
+#dashboard-view #leader-identity-badge .rounded-full,
+#dashboard-view #leader-identity-badge .rounded-full * {
+  color: #ffffff !important;
+}
+
+#dashboard-view .text-slate-400,
+#dashboard-view .text-slate-500 {
+  color: var(--muted) !important;
+}
+
+#dashboard-view .text-slate-300 {
+  color: var(--navy) !important;
+}
+
+/* Gradient Headings */
+#dashboard-view h2.text-transparent {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  color: var(--navy) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Form Inputs, Selects, and Textareas */
+#dashboard-view input[type="text"],
+#dashboard-view input[type="date"],
+#dashboard-view input[type="password"],
+#dashboard-view select,
+#dashboard-view textarea {
+  background-color: #ffffff !important;
+  color: var(--navy) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 10px !important;
+  font-family: var(--sans) !important;
+  box-shadow: 0 1px 2px rgba(21, 37, 72, 0.04) !important;
+  transition: all 0.2s ease !important;
+}
+
+#dashboard-view input[type="date"] {
+  color-scheme: light !important;
+}
+
+#dashboard-view input:focus,
+#dashboard-view select:focus,
+#dashboard-view textarea:focus {
+  border-color: var(--teal) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(0, 123, 145, 0.15) !important;
+}
+
+/* Dynamic Editor Rows (Activities, Lessons, Birthdays, Rosters) */
+#data-editor-list > div,
+#lesson-schedule-data tr,
+#admin-birthdays-list > div,
+#teacher-roster-data > div,
+#leaders-roster-data > div,
+#announcements-data > div,
+#spotlights-data > div {
+  background-color: #ffffff !important;
+  border: 1px solid var(--border-light) !important;
+  color: var(--navy) !important;
+  box-shadow: 0 1px 4px rgba(21, 37, 72, 0.03) !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+#data-editor-list > div:hover,
+#lesson-schedule-data tr:hover,
+#admin-birthdays-list > div:hover,
+#teacher-roster-data > div:hover,
+#leaders-roster-data > div:hover,
+#announcements-data > div:hover,
+#spotlights-data > div:hover {
+  background-color: var(--cream) !important;
+  border-color: var(--border) !important;
+}
+
+/* Database Backup & Sync Container */
+#dashboard-view .sync-box,
+#dashboard-view .bg-slate-800.p-6.rounded-2xl {
+  background-color: var(--panel-soft) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+#dashboard-view .bg-slate-800.p-6.rounded-2xl label,
+#dashboard-view .bg-slate-800.p-6.rounded-2xl button:not(.sync-firebase-btn) {
+  background-color: #ffffff !important;
+  color: var(--navy) !important;
+  border: 1px solid var(--panel-border) !important;
+  font-weight: 700 !important;
+}
+
+#dashboard-view .bg-slate-800.p-6.rounded-2xl label:hover,
+#dashboard-view .bg-slate-800.p-6.rounded-2xl button:not(.sync-firebase-btn):hover {
+  background-color: var(--cream) !important;
+  border-color: var(--teal) !important;
+  color: var(--teal) !important;
+}
+
+/* Primary Action Buttons */
+.sync-firebase-btn,
+#saveThemeBtn {
+  background: var(--teal) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.sync-firebase-btn:hover,
+#saveThemeBtn:hover {
+  background: var(--teal-hover) !important;
+  box-shadow: 0 6px 18px -4px rgba(0, 123, 145, 0.35) !important;
+}
+
+#addNewRowBtn,
+#addLessonBtn,
+#addBirthdayBtn,
+#addAnnouncementBtn,
+#addSpotlightBtn,
+#addTeacherBtn,
+#addLeaderBtn {
+  background: var(--navy) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+#addNewRowBtn:hover,
+#addLessonBtn:hover,
+#addBirthdayBtn:hover,
+#addAnnouncementBtn:hover,
+#addSpotlightBtn:hover,
+#addTeacherBtn:hover,
+#addLeaderBtn:hover {
+  background: var(--teal) !important;
+  transform: translateY(-1px);
+}
+
+/* Modals */
+#customModal .bg-slate-900 {
+  background-color: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 25px 50px -12px rgba(21, 37, 72, 0.25) !important;
+}
+
+#customModal h3 {
+  color: var(--navy) !important;
+}
+
+#customModal p {
+  color: var(--muted) !important;
+}
+
+/* Unified Footer */
+.org-footer {
+  width: 100%;
+  min-height: 125px;
+  padding: 24px 0 16px 0;
+  background-color: transparent;
+  background-image: url('/assets/footer-tree-silhouette.png?v=7.17.0');
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: 100% 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  margin-top: 48px;
+}
+
+.footer-divider-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: min(1200px, calc(100% - 48px));
+  margin-bottom: 8px;
+}
+
+.footer-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(21, 37, 72, 0.18), transparent);
+}
+
+.footer-brand-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.footer-moroni-logo {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+}
+
+.footer-version-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 4px;
+}
+
+.footer-version-text {
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .admin-hero-banner {
+    padding: 20px 16px;
+    min-height: 160px;
+  }
+  .admin-hero-title {
+    font-size: 22px;
+  }
+  main {
+    padding: 16px !important;
+  }
+}

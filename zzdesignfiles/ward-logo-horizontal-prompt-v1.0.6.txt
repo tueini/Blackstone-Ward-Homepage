@@ -1,0 +1,8 @@
+Use case: precise-object-edit / logo-brand
+Asset type: transparent website header logo.
+Input image 1 is the edit target: the current Blackstone Ward logo.
+Primary request: revise only the layout and wordmark size. Move the text from below the steeple to the RIGHT of the steeple. The right-hand wordmark has exactly two lines: "Blackstone" on the first line, "Ward" directly below. The two lines are LEFT ALIGNED with each other. Use substantially larger, bold, elegant serif lettering, title case as quoted, with normal readable letter spacing. The text is prominent, filling most of the height beside the steeple; the first line spans most of the logo width.
+Composition: compact horizontal lockup, wide landscape canvas around 2.6:1. Tall slim steeple silhouette at left, large two-line wordmark at right, modest clear gap between symbol and text; generous enough to separate them but no excess empty outer margins. Vertically balance the wordmark beside the complete steeple. All artwork fully in frame.
+Constraints: preserve the distinctive simplified existing pointed steeple and standing angel statue blowing a trumpet toward the left, atop a small sphere; no wings, no cross. Keep the original dark navy/teal solid silhouette color throughout the steeple and lettering. Preserve smooth crisp flat edges, clean professional logo style, no shadows, textures, decorative additions, mockup or scenery.
+Text verbatim, exactly once: "Blackstone" newline "Ward". Delete the old text below the steeple. Do not center-align the new lines.
+Background: actual fully transparent alpha, no white or beige background, no baked checkerboard.

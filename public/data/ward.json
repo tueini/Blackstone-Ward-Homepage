@@ -1,0 +1,91 @@
+{
+  "version": "1.2.20",
+  "season": "auto",
+  "wardName": "Blackstone Ward",
+  "stakeName": "Blackstone Valley Massachusetts Stake",
+  "locationLabel": "Franklin, Massachusetts",
+  "worship": {
+    "time": "12:00 PM",
+    "address": "91 Jordan Road, Franklin MA",
+    "meetinghouseName": "Franklin Stake Center",
+    "postalCode": "02038",
+    "weeklySchedule": [
+      {
+        "name": "Sacrament Meeting",
+        "when": "Sunday @ 12:00 PM"
+      },
+      {
+        "name": "Sunday School",
+        "when": "Sunday @ 01:05 PM"
+      },
+      {
+        "name": "Youth/EQ/RS",
+        "when": "Sunday @ 01:35 PM"
+      },
+      {
+        "name": "Youth Activities",
+        "when": "Wednesday @ 07:00 PM"
+      },
+      {
+        "name": "Primary Activities",
+        "when": "2nd & 4th Wed @ 07:00 PM"
+      }
+    ]
+  },
+  "contact": {
+    "email": "",
+    "url": ""
+  },
+  "youth": {
+    "ready": true,
+    "currentUrl": "https://blackstoneward.org/",
+    "futureUrl": "https://youth.blackstoneward.org/"
+  },
+  "organizations": {
+    "bishopric": {
+      "ready": false,
+      "url": "https://bish.blackstoneward.org/"
+    },
+    "elders": {
+      "ready": false,
+      "url": "https://eq.blackstoneward.org/"
+    },
+    "relief": {
+      "ready": false,
+      "url": "https://rs.blackstoneward.org/"
+    },
+    "sunday": {
+      "ready": false,
+      "url": "https://ss.blackstoneward.org/"
+    }
+  },
+  "events": [
+    {
+      "title": "Youth Fireside: \"Dare Mighty Things!\"",
+      "published": true,
+      "startAt": "2026-10-14T19:00:00-04:00",
+      "location": "Franklin Stake Ctr. firepit"
+    },
+    {
+      "title": "Youth Temple Trip",
+      "published": true,
+      "startAt": "2026-10-20T19:00:00-04:00",
+      "location": "Boston Temple"
+    },
+    {
+      "title": "Blackstone Ward Halloween Party",
+      "published": true,
+      "startAt": "2026-10-24T17:00:00-04:00",
+      "location": "Franklin Stake Ctr."
+    }
+  ],
+  "announcements": [
+    {
+      "title": "General Conference recordings",
+      "published": true,
+      "body": "See all 4 Sessions of October 2026 General Conference video recordings",
+      "url": "https://www.churchofjesuschrist.org/study/general-conference/2026/10?lang=eng",
+      "linkLabel": "here →"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+[hidden]{display:none!important}
+.brand img{width:340px;height:auto}
+#welcome-title{color:#808080}
+.card-top .handshake-icon{stroke-width:1.25}
+.card-top .organization-symbol{display:block;width:38px;height:38px;object-fit:contain}
+.section-note{font-size:12px;color:var(--muted)}
+.more-button{border:0;background:none;padding:10px 0;margin-top:8px;text-align:left}
+.event-entry{display:flex;gap:20px;padding:22px 0;border-bottom:1px solid var(--border)}
+.event-entry:last-child{border-bottom:0}
+.date-badge{align-self:flex-start;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;width:58px;min-height:65px;background:var(--panel-soft);border-radius:10px;color:var(--navy)}
+.date-month{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.date-day{font-size:28px;line-height:1.1;font-family:var(--serif);font-weight:700}
+.entry-copy{min-width:0;flex:1}.entry-copy h3{font-family:var(--sans);font-size:17px;letter-spacing:0;line-height:1.4}
+.entry-meta{display:block;margin-top:4px;font-size:13px;color:var(--muted)}
+.entry-details{font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:12px;line-height:1.65}
+.announcement-entry{padding:22px;margin-top:18px;background:var(--panel-soft);border:1px solid var(--panel-border);border-radius:13px;overflow-wrap:anywhere}
+.announcement-entry h3{font-size:23px}.announcement-entry .eyebrow{margin-bottom:7px}.entry-copy a,.announcement-entry a{overflow-wrap:anywhere}
+.content-status{padding-bottom:30px;font-size:14px}
+.organization-card[href]{transition:box-shadow .2s}.organization-card[href]:hover{box-shadow:0 7px 17px #007b911b}
+.organization-card[aria-disabled="true"]{cursor:default}
+.contact-section{background:#fff;color:#000;padding:40px 0 120px}
+.contact-section #contact-title{font-family:var(--sans);font-size:clamp(26px,3.2vw,40px);font-weight:700;letter-spacing:0;line-height:1.25}
+.contact-section #visit-details{color:#000;font-size:16px;line-height:1.5;margin:28px 0 26px}
+#weekly-services{width:max-content;max-width:100%;margin-inline:auto;text-align:left}
+#weekly-title{font-family:var(--sans);font-size:clamp(20px,2.2vw,28px);font-weight:700;letter-spacing:0;line-height:1.4}
+.weekly-schedule{width:100%;margin:14px 0 0;border-collapse:collapse;table-layout:auto;font-size:16px;line-height:1.35;text-align:left}
+.weekly-schedule th,.weekly-schedule td{padding:14px 0;vertical-align:top}
+.weekly-schedule th{padding-right:32px;font-weight:400}
+.weekly-schedule sup{font-size:.6em;line-height:0}
+#contact-action{margin-top:26px}
+footer.foreground{background:#fff;color:#000}
+.footer-content{display:block;border-top:0;padding:0 0 48px;text-align:center;font-size:16px;line-height:1.4}
+.footer-content #footer-identity{color:#000;padding-bottom:8px;border-bottom:1px solid #000}
+.footer-release{display:flex;justify-content:center;gap:6px;margin-top:18px}
+@media(max-width:760px){.contact-section{padding:34px 0 64px}.contact-section #visit-details{margin:22px 0}.contact-section #visit-details,.weekly-schedule,.footer-content{font-size:15px}.weekly-schedule th,.weekly-schedule td{padding-block:12px}.weekly-schedule th{padding-right:20px}.footer-content{padding-bottom:32px}}
+#contact-pending{margin-bottom:0}
+.noscript-note{padding-bottom:20px;font-size:14px}
+body[data-season="winter"]{--border:#d3e0eb}
+body[data-season="spring"]{--border:#d8e3cf}
+body[data-season="summer"]{--border:#e8ddbb}
+@media(max-width:760px){.site-header nav{display:flex;position:static;width:auto;background:none;padding:0;border:0;box-shadow:none;gap:1px}.site-header{flex-wrap:wrap;align-items:center}.site-header nav{flex:1 1 100%;flex-direction:row;flex-wrap:wrap}.site-header .menu-button{display:none}body.js-ready .site-header nav{display:none;position:absolute;right:0;top:84px;width:min(300px,100%);padding:16px;background:#fffdf9;border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 30px #15254820;flex-direction:column;align-items:stretch;gap:2px}body.js-ready .site-header nav.open{display:flex}body.js-ready .site-header .menu-button{display:flex}.event-entry{gap:14px}.announcement-entry{padding:18px}.entry-copy h3{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.organization-card[href]{transition:none}}
+
+/* Desktop scenic windows match the auction site's fixed background.
+   This CSS effect also works when a local file blocks ES modules. */
+@media(min-width:761px){
+  .scene-image{inset:0;background-attachment:fixed;background-position:center;background-size:cover;will-change:auto;transform:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .scene-image{background-attachment:scroll;will-change:auto;transform:none!important}
+}
+@media(min-width:761px) and (max-width:1000px){.site-header{flex-wrap:wrap;row-gap:16px}.site-header nav{flex-basis:100%;justify-content:flex-end}}
+@media(max-width:760px){.site-header{gap:16px}.brand img{width:clamp(160px,calc(100vw - 156px),240px);height:auto}.card-top .organization-symbol{width:30px;height:30px}body.js-ready .site-header nav{top:calc(100% + 8px)}}
+@media(max-width:760px){
+  .organization-grid{grid-template-rows:auto repeat(2,1fr)}
+  .organization-card.youth{grid-column:1 / -1;min-height:128px}
+  .organization-card:not(.youth){padding:12px;min-height:140px}
+  .organization-card:last-child{grid-column:auto;min-height:140px}
+  .organization-card:not(.youth) .card-top{flex-wrap:nowrap;gap:6px;margin-bottom:10px}
+  .organization-card:not(.youth) .card-top svg,.organization-card:not(.youth) .organization-symbol{width:24px;height:24px;flex-shrink:0}
+  .organization-card:not(.youth) h3{font-size:18px}
+}

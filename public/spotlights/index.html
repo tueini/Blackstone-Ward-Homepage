@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Protected member and family spotlights for the Blackstone Ward in Franklin, Massachusetts.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#FAF6EF">
+  <title>Ward Spotlights — Blackstone Ward</title>
+  <link rel="icon" href="/assets/ward-logo.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/seasons.css">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/site.css">
+  <script src="/security-config.js?v=1.2.0"></script>
+  <style>
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #FAF6EF; color: #152548; }
+  </style>
+</head>
+<body data-season="fall" class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-[#E9DECE] sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3" aria-label="Blackstone Ward Home">
+        <img src="/assets/ward-logo-horizontal-v1.0.6.png" alt="Blackstone Ward" class="h-10 w-auto object-contain">
+      </a>
+      <nav class="flex items-center gap-4 text-xs font-semibold">
+        <a href="/" class="text-[#536484] hover:text-[#152548] transition">Home</a>
+        <a href="/calendar/" class="text-[#536484] hover:text-[#152548] transition">Calendar</a>
+        <a href="/#announcements" class="text-[#536484] hover:text-[#152548] transition">Announcements</a>
+        <a href="/spotlights/" class="text-[#152548] font-bold border-b-2 border-[#152548] pb-1">Spotlights</a>
+        <a href="/admin/" class="text-[#A74319] hover:underline transition">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-b from-white to-[#FAF6EF] border-b border-[#E9DECE] py-12 px-4 text-center">
+    <div class="max-w-3xl mx-auto space-y-3">
+      <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#A74319] bg-[#A74319]/10">Ward Community</span>
+      <h1 class="text-3xl sm:text-4xl font-bold text-[#152548] tracking-tight">Ward Spotlights</h1>
+      <p class="text-sm text-[#536484] leading-relaxed max-w-xl mx-auto">
+        Get to know the members and families who make up our Blackstone Ward family.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-12 flex-1 w-full">
+
+    <!-- Locked State Container -->
+    <div id="locked-state" class="max-w-md mx-auto bg-white border border-[#E9DECE] rounded-2xl p-8 shadow-md text-center my-8">
+      <div class="w-14 h-14 bg-[#FAF6EF] text-[#152548] border border-[#E9DECE] rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-[#152548] mb-2">Member Protected Access</h2>
+      <p class="text-xs text-[#536484] mb-6 leading-relaxed">
+        Ward spotlights are protected for ward members and friends. Enter the last name of any ward leader or member to unlock.
+      </p>
+      <form id="unlock-form" class="space-y-4" onsubmit="return false;">
+        <div>
+          <label for="unlock-input" class="sr-only">Leader or member last name</label>
+          <input type="text" id="unlock-input" placeholder="Enter last name..." autocomplete="off"
+                 class="w-full px-4 py-3 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/10 outline-none text-center">
+        </div>
+        <p id="unlock-error" class="text-xs text-red-600 font-medium hidden">Incorrect name or entry. Please try again.</p>
+        <button type="submit" id="unlock-btn"
+                class="w-full py-3 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-xl text-sm transition shadow-sm active:scale-95">
+          Unlock Spotlights
+        </button>
+      </form>
+    </div>
+
+    <!-- Unlocked State Container -->
+    <div id="unlocked-state" class="hidden space-y-6">
+      <div class="flex items-center justify-between pb-4 border-b border-[#E9DECE]">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <span class="text-xs font-semibold text-emerald-800">Access Verified</span>
+        </div>
+        <button type="button" id="lock-btn" class="text-xs text-[#536484] hover:text-[#152548] transition">
+          Lock Spotlights
+        </button>
+      </div>
+
+      <!-- Spotlight Cards Grid -->
+      <div id="spotlights-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+        <!-- Spotlight cards injected dynamically -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Full Spotlight Detail Modal -->
+  <div id="spotlight-detail-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white border border-[#E9DECE] rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative my-8">
+      <button type="button" id="modal-close-btn" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 transition" aria-label="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div id="modal-content" class="space-y-4">
+        <!-- Content injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-[#E9DECE] py-6 text-center text-xs text-[#536484] mt-auto">
+    <div class="max-w-6xl mx-auto px-4 space-y-2">
+      <p>Blackstone Ward • Blackstone Valley Massachusetts Stake</p>
+      <p><a href="/" class="hover:underline">Ward Homepage</a> • <a href="/admin/" class="hover:underline">Admin Portal</a></p>
+    </div>
+  </footer>
+
+  <!-- Firebase & Spotlights Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrWB07WNqObtjiZb_NntJQZ0dhHyLRBas",
+      authDomain: "blackstoneward-b861c.firebaseapp.com",
+      projectId: "blackstoneward-b861c",
+      storageBucket: "blackstoneward-b861c.firebasestorage.app",
+      messagingSenderId: "609425206588",
+      appId: "1:609425206588:web:99ae3cb602c82e212dc239",
+      measurementId: "G-0T68YN4Y2P"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const lockedView = document.getElementById('locked-state');
+    const unlockedView = document.getElementById('unlocked-state');
+    const unlockForm = document.getElementById('unlock-form');
+    const unlockInput = document.getElementById('unlock-input');
+    const unlockErr = document.getElementById('unlock-error');
+    const lockBtn = document.getElementById('lock-btn');
+    const grid = document.getElementById('spotlights-grid');
+
+    const modal = document.getElementById('spotlight-detail-modal');
+    const modalContent = document.getElementById('modal-content');
+    const modalClose = document.getElementById('modal-close-btn');
+
+    let allSpotlights = [];
+
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return '';
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function checkAccess() {
+      const isUnlocked = sessionStorage.getItem('wardSpotlightsUnlocked') === 'true';
+      if (isUnlocked) {
+        lockedView.classList.add('hidden');
+        unlockedView.classList.remove('hidden');
+        loadSpotlights();
+      } else {
+        lockedView.classList.remove('hidden');
+        unlockedView.classList.add('hidden');
+      }
+    }
+
+    async function attemptUnlock() {
+      const rawVal = (unlockInput.value || '').trim();
+      const val = rawVal.toLowerCase();
+      unlockErr.classList.add('hidden');
+      if (!rawVal) return;
+
+      try {
+        const hash = await window.hashInput(val);
+        const encoder = new TextEncoder();
+        const data = encoder.encode(rawVal);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const rawHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const approvedHashes = window.SPOTLIGHT_APPROVED_HASHES || [];
+        const masterHash = window.SECURE_AUTH_HASHES?.MASTER;
+        const masterHashes = [
+          masterHash,
+          ...(window.MASTER_APPROVED_HASHES || []),
+          "103a9f4c69d7331576e1a7b7f96ce781e3336f7b304424373aea1f263c581a3d",
+          "7ca8ae40ffb835bcc16f1de3fc4f27e3e6b3c709bc5d300f932cd019f86e488b",
+          "4b465598d5fd124a3856acff035f025315f798faf08049ee57409e3045c72e37",
+          "7f39e9e47d673293ede2907b955e989ab9188e35c39684c95eff536bb5b3e542"
+        ].filter(Boolean);
+
+        let validNames = [
+          "harris", "ames", "mullis", "laverty", "walther",
+          "wild", "sofoul", "white", "zahner", "mason", "carlson", "howell"
+        ];
+
+        try {
+          const privSnap = await getDoc(doc(db, "site_settings", "privacy_config"));
+          if (privSnap.exists() && Array.isArray(privSnap.data().authorizedNames)) {
+            validNames = privSnap.data().authorizedNames.map(n => n.toLowerCase().trim());
+          }
+        } catch (_) {}
+
+        if (approvedHashes.includes(hash) || masterHashes.includes(hash) || masterHashes.includes(rawHash) || validNames.includes(val)) {
+          sessionStorage.setItem('wardSpotlightsUnlocked', 'true');
+          unlockInput.value = '';
+          checkAccess();
+        } else {
+          unlockErr.classList.remove('hidden');
+        }
+      } catch (e) {
+        console.error("Unlock error:", e);
+        unlockErr.classList.remove('hidden');
+      }
+    }
+
+    function lock() {
+      sessionStorage.removeItem('wardSpotlightsUnlocked');
+      checkAccess();
+    }
+
+    let unsub = null;
+    function loadSpotlights() {
+      if (unsub) return;
+      unsub = onSnapshot(collection(db, "ward_spotlights"), (snap) => {
+        allSpotlights = [];
+        snap.forEach(d => {
+          const data = d.data();
+          if (data.published !== false) {
+            allSpotlights.push({ id: d.id, ...data });
+          }
+        });
+        allSpotlights.sort((a, b) => (Number(a.sortOrder) || 99) - (Number(b.sortOrder) || 99));
+        renderCards();
+      }, (err) => {
+        console.error("Spotlights load error:", err);
+      });
+    }
+
+    function renderCards() {
+      grid.innerHTML = '';
+      if (allSpotlights.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-16 text-[#536484]">
+            <p class="font-bold text-base text-[#152548] mb-1">No spotlights posted yet</p>
+            <p class="text-xs">Check back soon for new member and family features.</p>
+          </div>
+        `;
+        return;
+      }
+
+      allSpotlights.forEach(spot => {
+        const card = document.createElement('article');
+        card.className = 'bg-white border border-[#E9DECE] rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition flex flex-col justify-between';
+
+        const photo = spot.image || spot.photoUrl
+          ? `<img src="${escapeHtml(spot.image || spot.photoUrl)}" alt="${escapeHtml(spot.name)}" class="w-full h-48 object-cover">`
+          : `<div class="w-full h-36 bg-slate-100 flex items-center justify-center text-slate-400 text-xs">Blackstone Ward</div>`;
+
+        const name = escapeHtml(spot.name || 'Ward Member');
+        const calling = escapeHtml(spot.calling || spot.role || spot.group || 'Ward Member');
+        const excerpt = escapeHtml((spot.desc || spot.bio || spot.story || '').slice(0, 160)) + '...';
+
+        card.innerHTML = `
+          <div>
+            ${photo}
+            <div class="p-5 space-y-2">
+              <span class="inline-block text-[10px] uppercase font-bold tracking-wider text-[#A74319] bg-[#A74319]/10 px-2 py-0.5 rounded-full">${calling}</span>
+              <h2 class="text-lg font-bold text-[#152548]">${name}</h2>
+              <p class="text-xs text-slate-600 leading-relaxed">${excerpt}</p>
+            </div>
+          </div>
+          <div class="p-5 pt-0">
+            <button type="button" class="w-full py-2.5 bg-[#152548] hover:bg-[#0E1A34] text-white rounded-xl text-xs font-bold transition shadow-xs">
+              Read Spotlight →
+            </button>
+          </div>
+        `;
+
+        card.querySelector('button').addEventListener('click', () => openModal(spot));
+        grid.appendChild(card);
+      });
+    }
+
+    function openModal(spot) {
+      const photo = spot.image || spot.photoUrl
+        ? `<img src="${escapeHtml(spot.image || spot.photoUrl)}" alt="${escapeHtml(spot.name)}" class="w-full max-h-64 object-cover rounded-xl shadow-xs">`
+        : '';
+
+      const name = escapeHtml(spot.name || 'Ward Member');
+      const calling = escapeHtml(spot.calling || spot.role || spot.group || 'Ward Member');
+      const story = escapeHtml(spot.desc || spot.bio || spot.story || '').replace(/\n/g, '<br>');
+
+      modalContent.innerHTML = `
+        ${photo}
+        <div>
+          <span class="inline-block text-[10px] uppercase font-bold tracking-wider text-[#A74319] bg-[#A74319]/10 px-2 py-0.5 rounded-full mb-1">${calling}</span>
+          <h2 class="text-xl font-bold text-[#152548]">${name}</h2>
+        </div>
+        <div class="text-xs text-slate-700 leading-relaxed space-y-2 max-h-72 overflow-y-auto pt-2">
+          ${story}
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    unlockForm.addEventListener('submit', attemptUnlock);
+    lockBtn.addEventListener('click', lock);
+    modalClose.addEventListener('click', closeModal);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    checkAccess();
+  </script>
+</body>
+</html>
