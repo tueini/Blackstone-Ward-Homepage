@@ -1,0 +1,70 @@
+================================================================================
+BLACKSTONE WARD HOMEPAGE (Website-New) — LIFECYCLE & DEPLOYMENT GUIDE
+================================================================================
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+- Workspace:        /Users/dharris/Documents/0Church/Blackstone_Ward/Youth/Website-New
+- GitHub Repo:      https://github.com/tueini/Blackstone-Ward-Homepage (branch: main)
+- Staging Site:     https://test.blackstoneward.org/ (private testing / preview)
+- Production Site:  https://blackstoneward.org/      (live public website)
+
+
+2. STEP-BY-STEP WORKFLOW (FROM BEGINNING TO END)
+--------------------------------------------------------------------------------
+
+STEP 1: REQUEST A CHANGE
+  Prompt the agent with your requested update.
+  Examples:
+    "Increase calendar cell width by 5px"
+    "Add new announcement about the Ward Christmas Party"
+    "Update Sunday meeting time"
+
+STEP 2: LOCAL DEVELOPMENT & INTEGRITY CHECK (AUTOMATED BY AGENT)
+  - The agent edits the source code files.
+  - Automatically increments the website version (e.g. v1.2.20 -> v1.2.21).
+  - Synchronizes package.json, lockfile, ward.json, HTML fallback, and asset ?v= URLs.
+  - Updates PROJECT_STATE.md and CHANGELOG.md.
+  - Runs "npm run check" (7 unit tests, syntax validation, integrity).
+  - Stops at the approval gate and reports:
+    "Code Complete. Awaiting deployment approval."
+
+STEP 3: DEPLOY TO STAGING (TEST SERVER)
+  Tell the agent:
+    "deploy"
+  The agent executes:
+    firebase deploy --only hosting:staging
+  Live preview updates at: https://test.blackstoneward.org/
+
+STEP 4: HUMAN VERIFICATION
+  Open https://test.blackstoneward.org/ on your Mac and/or mobile phone.
+  Verify that the changes, formatting, and buttons look and work properly.
+  - If more tweaks are needed, tell the agent and repeat Steps 1-3.
+  - If satisfied, proceed to Step 5.
+
+STEP 5: PUSH TO GITHUB (AUTOMATED PUSH)
+  Tell the agent:
+    "commit and push to GitHub"
+  The agent automatically stages, commits, and pushes directly to origin main:
+    git add .
+    git commit -m "feat: [description of change] (vX.X.X)"
+    git push origin main
+  No manual terminal switching or Personal Access Tokens are needed.
+
+STEP 6: DEPLOY TO PRODUCTION (GO LIVE TO WARD)
+  Tell the agent:
+    "deploy to production"
+  The agent switches the hosting target and deploys:
+    firebase deploy --only hosting:blackstoneward
+  The live site at https://blackstoneward.org/ is now updated for all ward members!
+
+
+3. QUICK COMMAND REFERENCE TABLE
+--------------------------------------------------------------------------------
+Your Request / Prompt          What the Agent Does
+--------------------------------------------------------------------------------
+"Make [change description]"    Edits code, bumps version, runs tests, reports ready
+"deploy"                       Deploys to staging: test.blackstoneward.org
+"commit and push to GitHub"    Pushes clean commit to github.com on main
+"deploy to production"         Deploys live to public: blackstoneward.org
+================================================================================
