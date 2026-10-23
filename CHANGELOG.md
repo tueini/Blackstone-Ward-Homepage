@@ -2,7 +2,7 @@
 
 ## 1.2.20 — October 22, 2026
 
-- After explicit approval, deployed to beta Hosting (`test-blackstoneward`). Verified live deployment on `test.blackstoneward.org`.
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.20.
 - **3-Line Calendar Event Text Wrapping (`line-clamp-3`)**:
   - Expanded text wrapping on calendar chips from `line-clamp-2` to `line-clamp-3` across both the Ward Admin Portal (`/admin/`) and public Activity Calendar (`/calendar/`).
   - Allows event titles up to 45–50 characters (e.g. *"Blackstone Ward Christmas Party"*, *"Tri-Ward Halloween Trunk-or-Treat"*) to display in full with zero truncation.

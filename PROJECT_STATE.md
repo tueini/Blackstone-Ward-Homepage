@@ -3,9 +3,9 @@
 **Version:** 1.2.20
 **Date:** October 22, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.20 explicitly approved and deployed to beta Hosting (`test-blackstoneward`). Expanded calendar event chips to wrap up to 3 lines (`line-clamp-3`) across both the Ward Admin Portal and public Activity Calendar, displaying titles up to 45–50 characters in full without truncation. Verified live on `test.blackstoneward.org`. Production migration remains pending.
-**Planned root:** https://blackstoneward.org/
-**Staging target:** test.blackstoneward.org (existing test-blackstoneward Hosting site)
+**State:** Version 1.2.20 explicitly approved and deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and staging (`test.blackstoneward.org`). Features 3-line text wrapping on calendar chips (`line-clamp-3`), +5px wider desktop cells, taller day cells, multi-month calendar persistence, and WebAuthn TouchID/FaceID login. Source code is tracked in GitHub repository `https://github.com/tueini/Blackstone-Ward-Homepage`.
+**Production URL:** https://blackstoneward.org/
+**Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented

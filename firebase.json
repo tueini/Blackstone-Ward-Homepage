@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "target": "staging",
+    "target": "blackstoneward",
     "public": "public",
     "cleanUrls": true,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
