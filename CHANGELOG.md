@@ -7,6 +7,7 @@
   - Expanded text wrapping on calendar chips from `line-clamp-2` to `line-clamp-3` across both the Ward Admin Portal (`/admin/`) and public Activity Calendar (`/calendar/`).
   - Allows event titles up to 45–50 characters (e.g. *"Blackstone Ward Christmas Party"*, *"Tri-Ward Halloween Trunk-or-Treat"*) to display in full with zero truncation.
   - Recompiled `./public/assets/tailwind.css` to ensure `.line-clamp-3` is included.
+- **DevOps / Source Control**: Initialized Git repository in `Website-New/` on branch `main` and created dedicated public GitHub repository [`tueini/Blackstone-Ward-Homepage`](https://github.com/tueini/Blackstone-Ward-Homepage) with upstream tracking.
 - Synchronized package, content, HTML, and asset version references to v1.2.20. All syntax checks, unit tests, and site integrity verifications passed.
 
 ## 1.2.19 — October 22, 2026

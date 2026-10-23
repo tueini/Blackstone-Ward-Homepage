@@ -6,8 +6,15 @@
 **State:** Version 1.2.20 explicitly approved and deployed to beta Hosting (`test-blackstoneward`). Expanded calendar event chips to wrap up to 3 lines (`line-clamp-3`) across both the Ward Admin Portal and public Activity Calendar, displaying titles up to 45–50 characters in full without truncation. Verified live on `test.blackstoneward.org`. Production migration remains pending.
 **Planned root:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (existing test-blackstoneward Hosting site)
+**GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Dedicated GitHub Repository (`Blackstone-Ward-Homepage`):
+  - Initialized Git on branch `main` in `Website-New/`.
+  - Created public remote repository `https://github.com/tueini/Blackstone-Ward-Homepage`.
+  - Committed and pushed all baseline code and assets at v1.2.20 with `origin/main` upstream tracking.
+
 
 - 3-Line Calendar Event Text Wrapping (`line-clamp-3`):
   - **Expanded Title Visibility**: Switched event chip text clamping from `line-clamp-2` to `line-clamp-3` in `public/admin/admin-app.js` and `public/calendar/index.html`. Long activity titles (such as *"Blackstone Ward Christmas Party"*, *"Tri-Ward Halloween Trunk-or-Treat"*, or *"Relief Society Ministering Social"*) now display completely across 3 lines with zero truncation.

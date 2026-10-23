@@ -1,6 +1,7 @@
 # Blackstone Ward homepage
 
-Version 1.0.18 · October 6, 2026 · Approved and deployed to beta; published schedule-label review passed: https://test.blackstoneward.org/
+Version 1.2.20 · October 22, 2026 · Approved and deployed to beta: https://test.blackstoneward.org/
+GitHub: https://github.com/tueini/Blackstone-Ward-Homepage
 
 The approved one-page ward homepage, built in Website-New at the user's direction. The existing Youth Hub and production website are unchanged.
 
