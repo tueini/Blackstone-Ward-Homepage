@@ -474,6 +474,14 @@ async function handleVerifyPhoneCode(e) {
 // ================= PASSKEY (WEBAUTHN) =================
 let passkeyAutofillAbortController = null;
 
+function getWebAuthnRpId() {
+  const hostname = window.location.hostname;
+  if (hostname.endsWith('blackstoneward.org')) {
+    return 'blackstoneward.org';
+  }
+  return hostname;
+}
+
 async function initPasskeyAutofill() {
   if (!window.PublicKeyCredential || typeof PublicKeyCredential.isConditionalMediationAvailable !== 'function') {
     return;
@@ -498,7 +506,8 @@ async function initPasskeyAutofill() {
       publicKey: {
         challenge: challenge,
         timeout: 60000,
-        userVerification: "preferred"
+        userVerification: "preferred",
+        rpId: getWebAuthnRpId()
       }
     });
 
@@ -541,10 +550,11 @@ async function handleEnrollPasskey() {
     const challenge = new Uint8Array(32);
     crypto.getRandomValues(challenge);
 
+    const rpId = getWebAuthnRpId();
     const credential = await navigator.credentials.create({
       publicKey: {
         challenge: challenge,
-        rp: { name: "Blackstone Ward Hub", id: window.location.hostname },
+        rp: { name: "Blackstone Ward Hub", id: rpId },
         user: {
           id: new TextEncoder().encode(profile.phoneNumber || "admin"),
           name: profile.phoneNumber || "admin",
@@ -566,7 +576,10 @@ async function handleEnrollPasskey() {
     if (credential) {
       localStorage.setItem('wardPasskeyRegistered', JSON.stringify({
         id: credential.id,
-        profile: profile
+        rawId: credential.rawId ? Array.from(new Uint8Array(credential.rawId)) : null,
+        profile: profile,
+        rpId: rpId,
+        enrolledAt: new Date().toISOString()
       }));
       alert("TouchID / FaceID successfully enabled for this device!");
       const btn = document.getElementById('btn-enroll-passkey');
@@ -607,6 +620,9 @@ async function handlePasskeyLogin() {
     return;
   }
 
+  const hintEl = document.getElementById('passkey-hint-msg');
+  if (hintEl) hintEl.classList.add('hidden');
+
   if (passkeyAutofillAbortController) {
     passkeyAutofillAbortController.abort();
     passkeyAutofillAbortController = null;
@@ -616,17 +632,34 @@ async function handlePasskeyLogin() {
     const challenge = new Uint8Array(32);
     crypto.getRandomValues(challenge);
 
+    const rpId = getWebAuthnRpId();
+    const publicKeyOpts = {
+      challenge: challenge,
+      timeout: 60000,
+      userVerification: "preferred",
+      rpId: rpId
+    };
+
+    const saved = localStorage.getItem('wardPasskeyRegistered');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed?.rawId && Array.isArray(parsed.rawId)) {
+          publicKeyOpts.allowCredentials = [{
+            id: new Uint8Array(parsed.rawId),
+            type: 'public-key',
+            transports: ['internal']
+          }];
+        }
+      } catch (_) { }
+    }
+
     const assertion = await navigator.credentials.get({
-      publicKey: {
-        challenge: challenge,
-        timeout: 60000,
-        userVerification: "preferred"
-      }
+      publicKey: publicKeyOpts
     });
 
     if (assertion) {
       let profile = null;
-      const saved = localStorage.getItem('wardPasskeyRegistered');
       if (saved) {
         try {
           const data = JSON.parse(saved);
@@ -644,7 +677,13 @@ async function handlePasskeyLogin() {
   } catch (e) {
     if (e.name !== 'NotAllowedError') {
       console.error("Passkey login error:", e);
-      alert("TouchID / FaceID verification failed or not set up yet. Please sign in with phone text first to enable TouchID.");
+      alert("TouchID / FaceID verification failed. Please sign in with phone text first to set up or refresh your passkey.");
+    } else {
+      const saved = localStorage.getItem('wardPasskeyRegistered');
+      if (!saved && hintEl) {
+        hintEl.textContent = "No TouchID / FaceID passkey found on this device for blackstoneward.org yet. Please sign in with your phone text code below first, then click 'Enable TouchID / FaceID'.";
+        hintEl.classList.remove('hidden');
+      }
     }
     if (sessionStorage.getItem('wardAdminAuth') !== 'true') {
       initPasskeyAutofill();

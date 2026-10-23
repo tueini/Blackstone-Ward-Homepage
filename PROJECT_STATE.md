@@ -1,14 +1,19 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.21
+**Version:** 1.2.22
 **Date:** October 23, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.21 explicitly approved and deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and staging (`test.blackstoneward.org`). Implements cross-subdomain SSO cookie bridge (`ward_auth_session`) across `.blackstoneward.org` so authenticated admin sessions are recognized across Youth Hub (`youth.blackstoneward.org`).
+**State:** Version 1.2.22 explicitly approved and deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and staging (`test.blackstoneward.org`). Configures WebAuthn Relying Party ID apex domain scoping (`blackstoneward.org`), enables internal platform transport (`TouchID`/`FaceID`) targeting, and adds inline onboarding hints to eliminate unexpected cross-device QR code prompts.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- WebAuthn Passkey Relying Party Apex Scoping & Biometric Guidance:
+  - **Apex Domain RP ID (`blackstoneward.org`)**: Added `getWebAuthnRpId()` helper in `public/admin/admin-app.js`. WebAuthn Relying Party ID is scoped to `blackstoneward.org` when running on any Blackstone Ward subdomain (`test.blackstoneward.org`, `blackstoneward.org`, etc.), allowing passkeys created on staging or production to be shared without domain mismatch, falling back to hostname on `localhost`.
+  - **Internal Platform Authenticator Targeting**: Saved raw credential ID bytes (`rawId`) upon enrollment in local storage, and passed `allowCredentials` with `transports: ['internal']` in `handlePasskeyLogin()` when local records exist, directly prompting native macOS Touch ID / Face ID instead of falling back to external cross-device QR codes.
+  - **Inline User Guidance (`#passkey-hint-msg`)**: Added inline warning message in `public/admin/index.html` explaining to the user if no Touch ID passkey is found on the current device and directing them to sign in via phone text to complete 1-tap onboarding.
 
 - Cross-Subdomain SSO Cookie Bridge (`ward_auth_session`):
   - **Shared Cookie Authentication**: Implemented `ward_auth_session` cookie bridge in `public/admin/admin-app.js` with `.blackstoneward.org` domain scoping in production (falling back to current hostname on localhost and staging preview domains).

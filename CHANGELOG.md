@@ -1,5 +1,16 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.22 — October 23, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.22.
+- **WebAuthn Passkey Relying Party Apex Scoping & Biometric Guidance**:
+  - Added `getWebAuthnRpId()` helper in `public/admin/admin-app.js` to dynamically scope WebAuthn Relying Party ID (`rp.id`) to `blackstoneward.org` when running on any Blackstone Ward subdomain (`test.blackstoneward.org`, `blackstoneward.org`, etc.), while safely preserving `localhost` on local dev.
+  - Enabled passkeys enrolled on any subdomain to be recognized across the entire domain without origin mismatches.
+  - Enhanced `handleEnrollPasskey()` to save credential raw ID bytes (`rawId`) alongside profile data in local storage.
+  - Enhanced `handlePasskeyLogin()` to supply `allowCredentials` with `transports: ['internal']` when local credentials exist, explicitly triggering the device's native platform biometric sensor (Touch ID / Face ID) rather than falling back to external cross-device QR codes.
+  - Added `#passkey-hint-msg` inline guidance in `public/admin/index.html` displaying a clear and gentle explanation if the user has not yet enrolled Touch ID on this device/domain.
+- Synchronized package, content, HTML, and asset version references to v1.2.22. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.21 — October 23, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.21.
