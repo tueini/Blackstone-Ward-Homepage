@@ -1,5 +1,30 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.32 — October 31, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.32 and `/td`.
+- **Enhanced Multi-Layer Parallax Motion on Tithing Declaration Prompt Gate (`/td`)**:
+  - Replaced `.scene-image` with `.td-parallax-bg` on `#td-gate-scene-image` in `public/td/index.html` so `styles.css`'s `.scene-image { transform: none !important }` media rule cannot disable the parallax transform.
+  - Added vertical scroll depth (`min-h-[135vh]`) on `#td-gate-screen` and updated `initGateSeasonalParallax()` to counter-shift both `#td-gate-scene-image` and `#td-gate-card` in response to vertical scroll, trackpad/wheel gestures, and pointer movement.
+- Synchronized package, content, HTML, and asset version references to v1.2.32. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.31 — October 31, 2026
+
+- After explicit approval, deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`).
+- **Fixed Seasonal Parallax Background on Tithing Declaration Prompt Gate (`/td`)**:
+  - Replaced `var(--scene)` inside `public/td/index.html` with explicit root-relative `/assets/autumn-landscape.png`, `/assets/winter-landscape.png`, `/assets/spring-landscape.png`, and `/assets/summer-landscape.png` rules (fixing CSS custom property relative URL resolution from `/td/`).
+  - Updated `#td-gate-screen` stacking (`isolation: isolate`, `z-index: 0` on `.scene-image`, `z-index: 1` on `.scene-wash`) and reduced `.scene-wash` opacity so the seasonal landscape illustration is clearly visible in parallax behind the prompt panel.
+- Synchronized package, content, HTML, and asset version references to v1.2.31. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.30 — October 31, 2026
+
+- After explicit approval, deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`).
+- **Tithing Declaration (`/td`) Seasonal Parallax Last-Name Prompt Gate**:
+  - Added `#td-gate-screen` in `public/td/index.html` over the seasonal parallax landscape (`autumn-landscape.png` / `winter-landscape.png` / `spring-landscape.png` / `summer-landscape.png` via `seasons.css` and `initGateSeasonalParallax()`).
+  - Included the title `"2026 Blackstone Ward Tithing Declaration Schedule"`, the full Malachi 3:10 quote, the invitation message (`"You have been invited to meet with Bishop Harris to declare your tithing. Please enter your last name to see the schedule."`), and the last-name input form (`#td-gate-form`).
+  - Implemented `findMatchingParticipantHousehold()` to verify the entered last name against all participant households on the 2026 schedule before unlocking and displaying `#td-schedule-app`.
+- Synchronized package, content, HTML, and asset version references to v1.2.30. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.29 — October 31, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.29 and `/td`.

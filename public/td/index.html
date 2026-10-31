@@ -46,6 +46,46 @@
       padding: 0 0.15rem;
       font-weight: 700;
     }
+    #td-gate-screen {
+      isolation: isolate;
+      perspective: 1000px;
+    }
+    #td-gate-screen .td-parallax-bg {
+      position: absolute;
+      inset: -160px -100px;
+      z-index: 0;
+      background-image: url('/assets/autumn-landscape.png');
+      background-position: center 54%;
+      background-size: cover;
+      background-repeat: no-repeat;
+      will-change: transform;
+      transform: translate3d(0, 0, 0) scale(1.1);
+      transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    body[data-season="winter"] #td-gate-screen .td-parallax-bg {
+      background-image: url('/assets/winter-landscape.png');
+    }
+    body[data-season="spring"] #td-gate-screen .td-parallax-bg {
+      background-image: url('/assets/spring-landscape.png');
+    }
+    body[data-season="summer"] #td-gate-screen .td-parallax-bg {
+      background-image: url('/assets/summer-landscape.png');
+    }
+    #td-gate-screen .scene-wash {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: radial-gradient(
+        circle at 50% 42%,
+        rgba(var(--page-rgb, 250, 246, 239), 0.12) 0%,
+        rgba(var(--page-rgb, 250, 246, 239), 0.34) 65%,
+        rgba(var(--page-rgb, 250, 246, 239), 0.56) 100%
+      );
+    }
+    #td-gate-card {
+      will-change: transform;
+      transition: transform 0.1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
   </style>
 </head>
 <body data-season="fall" class="min-h-screen flex flex-col bg-[#FAF6EF]">
@@ -65,6 +105,65 @@
       </nav>
     </div>
   </header>
+
+  <!-- ======================== PARTICIPANT LAST NAME PROMPT GATE ======================== -->
+  <section id="td-gate-screen" class="parallax flex-1 flex flex-col items-center justify-start px-4 pt-10 sm:pt-16 pb-48 min-h-[135vh] relative overflow-hidden">
+    <div class="td-parallax-bg" id="td-gate-scene-image" aria-hidden="true"></div>
+    <div class="scene-wash" aria-hidden="true"></div>
+
+    <div id="td-gate-card" class="relative z-10 w-full max-w-xl bg-white/90 backdrop-blur-md border border-[#E9DECE] rounded-3xl p-7 sm:p-10 shadow-2xl text-center space-y-6">
+      <div class="flex justify-center">
+        <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest text-[#A74319] bg-[#A74319]/10">
+          <span class="w-2 h-2 rounded-full bg-[#A74319]"></span>
+          <span>Blackstone Ward • Bishopric</span>
+        </span>
+      </div>
+
+      <h1 class="text-2xl sm:text-4xl font-serif font-bold text-[#152548] tracking-tight leading-tight">
+        2026 Blackstone Ward Tithing Declaration Schedule
+      </h1>
+
+      <blockquote class="bg-[#FAF6EF]/90 border border-[#E9DECE] rounded-2xl p-4 sm:p-5 text-sm sm:text-base font-serif italic text-[#152548] leading-relaxed shadow-2xs">
+        <p class="text-[#152548]">
+          &ldquo;Bring ye all the tithes into the storehouse, that there may be meat in mine house, and prove me now herewith, saith the LORD of hosts, if I will not open you the windows of heaven, and pour you out a blessing, that there shall not be room enough to receive it.
+        </p>
+        <footer class="mt-2 not-italic font-sans text-xs font-bold uppercase tracking-wider text-[#A74319]">
+          - Malachi 3:10&rdquo;
+        </footer>
+      </blockquote>
+
+      <p class="text-sm sm:text-base text-[#152548] font-medium leading-relaxed max-w-lg mx-auto">
+        You have been invited to meet with Bishop Harris to declare your tithing. Please enter your last name to see the schedule.
+      </p>
+
+      <form id="td-gate-form" class="space-y-3 max-w-md mx-auto pt-1" novalidate>
+        <div class="flex flex-col sm:flex-row items-stretch gap-2.5">
+          <label for="td-gate-lastname" class="sr-only">Enter your family last name</label>
+          <input
+            type="text"
+            id="td-gate-lastname"
+            name="lastname"
+            autocomplete="family-name"
+            required
+            placeholder="Enter your last name..."
+            class="flex-1 px-4 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/15 outline-none text-sm sm:text-base text-[#152548] font-medium bg-white text-center sm:text-left transition"
+          >
+          <button
+            type="submit"
+            class="px-6 py-3 rounded-xl bg-[#152548] hover:bg-[#0E1A34] text-white font-bold text-sm transition shadow-md active:scale-[0.99] cursor-pointer whitespace-nowrap"
+          >
+            View Schedule &rarr;
+          </button>
+        </div>
+        <p id="td-gate-error" role="alert" class="hidden text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
+          We couldn&rsquo;t match that last name to the 2026 participant list. Please enter your family last name as listed on ward records.
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ======================== PROTECTED SCHEDULE CONTENT (Shown Upon Valid Last Name Entry) ======================== -->
+  <div id="td-schedule-app" class="hidden flex-1 flex flex-col">
 
   <!-- Hero Banner -->
   <section class="bg-gradient-to-b from-white to-[#FAF6EF] border-b border-[#E9DECE] py-8 sm:py-10 px-4">
@@ -211,6 +310,7 @@
     </section>
 
   </main>
+  </div>
 
   <!-- ======================== REQUEST A CHANGE MODAL (<dialog closedby="any">) ======================== -->
   <dialog id="td-change-dialog" closedby="any" aria-labelledby="td-dialog-title">
@@ -346,7 +446,7 @@
         <span>•</span>
         <a href="/calendar/" class="hover:underline">Calendar</a>
         <span>•</span>
-        <span id="footer-version">v1.2.29</span>
+        <span id="footer-version">v1.2.32</span>
       </div>
     </div>
   </footer>
@@ -1657,8 +1757,173 @@
       dialog.showModal();
     }
 
+    // ======================== SEASONAL PARALLAX & PARTICIPANT LAST NAME GATE ========================
+    function resolveCurrentSeason(date = new Date()) {
+      try {
+        const month = Number(new Intl.DateTimeFormat('en-US', { month: 'numeric', timeZone: 'America/New_York' }).format(date));
+        return month === 12 || month <= 2 ? 'winter' : month <= 5 ? 'spring' : month <= 8 ? 'summer' : 'fall';
+      } catch (_) {
+        return 'fall';
+      }
+    }
+
+    function initGateSeasonalParallax() {
+      const seasonColors = { fall: '#FAF6EF', winter: '#EEF5FC', spring: '#F1F7EC', summer: '#FFF9E7' };
+      const params = new URLSearchParams(window.location.search);
+      const paramSeason = params.get('season');
+      const activeSeason = ['fall', 'winter', 'spring', 'summer'].includes(paramSeason)
+        ? paramSeason
+        : resolveCurrentSeason();
+
+      document.body.dataset.season = activeSeason;
+      const themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta && seasonColors[activeSeason]) {
+        themeMeta.setAttribute('content', seasonColors[activeSeason]);
+      }
+
+      const gateScreen = document.getElementById('td-gate-screen');
+      const sceneLayer = document.getElementById('td-gate-scene-image');
+      const gateCard = document.getElementById('td-gate-card');
+      if (!gateScreen || !sceneLayer) return;
+
+      let pointerX = 0;
+      let pointerY = 0;
+      let wheelOffset = 0;
+      let framePending = false;
+
+      function updateParallaxTransform() {
+        framePending = false;
+        if (gateScreen.classList.contains('hidden')) {
+          return;
+        }
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const bgScrollY = Math.max(-130, Math.min(130, scrollY * 0.48 + wheelOffset * 0.55));
+        const bgShiftX = (pointerX * 42).toFixed(2);
+        const bgShiftY = (bgScrollY + pointerY * 30).toFixed(2);
+        sceneLayer.style.transform = `translate3d(${bgShiftX}px, ${bgShiftY}px, 0) scale(1.1)`;
+
+        if (gateCard) {
+          const cardScrollY = Math.max(-36, Math.min(36, -scrollY * 0.14 - wheelOffset * 0.18));
+          const cardShiftX = (pointerX * -12).toFixed(2);
+          const cardShiftY = (cardScrollY + pointerY * -10).toFixed(2);
+          gateCard.style.transform = `translate3d(${cardShiftX}px, ${cardShiftY}px, 0)`;
+        }
+      }
+
+      function queueParallax() {
+        if (!framePending) {
+          framePending = true;
+          requestAnimationFrame(updateParallaxTransform);
+        }
+      }
+
+      window.addEventListener('scroll', queueParallax, { passive: true });
+      window.addEventListener('resize', queueParallax, { passive: true });
+      window.addEventListener('wheel', (e) => {
+        if (gateScreen.classList.contains('hidden')) return;
+        wheelOffset = Math.max(-110, Math.min(110, wheelOffset + e.deltaY * 0.32));
+        queueParallax();
+      }, { passive: true });
+      window.addEventListener('pointermove', (e) => {
+        if (gateScreen.classList.contains('hidden') || window.innerWidth <= 760) return;
+        pointerX = (e.clientX / window.innerWidth - 0.5) * -1;
+        pointerY = (e.clientY / window.innerHeight - 0.5) * -1;
+        queueParallax();
+      }, { passive: true });
+      queueParallax();
+    }
+
+    function normalizeSurname(val) {
+      return String(val || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function compactSurname(val) {
+      return String(val || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function findMatchingParticipantHousehold(rawInput) {
+      const cleaned = normalizeSurname(rawInput);
+      const compactInput = compactSurname(rawInput);
+      if (!cleaned || compactInput.length < 2 || !scheduleData || !Array.isArray(scheduleData.sundays)) {
+        return null;
+      }
+
+      const households = [];
+      const seen = new Set();
+      scheduleData.sundays.forEach(s => {
+        (s.slots || []).forEach(slot => {
+          const h = (slot.household || '').trim();
+          if (h && !seen.has(h.toLowerCase())) {
+            seen.add(h.toLowerCase());
+            households.push(h);
+          }
+        });
+      });
+
+      // 1. Direct or compact match against participant household last names (e.g. "Bourne", "St. Pierre", "McInnis")
+      for (const h of households) {
+        if (normalizeSurname(h) === cleaned || compactSurname(h) === compactInput) {
+          return h;
+        }
+      }
+
+      // 2. If user entered "First Last" or "The Bourne Family", check individual tokens against participant last names
+      const stopWords = new Set(['the', 'family', 'household', 'brother', 'sister', 'bishop']);
+      const tokens = cleaned.split(' ').filter(t => t.length >= 2 && !stopWords.has(t));
+      for (const token of tokens) {
+        for (const h of households) {
+          if (normalizeSurname(h) === token || compactSurname(h) === token) {
+            return h;
+          }
+        }
+      }
+
+      return null;
+    }
+
+    function unlockSchedulePage() {
+      const gateScreen = document.getElementById('td-gate-screen');
+      const scheduleApp = document.getElementById('td-schedule-app');
+      if (gateScreen) gateScreen.classList.add('hidden');
+      if (scheduleApp) scheduleApp.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      initGateSeasonalParallax();
       loadScheduleData();
+
+      // Participant Last Name Gate Form
+      const gateForm = document.getElementById('td-gate-form');
+      const gateInput = document.getElementById('td-gate-lastname');
+      const gateError = document.getElementById('td-gate-error');
+
+      if (gateInput) {
+        gateInput.focus();
+        gateInput.addEventListener('input', () => {
+          gateError?.classList.add('hidden');
+        });
+      }
+
+      if (gateForm) {
+        gateForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const val = gateInput ? gateInput.value : '';
+          const matchedHousehold = findMatchingParticipantHousehold(val);
+          if (matchedHousehold) {
+            gateError?.classList.add('hidden');
+            unlockSchedulePage();
+          } else {
+            gateError?.classList.remove('hidden');
+            gateInput?.focus();
+            gateInput?.select();
+          }
+        });
+      }
 
       // Strip show-all button
       document.getElementById('btn-strip-show-all')?.addEventListener('click', () => {

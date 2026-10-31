@@ -1,14 +1,27 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.29
+**Version:** 1.2.32
 **Date:** October 31, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.29 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Removed the `December 9, 2026` (`12/9/2026`) Wednesday date from `public/data/tithing-declaration.json`, `public/td/index.html`, and the `tithing-declaration-sync` script filter, leaving the 7 active interview dates (`Nov 1`, `Nov 4`, `Nov 8`, `Nov 11`, `Nov 22`, `Nov 29`, and `Dec 6, 2026` — 56 scheduled households and 10 open slots).
+**State:** Version 1.2.32 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Added the seasonal parallax participant last-name prompt gate (`#td-gate-screen`) to the Tithing Declaration page (`public/td/index.html`) featuring the title `"2026 Blackstone Ward Tithing Declaration Schedule"`, the Malachi 3:10 scripture quote, the invitation from Bishop Harris, multi-layer scroll/wheel/pointer parallax, and participant surname verification before unlocking the schedule page.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Multi-Layer Scroll, Wheel & Pointer Parallax on `/td` Prompt Gate (v1.2.32):
+  - **Unblocked Transform & Scroll Travel (`min-h-[135vh]`)**: Renamed `#td-gate-scene-image`'s class from `.scene-image` to `.td-parallax-bg` so `styles.css`'s `@media(prefers-reduced-motion:reduce) { .scene-image { transform: none !important } }` cannot freeze the background transform, and expanded `#td-gate-screen` to `min-h-[135vh]` so the prompt gate has vertical scroll travel.
+  - **Dual-Layer Counter-Parallax (`#td-gate-scene-image` & `#td-gate-card`)**: Updated `initGateSeasonalParallax()` to shift the background landscape (`±130px` on scroll/wheel, `±42px` on pointer move) while counter-shifting the foreground prompt card (`#td-gate-card`) in the opposite direction so the two layers visibly glide past each other.
+
+- Tithing Declaration (`/td`) Seasonal Parallax Background Fix (v1.2.31):
+  - **Root-Relative Seasonal Landscape URLs**: Replaced `var(--scene)` on `#td-gate-screen .scene-image` in `public/td/index.html` with root-relative `/assets/autumn-landscape.png`, `/assets/winter-landscape.png`, `/assets/spring-landscape.png`, and `/assets/summer-landscape.png` so the image loads from `/assets/` instead of `/td/`.
+  - **Stacking Context & Wash Contrast**: Added `isolation: isolate` on `#td-gate-screen`, positive `z-index: 0` / `z-index: 1` on `.scene-image` and `.scene-wash`, and softened the radial wash opacity so the seasonal artwork is vividly visible behind the prompt card.
+
+- Tithing Declaration (`/td`) Seasonal Parallax Last-Name Prompt Gate (v1.2.30):
+  - **Seasonal Parallax Prompt Panel (`#td-gate-screen`)**: Added an entry prompt panel positioned over the seasonal parallax landscape (`autumn-landscape.png`, `winter-landscape.png`, `spring-landscape.png`, `summer-landscape.png` resolved automatically for `America/New_York` with scroll & pointer parallax).
+  - **Scripture & Invitation Copy**: Displays the title `"2026 Blackstone Ward Tithing Declaration Schedule"`, the quoted scripture from Malachi 3:10, and `"You have been invited to meet with Bishop Harris to declare your tithing. Please enter your last name to see the schedule."`
+  - **Participant Surname Verification (`findMatchingParticipantHousehold`)**: Validates the entered last name (case- and punctuation-insensitive, supporting multi-word surnames like `St. Pierre`) against the 56 participant households in `scheduleData` before hiding the gate and revealing `#td-schedule-app`.
 
 - Removed December 9, 2026 (`12/9/2026`) Interview Date from `/td` (v1.2.29):
   - **7 Active Interview Dates (`Nov 1 – Dec 6, 2026`)**: Removed the `12/9/2026` date from `public/data/tithing-declaration.json` and `public/td/index.html` and updated `.agents/skills/tithing-declaration-sync/scripts/sync_td_schedule.py` to cap empty December tabs at the first Sunday in December (`2026-12-06`).
