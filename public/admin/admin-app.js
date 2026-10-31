@@ -1330,19 +1330,21 @@ function initSubscriptions() {
     });
   } catch (_) { }
 
-  // 2. ward_announcements
-  unsubAnn = onSnapshot(collection(db, "ward_announcements"), (snapshot) => {
+  // 2. home_announcements & ward_announcements
+  unsubAnn = onSnapshot(collection(db, "home_announcements"), (snapshot) => {
+    const remoteWardAnns = [];
     snapshot.forEach(docSnap => {
       const data = docSnap.data();
-      const existing = announcementsCache.findIndex(a => a.id === docSnap.id);
-      if (existing >= 0) announcementsCache[existing] = { id: docSnap.id, ...data };
-      else announcementsCache.push({ id: docSnap.id, ...data });
+      if (data && (data.org === 'Ward' || (typeof data.title === 'string' && data.title.trim()))) {
+        remoteWardAnns.push({ id: docSnap.id, ...data });
+      }
     });
-    announcementsCache.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+    announcementsCache = remoteWardAnns;
+    announcementsCache.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.timestamp || 0) - (a.timestamp || 0));
     try { localStorage.setItem('local_ward_announcements', JSON.stringify(announcementsCache)); } catch (_) { }
     renderAnnouncements();
   }, (err) => {
-    console.warn("Firestore ward_announcements error:", err);
+    console.warn("Firestore home_announcements error:", err);
   });
 
   // 3. ward_spotlights

@@ -1,14 +1,18 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.32
+**Version:** 1.2.33
 **Date:** October 31, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.32 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Added the seasonal parallax participant last-name prompt gate (`#td-gate-screen`) to the Tithing Declaration page (`public/td/index.html`) featuring the title `"2026 Blackstone Ward Tithing Declaration Schedule"`, the Malachi 3:10 scripture quote, the invitation from Bishop Harris, multi-layer scroll/wheel/pointer parallax, and participant surname verification before unlocking the schedule page.
+**State:** Version 1.2.33 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Fixed the homepage announcements sync in `public/js/home.js` and `public/admin/admin-app.js` by subscribing to the publicly readable `home_announcements` Firestore collection (filtered to Ward announcements where `org === 'Ward'` or `title` is present) in addition to `localStorage` fallback, resolving the issue where `ward_announcements` returned `403 PERMISSION_DENIED` under Firestore Security Rules.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Homepage Announcements Live Sync from `home_announcements` (v1.2.33):
+  - **Root Cause Fixed (`ward_announcements` 403 vs `home_announcements` 200)**: In Firestore (`blackstoneward-b861c`), `ward_announcements` is blocked by Firestore security rules (`403 PERMISSION_DENIED`), whereas `home_announcements` (where `admin-app.js` dual-writes all Ward announcements with `org: 'Ward'`) allows public read/write.
+  - **Homepage & Admin Subscription Update**: Updated `initLiveContent()` in `public/js/home.js` and `initSubscriptions()` in `public/admin/admin-app.js` to subscribe to `collection(db, 'home_announcements')` (filtering to Ward announcements with `data.org === 'Ward'` or a non-empty `data.title`) plus `local_ward_announcements` in `localStorage`, so announcements saved in Admin Settings immediately appear on the homepage.
 
 - Multi-Layer Scroll, Wheel & Pointer Parallax on `/td` Prompt Gate (v1.2.32):
   - **Unblocked Transform & Scroll Travel (`min-h-[135vh]`)**: Renamed `#td-gate-scene-image`'s class from `.scene-image` to `.td-parallax-bg` so `styles.css`'s `@media(prefers-reduced-motion:reduce) { .scene-image { transform: none !important } }` cannot freeze the background transform, and expanded `#td-gate-screen` to `min-h-[135vh]` so the prompt gate has vertical scroll travel.

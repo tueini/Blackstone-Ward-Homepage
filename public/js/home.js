@@ -1,4 +1,4 @@
-import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.32';
+import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.33';
 document.body.classList.add('js-ready');
 
 const seasonNames = { fall: 'Fall · Light beige', winter: 'Winter · Light blue', spring: 'Spring · Light green', summer: 'Summer · Light yellow' };
@@ -250,13 +250,21 @@ function updateFirestoreAnnouncements(docs) {
     publishAt: d.publishAt || null,
     expiresAt: d.expiresAt || null
   })).filter(a => a.title);
-  if (list.length > 0) {
-    config.announcements = list;
-    renderContent();
-  }
+  config.announcements = list;
+  renderContent();
 }
 
 async function initLiveContent() {
+  try {
+    const savedAnn = localStorage.getItem('local_ward_announcements');
+    if (savedAnn) {
+      const parsed = JSON.parse(savedAnn);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        updateFirestoreAnnouncements(parsed);
+      }
+    }
+  } catch { /* ignore localStorage errors */ }
+
   try {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js');
     const { getFirestore, collection, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
@@ -275,10 +283,21 @@ async function initLiveContent() {
       updateFirestoreEvents(items);
     }, () => { });
 
+    onSnapshot(collection(db, 'home_announcements'), snapshot => {
+      const items = [];
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data && (data.org === 'Ward' || (typeof data.title === 'string' && data.title.trim()))) {
+          items.push(data);
+        }
+      });
+      updateFirestoreAnnouncements(items);
+    }, () => { });
+
     onSnapshot(collection(db, 'ward_announcements'), snapshot => {
       const items = [];
       snapshot.forEach(docSnap => items.push(docSnap.data()));
-      updateFirestoreAnnouncements(items);
+      if (items.length > 0) updateFirestoreAnnouncements(items);
     }, () => { });
   } catch {
     // If offline or modular import fails, static ward.json is already loaded.

@@ -1,5 +1,13 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.33 — October 31, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.33.
+- **Fixed Homepage Ward Announcements Sync (`public/js/home.js` & `public/admin/admin-app.js`)**:
+  - Diagnosed why announcements added in Admin Settings (`saveAnnouncement()`) were not appearing on the homepage: Firestore security rules on `blackstoneward-b861c` return `403 PERMISSION_DENIED` on the `ward_announcements` collection while allowing reads/writes on `home_announcements` (where `saveAnnouncement()` dual-writes Ward announcements with `org: 'Ward'`).
+  - Updated `initLiveContent()` in `public/js/home.js` and `initSubscriptions()` in `public/admin/admin-app.js` to subscribe to `home_announcements` (filtering to Ward announcements with `org === 'Ward'` or `title`) and added `local_ward_announcements` localStorage fallback on `home.js`.
+- Synchronized package, content, HTML, and asset version references to v1.2.33. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.32 — October 31, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.32 and `/td`.
