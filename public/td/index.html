@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="2026 Tithing Declaration Sunday interview schedule and change request form for the Blackstone Ward in Franklin, Massachusetts.">
+  <meta name="description" content="2026 Tithing Declaration interview schedule and change request form for the Blackstone Ward in Franklin, Massachusetts.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#FAF6EF">
   <title>Tithing Declaration Schedule — Blackstone Ward</title>
@@ -73,22 +73,22 @@
         <div class="space-y-2.5 max-w-3xl">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#A74319] bg-[#A74319]/10">
             <span class="w-2 h-2 rounded-full bg-[#A74319]"></span>
-            <span>Sundays • Nov 1 – Dec 6, 2026</span>
+            <span>Nov 1 – Dec 6, 2026 • Sundays &amp; Select Wednesdays</span>
           </div>
           <h1 class="text-3xl sm:text-4xl font-serif font-bold text-[#152548] tracking-tight">
             Blackstone Ward Tithing Declaration
           </h1>
           <p class="text-sm text-[#536484] leading-relaxed">
-            Interviews with Bishopric are held on Sundays from <strong>2:05 PM to 4:05 PM</strong> at the Franklin Stake Center.
-            <strong>Click on your family name</strong> anywhere on the schedule below to propose a new date or time.
+            Interviews with Bishopric are held on Sundays (<strong>2:05 PM – 4:05 PM</strong>) and select Wednesday evenings (<strong>6:00 PM – 6:45 PM</strong>) at the Franklin Stake Center.
+            <strong>Click on your family name</strong> (or any open slot) below to propose a new date or time.
           </p>
         </div>
 
         <!-- Quick Stats & Request Change CTA -->
         <div class="flex flex-wrap items-center gap-3 shrink-0">
           <div class="bg-white border border-[#E9DECE] rounded-2xl px-4 py-2.5 shadow-2xs text-left">
-            <span class="block text-[10px] font-bold uppercase tracking-wider text-[#536484]">Interview Sundays</span>
-            <span id="stat-sundays-count" class="text-lg font-bold text-[#152548]">5 Sundays</span>
+            <span class="block text-[10px] font-bold uppercase tracking-wider text-[#536484]">Interview Dates</span>
+            <span id="stat-sundays-count" class="text-lg font-bold text-[#152548]">7 Dates</span>
           </div>
           <div class="bg-white border border-[#E9DECE] rounded-2xl px-4 py-2.5 shadow-2xs text-left">
             <span class="block text-[10px] font-bold uppercase tracking-wider text-[#536484]">Scheduled Families</span>
@@ -109,16 +109,21 @@
   <!-- Main Content -->
   <main class="max-w-7xl mx-auto px-4 py-6 sm:py-8 flex-1 w-full space-y-6">
 
-    <!-- Sunday Calendar Overview Strip (Nov – Dec 2026) -->
-    <section aria-label="Sundays in November and early December 2026" class="bg-white border border-[#E9DECE] rounded-3xl p-4 sm:p-5 shadow-2xs">
-      <div class="flex items-center justify-between mb-3">
+    <!-- Interview Dates Overview Strip (NOV - DEC 2026) -->
+    <section aria-label="Interview dates in November and December 2026" class="bg-white border border-[#E9DECE] rounded-3xl p-4 sm:p-5 shadow-2xs">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-[#007B91]"></span>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-[#152548]">Sunday Interview Dates (Nov – Dec 2026)</h2>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-[#152548]">Interview Dates (NOV - DEC 2026)</h2>
         </div>
-        <span class="text-[11px] text-[#536484] hidden sm:inline">Click any Sunday below to filter, or click "All Sundays" to view all</span>
+        <div class="flex items-center gap-3">
+          <button type="button" id="btn-strip-show-all" class="hidden text-xs font-bold text-[#007B91] hover:underline cursor-pointer">
+            Show All 7 Dates
+          </button>
+          <span class="text-[11px] text-[#536484]">Click any date to filter • Scroll right for more dates →</span>
+        </div>
       </div>
-      <div id="sunday-overview-strip" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+      <div id="sunday-overview-strip" class="flex items-stretch gap-3 overflow-x-auto pb-2 snap-x scroll-smooth">
         <!-- Populated dynamically -->
       </div>
     </section>
@@ -148,7 +153,7 @@
         <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200" role="group" aria-label="Schedule display mode">
           <button type="button" id="btn-mode-cards"
             class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#152548] text-white shadow-2xs transition cursor-pointer">
-            Sunday Schedule
+            Interview Schedule
           </button>
           <button type="button" id="btn-mode-month"
             class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-[#152548] transition cursor-pointer">
@@ -162,10 +167,10 @@
       </div>
     </section>
 
-    <!-- VIEW 1: SUNDAY SCHEDULE CARDS (Default) -->
+    <!-- VIEW 1: INTERVIEW SCHEDULE CARDS (Default) -->
     <section id="view-sunday-cards" class="space-y-6">
       <div id="sunday-cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <!-- Sunday cards injected dynamically -->
+        <!-- Interview date cards injected dynamically -->
       </div>
     </section>
 
@@ -192,7 +197,7 @@
               <tr>
                 <th class="px-5 py-3">Household</th>
                 <th class="px-5 py-3">Members Included</th>
-                <th class="px-5 py-3">Sunday Date</th>
+                <th class="px-5 py-3">Interview Date</th>
                 <th class="px-5 py-3">Time Slot</th>
                 <th class="px-5 py-3 text-right">Action</th>
               </tr>
@@ -261,8 +266,8 @@
           <label for="td-form-request-type" class="block text-xs font-semibold text-[#536484] mb-1">What change would you like to propose? *</label>
           <select id="td-form-request-type"
             class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white font-medium text-[#152548]">
-            <option value="Move to another Sunday or time slot">Move to another Sunday or time slot</option>
-            <option value="Claim an open time slot on December 6">Claim an open time slot on December 6</option>
+            <option value="Move to another Sunday or Wednesday time slot">Move to another Sunday or Wednesday time slot</option>
+            <option value="Claim an open interview slot">Claim an open interview slot</option>
             <option value="Swap appointment time with another family">Swap appointment time with another family</option>
             <option value="Request a Zoom / remote interview">Request a Zoom / remote interview</option>
             <option value="Unable to attend scheduled time — please contact us">Unable to attend scheduled time — please contact us</option>
@@ -271,32 +276,29 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label for="td-form-pref-date" class="block text-xs font-semibold text-[#536484] mb-1">Preferred New Sunday *</label>
+            <label for="td-form-pref-date" class="block text-xs font-semibold text-[#536484] mb-1">Preferred New Date *</label>
             <select id="td-form-pref-date"
               class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white">
-              <option value="Sunday, December 6, 2026 (Has Open Slots)">Sunday, December 6, 2026 (Open slots available)</option>
+              <option value="Wednesday, November 4, 2026 (3 open slots)">Wednesday, November 4, 2026 (3 open slots)</option>
+              <option value="Wednesday, November 11, 2026 (3 open slots)">Wednesday, November 11, 2026 (3 open slots)</option>
+              <option value="Sunday, December 6, 2026 (4 open slots)">Sunday, December 6, 2026 (4 open slots)</option>
               <option value="Sunday, November 1, 2026">Sunday, November 1, 2026</option>
               <option value="Sunday, November 8, 2026">Sunday, November 8, 2026</option>
               <option value="Sunday, November 22, 2026">Sunday, November 22, 2026</option>
               <option value="Sunday, November 29, 2026">Sunday, November 29, 2026</option>
-              <option value="Any available Sunday (Flexible)">Any available Sunday (Flexible)</option>
+              <option value="Any available date (Flexible)">Any available date (Flexible)</option>
             </select>
           </div>
           <div>
             <label for="td-form-pref-time" class="block text-xs font-semibold text-[#536484] mb-1">Preferred Time Window / Slot *</label>
             <select id="td-form-pref-time"
               class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white">
-              <optgroup label="Open Slots on Sunday, Dec 6">
-                <option value="3:25–3:35 PM (Open on Dec 6)">3:25–3:35 PM (Open on Dec 6)</option>
-                <option value="3:35–3:45 PM (Open on Dec 6)">3:35–3:45 PM (Open on Dec 6)</option>
-                <option value="3:45–3:55 PM (Open on Dec 6)">3:45–3:55 PM (Open on Dec 6)</option>
-                <option value="3:55–4:05 PM (Open on Dec 6)">3:55–4:05 PM (Open on Dec 6)</option>
-              </optgroup>
-              <optgroup label="General Time Preference">
-                <option value="Any time between 2:05 PM – 4:05 PM">Any time between 2:05 PM – 4:05 PM</option>
-                <option value="Early window (2:05 PM – 2:45 PM)">Early window (2:05 PM – 2:45 PM)</option>
-                <option value="Middle window (2:45 PM – 3:25 PM)">Middle window (2:45 PM – 3:25 PM)</option>
-                <option value="Late window (3:25 PM – 4:05 PM)">Late window (3:25 PM – 4:05 PM)</option>
+              <optgroup label="General Time Windows">
+                <option value="Wednesday Evening (6:00 PM – 6:45 PM)">Wednesday Evening (6:00 PM – 6:45 PM)</option>
+                <option value="Sunday Afternoon — Any time (2:05 PM – 4:05 PM)">Sunday Afternoon — Any time (2:05 PM – 4:05 PM)</option>
+                <option value="Sunday Early window (2:05 PM – 2:45 PM)">Sunday Early window (2:05 PM – 2:45 PM)</option>
+                <option value="Sunday Middle window (2:45 PM – 3:25 PM)">Sunday Middle window (2:45 PM – 3:25 PM)</option>
+                <option value="Sunday Late window (3:25 PM – 4:05 PM)">Sunday Late window (3:25 PM – 4:05 PM)</option>
               </optgroup>
             </select>
           </div>
@@ -344,7 +346,7 @@
         <span>•</span>
         <a href="/calendar/" class="hover:underline">Calendar</a>
         <span>•</span>
-        <span id="footer-version">v1.2.26</span>
+        <span id="footer-version">v1.2.29</span>
       </div>
     </div>
   </footer>
@@ -353,19 +355,22 @@
   <script id="td-schedule-data" type="application/json">
   {
   "title": "Blackstone Ward Tithing Declaration",
-  "subtitle": "Sunday Interview Schedule — November through December 6, 2026",
+  "subtitle": "Interview Schedule — November through Early December 2026",
   "updatedAt": "2026-10-31",
   "contacts": {
     "toEmail": "mcdonaldlds830@gmail.com",
     "ccEmail": "duanepharris@gmail.com"
   },
   "totalScheduled": 56,
-  "totalOpenSlots": 4,
+  "totalOpenSlots": 10,
   "sundays": [
     {
       "tabName": "November 1, 2026",
       "title": "Sunday, November 1, 2026",
       "date": "2026-11-01",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Nov 1",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 12,
       "totalSlots": 12,
       "openCount": 0,
@@ -457,9 +462,46 @@
       ]
     },
     {
+      "tabName": "November 4, 2026",
+      "title": "Wednesday, November 4, 2026",
+      "date": "2026-11-04",
+      "dayOfWeek": "Wednesday",
+      "shortDate": "Nov 4",
+      "timeWindow": "6:00 – 6:45 PM",
+      "scheduledCount": 0,
+      "totalSlots": 3,
+      "openCount": 3,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "6:00-6:15 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 2,
+          "time": "6:15-6:30 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 3,
+          "time": "6:30-6:45 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        }
+      ]
+    },
+    {
       "tabName": "November 8, 2026",
       "title": "Sunday, November 8, 2026",
       "date": "2026-11-08",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Nov 8",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 12,
       "totalSlots": 12,
       "openCount": 0,
@@ -551,9 +593,46 @@
       ]
     },
     {
+      "tabName": "November 11, 2026",
+      "title": "Wednesday, November 11, 2026",
+      "date": "2026-11-11",
+      "dayOfWeek": "Wednesday",
+      "shortDate": "Nov 11",
+      "timeWindow": "6:00 – 6:45 PM",
+      "scheduledCount": 0,
+      "totalSlots": 3,
+      "openCount": 3,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "6:00-6:15 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 2,
+          "time": "6:15-6:30 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 3,
+          "time": "6:30-6:45 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        }
+      ]
+    },
+    {
       "tabName": "November 22, 2026",
       "title": "Sunday, November 22, 2026",
       "date": "2026-11-22",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Nov 22",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 12,
       "totalSlots": 12,
       "openCount": 0,
@@ -648,6 +727,9 @@
       "tabName": "November 29, 2026",
       "title": "Sunday, November 29, 2026",
       "date": "2026-11-29",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Nov 29",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 12,
       "totalSlots": 12,
       "openCount": 0,
@@ -742,6 +824,9 @@
       "tabName": "December 6, 2026",
       "title": "Sunday, December 6, 2026",
       "date": "2026-12-06",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Dec 6",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 8,
       "totalSlots": 12,
       "openCount": 4,
@@ -890,79 +975,53 @@
       }
     }
 
-    function getAllSundaysWithNov15() {
-      const byDate = new Map();
-      (scheduleData?.sundays || []).forEach(s => byDate.set(s.date, s));
-
-      const overviewDates = [
-        { date: '2026-11-01', shortLabel: 'Nov 1', monthLabel: 'NOV', dayNum: '1' },
-        { date: '2026-11-08', shortLabel: 'Nov 8', monthLabel: 'NOV', dayNum: '8' },
-        { date: '2026-11-15', shortLabel: 'Nov 15', monthLabel: 'NOV', dayNum: '15', noInterviews: true },
-        { date: '2026-11-22', shortLabel: 'Nov 22', monthLabel: 'NOV', dayNum: '22' },
-        { date: '2026-11-29', shortLabel: 'Nov 29', monthLabel: 'NOV', dayNum: '29' },
-        { date: '2026-12-06', shortLabel: 'Dec 6', monthLabel: 'DEC', dayNum: '6' }
-      ];
-
-      return overviewDates.map(item => ({
-        ...item,
-        sundayObj: byDate.get(item.date) || null
-      }));
-    }
-
     function renderOverviewStrip() {
       const strip = document.getElementById('sunday-overview-strip');
+      const showAllBtn = document.getElementById('btn-strip-show-all');
       if (!strip || !scheduleData) return;
 
-      const items = getAllSundaysWithNov15();
+      if (showAllBtn) {
+        showAllBtn.classList.toggle('hidden', activeSundayFilter === 'all');
+      }
+
       strip.innerHTML = '';
 
-      items.forEach(item => {
-        const s = item.sundayObj;
-        const isSelected = activeSundayFilter === item.date;
-
-        if (!s || item.noInterviews) {
-          const div = document.createElement('div');
-          div.className = 'rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-3 flex flex-col justify-between opacity-75 select-none';
-          div.innerHTML = `
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">SUN • ${item.shortLabel}</span>
-              <span class="text-[10px] font-semibold text-slate-400 px-1.5 py-0.5 rounded bg-slate-100">Off</span>
-            </div>
-            <div class="mt-2">
-              <p class="text-xs font-semibold text-slate-500">No Interviews</p>
-              <p class="text-[10px] text-slate-400">Regular Sunday</p>
-            </div>
-          `;
-          strip.appendChild(div);
-          return;
-        }
+      (scheduleData.sundays || []).forEach(s => {
+        const isSelected = activeSundayFilter === s.date;
+        const dowShort = (s.dayOfWeek || (s.title.toLowerCase().startsWith('wed') ? 'Wednesday' : 'Sunday')).slice(0, 3).toUpperCase();
+        const shortLabel = s.shortDate || s.tabName.replace(/,\s*\d{4}$/, '');
+        const timeWin = s.timeWindow || (dowShort === 'WED' ? '6:00 – 6:45 PM' : '2:05 – 4:05 PM');
 
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = isSelected
-          ? 'rounded-2xl border-2 border-[#152548] bg-[#152548] text-white p-3 text-left flex flex-col justify-between shadow-sm transition cursor-pointer'
-          : 'rounded-2xl border border-[#E9DECE] hover:border-[#152548] bg-[#FAF6EF]/60 hover:bg-white p-3 text-left flex flex-col justify-between transition cursor-pointer';
+          ? 'min-w-[168px] sm:min-w-[180px] shrink-0 snap-start rounded-2xl border-2 border-[#152548] bg-[#152548] text-white p-3.5 text-left flex flex-col justify-between shadow-sm transition cursor-pointer'
+          : 'min-w-[168px] sm:min-w-[180px] shrink-0 snap-start rounded-2xl border border-[#E9DECE] hover:border-[#152548] bg-[#FAF6EF]/60 hover:bg-white p-3.5 text-left flex flex-col justify-between transition cursor-pointer';
 
         const openBadge = s.openCount > 0
           ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${isSelected ? 'bg-emerald-400/20 text-emerald-200' : 'bg-emerald-100 text-emerald-800'}">${s.openCount} open</span>`
           : `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded ${isSelected ? 'bg-white/15 text-slate-200' : 'bg-slate-200/70 text-slate-600'}">Full</span>`;
 
+        const countLabel = s.scheduledCount > 0
+          ? `${s.scheduledCount} Families`
+          : `${s.openCount} Open Slots`;
+
         btn.innerHTML = `
-          <div class="flex items-center justify-between gap-1 w-full">
-            <span class="text-[11px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-amber-300' : 'text-[#A74319]'}">SUN • ${item.shortLabel}</span>
+          <div class="flex items-center justify-between gap-1.5 w-full">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-amber-300' : (dowShort === 'WED' ? 'text-[#007B91]' : 'text-[#A74319]')}">${escapeHtml(dowShort)} • ${escapeHtml(shortLabel)}</span>
             ${openBadge}
           </div>
           <div class="mt-2">
-            <p class="text-sm font-bold ${isSelected ? 'text-white' : 'text-[#152548]'}">${s.scheduledCount} Families</p>
-            <p class="text-[10px] ${isSelected ? 'text-slate-300' : 'text-[#536484]'}">2:05 – 4:05 PM</p>
+            <p class="text-sm font-bold ${isSelected ? 'text-white' : 'text-[#152548]'}">${escapeHtml(countLabel)}</p>
+            <p class="text-[10px] ${isSelected ? 'text-slate-300' : 'text-[#536484]'}">${escapeHtml(timeWin)}</p>
           </div>
         `;
 
         btn.addEventListener('click', () => {
-          if (activeSundayFilter === item.date) {
+          if (activeSundayFilter === s.date) {
             activeSundayFilter = 'all';
           } else {
-            activeSundayFilter = item.date;
+            activeSundayFilter = s.date;
             if (activeViewMode === 'month') {
               setViewMode('cards');
             }
@@ -1010,14 +1069,22 @@
           : `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">${sunday.scheduledCount} Scheduled</span>`;
 
         const showAllBtnHtml = activeSundayFilter !== 'all'
-          ? `<button type="button" class="btn-Reset-sunday-filter text-xs font-semibold text-[#007B91] hover:underline cursor-pointer">Show all Sundays</button>`
+          ? `<button type="button" class="btn-Reset-sunday-filter text-xs font-semibold text-[#007B91] hover:underline cursor-pointer">Show all dates</button>`
           : '';
 
+        const isWednesday = (sunday.dayOfWeek || sunday.title || '').toLowerCase().startsWith('wed');
+        const headerBg = isWednesday
+          ? 'bg-gradient-to-r from-[#005F73] to-[#007B91]'
+          : 'bg-gradient-to-r from-[#152548] to-[#1E3260]';
+        const eyebrowText = isWednesday
+          ? 'Wednesday Evening Tithing Declaration'
+          : 'Sunday Afternoon Tithing Declaration';
+
         const header = document.createElement('div');
-        header.className = 'px-5 sm:px-6 py-4 bg-gradient-to-r from-[#152548] to-[#1E3260] text-white flex items-center justify-between gap-3';
+        header.className = `px-5 sm:px-6 py-4 ${headerBg} text-white flex items-center justify-between gap-3`;
         header.innerHTML = `
           <div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-300 block">Tithing Declaration Sunday</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-300 block">${eyebrowText}</span>
             <h3 class="text-lg sm:text-xl font-serif font-bold text-white leading-snug">${escapeHtml(sunday.title)}</h3>
           </div>
           <div class="flex items-center gap-2 shrink-0">
@@ -1147,7 +1214,7 @@
 
       const months = [
         { year: 2026, monthIndex: 10, name: 'November 2026', daysInMonth: 30, startDow: 0 }, // Nov 1, 2026 is Sunday (0)
-        { year: 2026, monthIndex: 11, name: 'December 2026 (First Sunday)', daysInMonth: 12, startDow: 2 } // Dec 1, 2026 is Tuesday (2); show first 2 weeks
+        { year: 2026, monthIndex: 11, name: 'December 2026 (Early December)', daysInMonth: 12, startDow: 2 } // Dec 1, 2026 is Tuesday (2); show first 2 weeks
       ];
 
       months.forEach(m => {
@@ -1159,10 +1226,10 @@
         header.innerHTML = `
           <div>
             <h3 class="text-2xl font-serif font-bold text-[#152548]">${escapeHtml(m.name)}</h3>
-            <p class="text-xs text-[#536484]">Click any family chip on Sunday to open the schedule change request form.</p>
+            <p class="text-xs text-[#536484]">Click any family chip or open slot to open the schedule change request form.</p>
           </div>
           <span class="text-xs font-semibold text-[#A74319] bg-[#A74319]/10 px-3 py-1 rounded-full self-start sm:self-auto">
-            Sundays • 2:05 PM – 4:05 PM
+            Sundays (2:05–4:05 PM) &amp; Select Wednesdays (6:00–6:45 PM)
           </span>
         `;
         card.appendChild(header);
@@ -1175,10 +1242,10 @@
 
         gridWrap.innerHTML = `
           <div class="grid grid-cols-7 text-center pb-2 text-[11px] font-bold text-slate-400 tracking-wider uppercase">
-            <div class="text-[#A74319]">SUN (Interviews)</div>
+            <div class="text-[#A74319]">SUN (2:05–4:05)</div>
             <div>MON</div>
             <div>TUE</div>
-            <div>WED</div>
+            <div class="text-[#007B91]">WED (6:00–6:45)</div>
             <div>THU</div>
             <div>FRI</div>
             <div>SAT</div>
@@ -1207,18 +1274,22 @@
           const dd = String(day).padStart(2, '0');
           const iso = `${m.year}-${mm}-${dd}`;
           const dow = (m.startDow + day - 1) % 7;
-          const isSunday = dow === 0;
+          const isWednesday = dow === 3;
           const sundayData = sundayByDate.get(iso);
 
-          cell.className = isSunday
+          cell.className = sundayData
             ? 'min-h-[140px] bg-[#FAF6EF]/50 border-r border-b border-[#E9DECE] p-2 flex flex-col gap-1.5 col-span-1'
             : 'min-h-[90px] bg-white border-r border-b border-[#E9DECE] p-2 text-slate-400';
+
+          const badgeText = sundayData
+            ? (sundayData.scheduledCount > 0 ? `${sundayData.scheduledCount} fam` : `${sundayData.openCount} open`)
+            : '';
 
           const topRow = document.createElement('div');
           topRow.className = 'flex items-center justify-between';
           topRow.innerHTML = `
-            <span class="text-xs font-bold ${isSunday ? 'text-[#152548]' : 'text-slate-400'}">${day}</span>
-            ${sundayData ? `<span class="text-[10px] font-bold text-[#007B91]">${sundayData.scheduledCount} fam</span>` : ''}
+            <span class="text-xs font-bold ${sundayData ? (isWednesday ? 'text-[#007B91]' : 'text-[#152548]') : 'text-slate-400'}">${day}</span>
+            ${badgeText ? `<span class="text-[10px] font-bold text-[#007B91]">${escapeHtml(badgeText)}</span>` : ''}
           `;
           cell.appendChild(topRow);
 
@@ -1262,11 +1333,6 @@
             });
 
             cell.appendChild(chipsWrap);
-          } else if (isSunday && iso === '2026-11-15') {
-            const note = document.createElement('p');
-            note.className = 'text-[10px] text-slate-400 italic mt-2';
-            note.textContent = 'No Tithing Declaration interviews scheduled';
-            cell.appendChild(note);
           }
 
           daysGrid.appendChild(cell);
@@ -1318,7 +1384,7 @@
         tr.innerHTML = `
           <td class="px-5 py-3 font-bold text-[#152548] text-sm">${highlightMatch(item.household, q)}</td>
           <td class="px-5 py-3 text-slate-600">${highlightMatch(item.members, q)}</td>
-          <td class="px-5 py-3 font-semibold text-[#152548] whitespace-nowrap">${escapeHtml(item.sundayTab)}</td>
+          <td class="px-5 py-3 font-semibold text-[#152548] whitespace-nowrap">${escapeHtml(item.sundayTitle)}</td>
           <td class="px-5 py-3 font-mono text-slate-700 whitespace-nowrap">${escapeHtml(item.time)}</td>
           <td class="px-5 py-3 text-right whitespace-nowrap">
             <button type="button" class="px-3 py-1.5 rounded-lg bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold text-xs transition cursor-pointer">
@@ -1379,13 +1445,72 @@
       renderAll();
     }
 
+    function populateModalOptions() {
+      if (!scheduleData || !Array.isArray(scheduleData.sundays)) return;
+      const prefDateSelect = document.getElementById('td-form-pref-date');
+      const prefTimeSelect = document.getElementById('td-form-pref-time');
+
+      if (prefDateSelect) {
+        prefDateSelect.innerHTML = '';
+        scheduleData.sundays.forEach(s => {
+          const opt = document.createElement('option');
+          const openSuffix = s.openCount > 0 ? ` (${s.openCount} open slot${s.openCount === 1 ? '' : 's'})` : '';
+          opt.value = `${s.title}${openSuffix}`;
+          opt.dataset.title = s.title;
+          opt.textContent = `${s.title}${openSuffix}`;
+          prefDateSelect.appendChild(opt);
+        });
+        const flexOpt = document.createElement('option');
+        flexOpt.value = 'Any available date (Flexible)';
+        flexOpt.textContent = 'Any available date (Flexible)';
+        prefDateSelect.appendChild(flexOpt);
+      }
+
+      if (prefTimeSelect) {
+        prefTimeSelect.innerHTML = '';
+        const openGroup = document.createElement('optgroup');
+        openGroup.label = 'Available Open Slots';
+        scheduleData.sundays.forEach(s => {
+          const shortD = s.shortDate || s.tabName.replace(/,\s*\d{4}$/, '');
+          s.slots.filter(sl => sl.available).forEach(sl => {
+            const opt = document.createElement('option');
+            opt.value = `${sl.time} (Open on ${shortD})`;
+            opt.dataset.time = sl.time;
+            opt.dataset.tab = s.tabName;
+            opt.textContent = `${shortD} • ${sl.time} (Open)`;
+            openGroup.appendChild(opt);
+          });
+        });
+        if (openGroup.children.length > 0) {
+          prefTimeSelect.appendChild(openGroup);
+        }
+
+        const genGroup = document.createElement('optgroup');
+        genGroup.label = 'General Time Windows';
+        [
+          'Wednesday Evening (6:00 PM – 6:45 PM)',
+          'Sunday Afternoon — Any time (2:05 PM – 4:05 PM)',
+          'Sunday Early window (2:05 PM – 2:45 PM)',
+          'Sunday Middle window (2:45 PM – 3:25 PM)',
+          'Sunday Late window (3:25 PM – 4:05 PM)'
+        ].forEach(label => {
+          const opt = document.createElement('option');
+          opt.value = label;
+          opt.textContent = label;
+          genGroup.appendChild(opt);
+        });
+        prefTimeSelect.appendChild(genGroup);
+      }
+    }
+
     function renderAll() {
       if (!scheduleData) return;
       const sCount = document.getElementById('stat-sundays-count');
       const hCount = document.getElementById('stat-households-count');
-      if (sCount) sCount.textContent = `${scheduleData.sundays.length} Sundays`;
+      if (sCount) sCount.textContent = `${scheduleData.sundays.length} Dates`;
       if (hCount) hCount.textContent = `${scheduleData.totalScheduled} Households`;
 
+      populateModalOptions();
       renderOverviewStrip();
       if (activeViewMode === 'cards') renderSundayCards();
       else if (activeViewMode === 'month') renderMonthCalendarView();
@@ -1417,7 +1542,7 @@
       const origDate = document.getElementById('td-form-orig-date')?.value || 'Unscheduled / Open Slot Request';
       const origTime = document.getElementById('td-form-orig-time')?.value || '—';
       const origMembers = document.getElementById('td-form-orig-members')?.value || '—';
-      const reqType = document.getElementById('td-form-request-type')?.value || 'Move to another Sunday or time slot';
+      const reqType = document.getElementById('td-form-request-type')?.value || 'Move to another Sunday or Wednesday time slot';
       const prefDate = document.getElementById('td-form-pref-date')?.value || '';
       const prefTime = document.getElementById('td-form-pref-time')?.value || '';
       const notes = (document.getElementById('td-form-notes')?.value || '').trim();
@@ -1435,7 +1560,7 @@
         ``,
         `PROPOSED CHANGE:`,
         `• Request Type: ${reqType}`,
-        `• Preferred Sunday: ${prefDate}`,
+        `• Preferred Date: ${prefDate}`,
         `• Preferred Time Window / Slot: ${prefTime}`,
         notes ? `• Additional Notes: ${notes}` : null,
         ``,
@@ -1487,10 +1612,16 @@
         if (origDateInput) origDateInput.value = 'Requesting Open Slot';
         if (origTimeInput) origTimeInput.value = `${slotContext.sundayTab} @ ${slotContext.time}`;
         if (origMembersInput) origMembersInput.value = '—';
-        if (reqTypeSelect) reqTypeSelect.value = 'Claim an open time slot on December 6';
-        if (prefDateSelect) prefDateSelect.value = 'Sunday, December 6, 2026 (Has Open Slots)';
+        if (reqTypeSelect) reqTypeSelect.value = 'Claim an open interview slot';
+        if (prefDateSelect) {
+          const matchDateOpt = [...prefDateSelect.options].find(o => o.dataset.title === slotContext.sundayTitle || o.value.startsWith(slotContext.sundayTitle));
+          if (matchDateOpt) prefDateSelect.value = matchDateOpt.value;
+        }
         if (prefTimeSelect) {
-          const matchOpt = [...prefTimeSelect.options].find(o => o.value.startsWith(slotContext.time));
+          const matchOpt = [...prefTimeSelect.options].find(o =>
+            (o.dataset.time === slotContext.time && o.dataset.tab === slotContext.sundayTab) ||
+            o.value.startsWith(slotContext.time)
+          );
           if (matchOpt) prefTimeSelect.value = matchOpt.value;
         }
       } else if (slotContext && slotContext.household) {
@@ -1506,15 +1637,15 @@
         if (origDateInput) origDateInput.value = slotContext.sundayTitle;
         if (origTimeInput) origTimeInput.value = slotContext.time;
         if (origMembersInput) origMembersInput.value = slotContext.members;
-        if (reqTypeSelect) reqTypeSelect.value = 'Move to another Sunday or time slot';
+        if (reqTypeSelect) reqTypeSelect.value = 'Move to another Sunday or Wednesday time slot';
       } else {
         if (badgeEl) {
           badgeEl.textContent = 'General Request';
           badgeEl.className = 'px-2 py-0.5 rounded-md bg-slate-700 text-white font-semibold text-[11px]';
         }
         if (householdDisplay) householdDisplay.textContent = 'Propose Tithing Declaration Time';
-        if (membersDisplay) membersDisplay.textContent = 'Enter your family name and preferred Sunday below.';
-        if (datetimeDisplay) datetimeDisplay.textContent = 'Sundays Nov 1 – Dec 6, 2026 (2:05 – 4:05 PM)';
+        if (membersDisplay) membersDisplay.textContent = 'Enter your family name and preferred interview date below.';
+        if (datetimeDisplay) datetimeDisplay.textContent = 'Nov 1 – Dec 6, 2026 • Sundays (2:05–4:05 PM) & Wednesdays (6:00–6:45 PM)';
 
         if (householdInput) householdInput.value = '';
         if (origDateInput) origDateInput.value = 'General Schedule Request';
@@ -1528,6 +1659,12 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadScheduleData();
+
+      // Strip show-all button
+      document.getElementById('btn-strip-show-all')?.addEventListener('click', () => {
+        activeSundayFilter = 'all';
+        renderAll();
+      });
 
       // View mode buttons
       document.getElementById('btn-mode-cards')?.addEventListener('click', () => setViewMode('cards'));

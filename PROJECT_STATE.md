@@ -1,14 +1,31 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.26
+**Version:** 1.2.29
 **Date:** October 31, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.26 deployed live to production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and committed/pushed to GitHub (`origin/main`). Adds Tithing Declaration schedule page at `/td` (`public/td/index.html` and `public/data/tithing-declaration.json`) sourced from the Sunday tabs of `Blackstone-Tithing-Declaration-Schedule-2026.xlsx` (excluding the `Summary` tab), with interactive schedule change request modal routing to `mcdonaldlds830@gmail.com` (CC `duanepharris@gmail.com`), and workspace skill `tithing-declaration-sync` for future Excel resourcing.
+**State:** Version 1.2.29 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Removed the `December 9, 2026` (`12/9/2026`) Wednesday date from `public/data/tithing-declaration.json`, `public/td/index.html`, and the `tithing-declaration-sync` script filter, leaving the 7 active interview dates (`Nov 1`, `Nov 4`, `Nov 8`, `Nov 11`, `Nov 22`, `Nov 29`, and `Dec 6, 2026` — 56 scheduled households and 10 open slots).
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Removed December 9, 2026 (`12/9/2026`) Interview Date from `/td` (v1.2.29):
+  - **7 Active Interview Dates (`Nov 1 – Dec 6, 2026`)**: Removed the `12/9/2026` date from `public/data/tithing-declaration.json` and `public/td/index.html` and updated `.agents/skills/tithing-declaration-sync/scripts/sync_td_schedule.py` to cap empty December tabs at the first Sunday in December (`2026-12-06`).
+  - **Updated Counts & Labels**: Updated the hero date range badge (`Nov 1 – Dec 6, 2026 • Sundays & Select Wednesdays`), quick stat (`7 Dates`), filter reset button (`Show All 7 Dates`), and modal fallback options.
+
+- Tithing Declaration (`/td`) Horizontal Filter Strip & Sunday/Wednesday Label Polish (v1.2.28):
+  - **Horizontally Scrollable Interview Dates Strip**: Updated the top filter strip heading to `"Interview Dates (NOV - DEC 2026)"`, removed `Nov 15`, and styled `#sunday-overview-strip` as a smooth horizontal scroll container (`flex items-stretch gap-3 overflow-x-auto pb-2 snap-x scroll-smooth`) with `min-w-[168px] sm:min-w-[180px] shrink-0 snap-start` cards to comfortably display all 8 Sunday and Wednesday interview dates (`Nov 1`, `Nov 4`, `Nov 8`, `Nov 11`, `Nov 22`, `Nov 29`, `Dec 6`, `Dec 9`) plus a `"Show All 8 Dates"` reset action when filtered.
+  - **Unified Sunday & Wednesday Labels Across All Views & Modal**:
+    - Updated the view mode button (`#btn-mode-cards`) from `"Sunday Schedule"` to `"Interview Schedule"` and card eyebrows to `"Sunday Afternoon Tithing Declaration"` and `"Wednesday Evening Tithing Declaration"`.
+    - Updated the Month Calendar view (`renderMonthCalendarView`) so only active interview dates (5 Sundays + 3 Wednesdays) receive highlighted appointment cards and removed the `Nov 15` note.
+    - Updated the A–Z Family List table header from `"Sunday Date"` to `"Interview Date"` and displayed the full day-and-date title (`Sunday, November 1, 2026`, `Wednesday, November 4, 2026`, etc.).
+    - Updated the Request a Schedule Change modal label (`"Preferred New Date *"`), default request type (`"Move to another Sunday or Wednesday time slot"`), general prompt text, and email payload (`"• Preferred Date:"`) to support both Sunday and Wednesday slots.
+
+- Re-Sourced Tithing Declaration Schedule (`/td`) with Wednesday Evening Interview Tabs (v1.2.27):
+  - **8 Interview Dates Sourced**: Re-ran `tithing-declaration-sync` on the updated `Blackstone-Tithing-Declaration-Schedule-2026.xlsx`, syncing all 5 Sunday tabs (`Nov 1`, `Nov 8`, `Nov 22`, `Nov 29`, `Dec 6` • `2:05–4:05 PM`) and the 3 new Wednesday evening tabs (`Nov 4`, `Nov 11`, `Dec 9` • `6:00–6:45 PM`) while excluding `Summary`.
+  - **13 Open Slots Across Sundays & Wednesdays**: Displays 3 open evening slots (`6:00–6:15 PM`, `6:15–6:30 PM`, `6:30–6:45 PM`) on each Wednesday (`Nov 4`, `Nov 11`, `Dec 9`) and 4 open afternoon slots (`3:25–4:05 PM`) on `Sunday, December 6`.
+  - **Dynamic Overview Strip, Month Calendar, & Modal Options**: Updated `public/td/index.html` to dynamically render all 8 Sunday and Wednesday dates in the top filter strip, highlight both Sundays and Wednesdays in the Month Calendar view, and dynamically populate the Request Change modal dropdowns with all 8 dates and 13 open slots.
 
 - Tithing Declaration Schedule Page (`/td`) & Reusable Excel Sync Skill:
   - **Tithing Declaration Page (`public/td/index.html`)**: Accessible at `/td` (`blackstoneward.org/td` and `test.blackstoneward.org/td`). Displays all 5 interview Sundays (`November 1`, `November 8`, `November 22`, `November 29`, and `December 6, 2026` — 56 scheduled households and 4 open slots) sourced from the Sunday tabs of `Blackstone-Tithing-Declaration-Schedule-2026.xlsx`, strictly excluding the `Summary` tab.

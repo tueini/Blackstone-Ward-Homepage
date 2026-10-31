@@ -1,18 +1,21 @@
 {
   "title": "Blackstone Ward Tithing Declaration",
-  "subtitle": "Sunday Interview Schedule — November through December 6, 2026",
+  "subtitle": "Interview Schedule — November through Early December 2026",
   "updatedAt": "2026-10-31",
   "contacts": {
     "toEmail": "mcdonaldlds830@gmail.com",
     "ccEmail": "duanepharris@gmail.com"
   },
   "totalScheduled": 56,
-  "totalOpenSlots": 4,
+  "totalOpenSlots": 10,
   "sundays": [
     {
       "tabName": "November 1, 2026",
       "title": "Sunday, November 1, 2026",
       "date": "2026-11-01",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Nov 1",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 12,
       "totalSlots": 12,
       "openCount": 0,
@@ -104,9 +107,46 @@
       ]
     },
     {
+      "tabName": "November 4, 2026",
+      "title": "Wednesday, November 4, 2026",
+      "date": "2026-11-04",
+      "dayOfWeek": "Wednesday",
+      "shortDate": "Nov 4",
+      "timeWindow": "6:00 – 6:45 PM",
+      "scheduledCount": 0,
+      "totalSlots": 3,
+      "openCount": 3,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "6:00-6:15 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 2,
+          "time": "6:15-6:30 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 3,
+          "time": "6:30-6:45 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        }
+      ]
+    },
+    {
       "tabName": "November 8, 2026",
       "title": "Sunday, November 8, 2026",
       "date": "2026-11-08",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Nov 8",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 12,
       "totalSlots": 12,
       "openCount": 0,
@@ -198,9 +238,46 @@
       ]
     },
     {
+      "tabName": "November 11, 2026",
+      "title": "Wednesday, November 11, 2026",
+      "date": "2026-11-11",
+      "dayOfWeek": "Wednesday",
+      "shortDate": "Nov 11",
+      "timeWindow": "6:00 – 6:45 PM",
+      "scheduledCount": 0,
+      "totalSlots": 3,
+      "openCount": 3,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "6:00-6:15 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 2,
+          "time": "6:15-6:30 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 3,
+          "time": "6:30-6:45 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        }
+      ]
+    },
+    {
       "tabName": "November 22, 2026",
       "title": "Sunday, November 22, 2026",
       "date": "2026-11-22",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Nov 22",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 12,
       "totalSlots": 12,
       "openCount": 0,
@@ -295,6 +372,9 @@
       "tabName": "November 29, 2026",
       "title": "Sunday, November 29, 2026",
       "date": "2026-11-29",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Nov 29",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 12,
       "totalSlots": 12,
       "openCount": 0,
@@ -389,6 +469,9 @@
       "tabName": "December 6, 2026",
       "title": "Sunday, December 6, 2026",
       "date": "2026-12-06",
+      "dayOfWeek": "Sunday",
+      "shortDate": "Dec 6",
+      "timeWindow": "2:05 – 4:05 PM",
       "scheduledCount": 8,
       "totalSlots": 12,
       "openCount": 4,

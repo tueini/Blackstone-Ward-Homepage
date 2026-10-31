@@ -5,9 +5,9 @@ to public/data/tithing-declaration.json and public/td/index.html.
 
 Rules:
 - Explicitly skips the 'Summary' tab (never sources Summary).
-- Sources the Sunday interview tabs (November through first Sunday in December,
-  or any Sunday tab with scheduled households).
-- Preserves all time slots (2:05 PM - 4:05 PM), household names, and members included.
+- Sources all November and December interview tabs (Sundays and Wednesdays,
+  or any tab with scheduled households).
+- Preserves exact time slots, household names, and members included per tab.
 """
 
 import datetime
@@ -23,21 +23,6 @@ DEFAULT_XLSX_PATH = (
     "Tithing_Declaration/2026/Blackstone-Tithing-Declaration-Schedule-2026.xlsx"
 )
 
-STANDARD_TIME_SLOTS = [
-    "2:05–2:15 PM",
-    "2:15–2:25 PM",
-    "2:25–2:35 PM",
-    "2:35–2:45 PM",
-    "2:45–2:55 PM",
-    "2:55–3:05 PM",
-    "3:05–3:15 PM",
-    "3:15–3:25 PM",
-    "3:25–3:35 PM",
-    "3:35–3:45 PM",
-    "3:45–3:55 PM",
-    "3:55–4:05 PM",
-]
-
 
 def col_letter(cell_ref: str) -> str:
     m = re.match(r"^([A-Z]+)", cell_ref or "")
@@ -45,8 +30,13 @@ def col_letter(cell_ref: str) -> str:
 
 
 def parse_sheet_date(sheet_name: str) -> str:
-    """Parse 'November 1, 2026' -> '2026-11-01'."""
-    cleaned = re.sub(r"^Sunday,\s*", "", sheet_name.strip(), flags=re.IGNORECASE)
+    """Parse 'November 1, 2026' or 'Wednesday, November 4, 2026' -> '2026-11-01'."""
+    cleaned = re.sub(
+        r"^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday),\s*",
+        "",
+        sheet_name.strip(),
+        flags=re.IGNORECASE,
+    ).strip()
     for fmt in ("%B %d, %Y", "%b %d, %Y", "%Y-%m-%d"):
         try:
             dt = datetime.datetime.strptime(cleaned, fmt).date()
@@ -54,6 +44,44 @@ def parse_sheet_date(sheet_name: str) -> str:
         except ValueError:
             continue
     return ""
+
+
+def get_day_of_week(iso_date: str, subtitle: str) -> str:
+    if iso_date:
+        try:
+            dt = datetime.date.fromisoformat(iso_date)
+            return dt.strftime("%A")
+        except ValueError:
+            pass
+    m = re.match(
+        r"^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday)",
+        subtitle or "",
+        flags=re.IGNORECASE,
+    )
+    return m.group(1).capitalize() if m else "Sunday"
+
+
+def get_short_date_label(iso_date: str, sheet_name: str) -> str:
+    if iso_date:
+        try:
+            dt = datetime.date.fromisoformat(iso_date)
+            return f"{dt.strftime('%b')} {dt.day}"
+        except ValueError:
+            pass
+    return sheet_name
+
+
+def compute_time_window(slots: list) -> str:
+    if not slots:
+        return ""
+    first_t = slots[0].get("time", "")
+    last_t = slots[-1].get("time", "")
+    first_start = re.split(r"[–-]", first_t)[0].strip()
+    last_parts = re.split(r"[–-]", last_t)
+    last_end = last_parts[-1].strip() if len(last_parts) > 1 else last_t
+    if first_start and last_end:
+        return f"{first_start} – {last_end}"
+    return first_t
 
 
 def parse_xlsx(xlsx_path: str) -> dict:
@@ -121,11 +149,13 @@ def parse_xlsx(xlsx_path: str) -> dict:
                     row_cells[col] = val.strip()
                 rows_data[r_num] = row_cells
 
-            subtitle = rows_data.get(2, {}).get("A", f"Sunday, {sheet_name}")
-            iso_date = parse_sheet_date(sheet_name) or parse_sheet_date(subtitle)
+            raw_subtitle = rows_data.get(2, {}).get("A", "").strip()
+            iso_date = parse_sheet_date(sheet_name) or parse_sheet_date(raw_subtitle)
+            day_of_week = get_day_of_week(iso_date, raw_subtitle)
+            subtitle = raw_subtitle if raw_subtitle else f"{day_of_week}, {sheet_name}"
 
             slots = []
-            seen_times = set()
+            seen_empty_times = set()
             for r_num in sorted(rows_data.keys()):
                 if r_num < 4:
                     continue
@@ -135,42 +165,37 @@ def parse_xlsx(xlsx_path: str) -> dict:
                 members = cells.get("C", "").strip()
                 if not time_label and not household and not members:
                     continue
-                seen_times.add(time_label)
+                is_available = not bool(household)
+                norm_time = time_label.replace("-", "–")
+                if is_available:
+                    if norm_time in seen_empty_times:
+                        continue
+                    seen_empty_times.add(norm_time)
                 slots.append(
                     {
                         "slotIndex": len(slots) + 1,
                         "time": time_label,
                         "household": household,
                         "members": members,
-                        "available": not bool(household),
+                        "available": is_available,
                     }
                 )
 
-            # Fill any remaining standard 10-minute slots up to 3:55–4:05 PM if partial sheet
-            for std_time in STANDARD_TIME_SLOTS:
-                if std_time not in seen_times:
-                    slots.append(
-                        {
-                            "slotIndex": len(slots) + 1,
-                            "time": std_time,
-                            "household": "",
-                            "members": "",
-                            "available": True,
-                        }
-                    )
-
             scheduled_count = sum(1 for s in slots if not s["available"])
-            # Only include Sunday tabs from November/December or tabs that have scheduled households
+            # Include all November through first Sunday in December (2026-12-06) interview tabs, plus any tab with scheduled households
             if scheduled_count == 0 and not (
-                iso_date.startswith("2026-11") or iso_date.startswith("2026-12")
+                iso_date.startswith("2026-11") or ("2026-12-01" <= iso_date <= "2026-12-06")
             ):
                 continue
 
             sundays.append(
                 {
                     "tabName": sheet_name,
-                    "title": subtitle if subtitle else f"Sunday, {sheet_name}",
+                    "title": subtitle,
                     "date": iso_date,
+                    "dayOfWeek": day_of_week,
+                    "shortDate": get_short_date_label(iso_date, sheet_name),
+                    "timeWindow": compute_time_window(slots),
                     "scheduledCount": scheduled_count,
                     "totalSlots": len(slots),
                     "openCount": len(slots) - scheduled_count,
@@ -178,12 +203,13 @@ def parse_xlsx(xlsx_path: str) -> dict:
                 }
             )
 
+    sundays.sort(key=lambda d: d.get("date") or d.get("tabName"))
     total_scheduled = sum(d["scheduledCount"] for d in sundays)
     total_open = sum(d["openCount"] for d in sundays)
 
     return {
         "title": "Blackstone Ward Tithing Declaration",
-        "subtitle": "Sunday Interview Schedule — November through December 6, 2026",
+        "subtitle": "Interview Schedule — November through Early December 2026",
         "updatedAt": datetime.date.today().isoformat(),
         "contacts": {
             "toEmail": "mcdonaldlds830@gmail.com",
@@ -211,12 +237,11 @@ def main():
         f.write("\n")
 
     print(
-        f"Synced {len(data['sundays'])} Sunday tabs "
+        f"Synced {len(data['sundays'])} interview tabs "
         f"({data['totalScheduled']} scheduled households, {data['totalOpenSlots']} open slots) "
         f"-> {json_out}"
     )
 
-    # If public/td/index.html exists and has embedded schedule JSON markers, update it too
     if os.path.exists(html_out):
         with open(html_out, "r", encoding="utf-8") as f:
             html_content = f.read()
@@ -238,4 +263,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -1,5 +1,43 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.29 — October 31, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.29 and `/td`.
+- **Removed `12/9/2026` (`December 9, 2026`) from Tithing Declaration Schedule (`/td`)**:
+  - Re-synced `public/data/tithing-declaration.json` and `public/td/index.html` without `December 9, 2026`, leaving the 7 active interview dates (`Sunday, Nov 1`, `Wednesday, Nov 4`, `Sunday, Nov 8`, `Wednesday, Nov 11`, `Sunday, Nov 22`, `Sunday, Nov 29`, and `Sunday, Dec 6, 2026` — 56 scheduled households and 10 open slots).
+  - Updated `.agents/skills/tithing-declaration-sync/scripts/sync_td_schedule.py` to cap unscheduled December dates at `2026-12-06` (first Sunday in December).
+  - Updated the hero badge (`Nov 1 – Dec 6, 2026`), date count (`7 Dates`), filter reset label (`Show All 7 Dates`), and modal fallback options in `public/td/index.html`.
+- Synchronized package, content, HTML, and asset version references to v1.2.29. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.28 — October 31, 2026
+
+- After explicit approval, deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`).
+- **Tithing Declaration (`/td`) Horizontal Date Filter Strip & Sunday/Wednesday Label Polish**:
+  - Changed the overview strip heading to `"Interview Dates (NOV - DEC 2026)"`, removed `Nov 15`, and converted `#sunday-overview-strip` to a horizontal scroll strip (`flex items-stretch gap-3 overflow-x-auto pb-2 snap-x scroll-smooth`) with `min-w-[168px] sm:min-w-[180px] shrink-0` cards for all 8 interview dates (5 Sundays + 3 Wednesdays) and a `"Show All 8 Dates"` reset button.
+  - Updated all remaining Sunday-only labels across `public/td/index.html`:
+    - View mode button `#btn-mode-cards`: `"Sunday Schedule"` → `"Interview Schedule"`.
+    - Schedule card eyebrow: `"Sunday Afternoon Tithing Declaration"` / `"Wednesday Evening Tithing Declaration"`.
+    - Month Calendar view: Highlighted only active Sunday and Wednesday interview dates and removed the `Nov 15` note.
+    - A–Z Family List table: Changed column header from `"Sunday Date"` to `"Interview Date"` and displayed the full day-and-date title (`Sunday, ...` / `Wednesday, ...`).
+    - Request a Schedule Change modal & email builder: Changed `"Preferred New Sunday *"` to `"Preferred New Date *"`, updated `"• Preferred Date:"` in the generated email body, and updated default modal prompts to cover both Sundays (`2:05–4:05 PM`) and Wednesdays (`6:00–6:45 PM`).
+- Synchronized package, content, HTML, and asset version references to v1.2.28. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.27 — October 31, 2026
+
+- After explicit approval, deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`).
+- **Re-Sourced Tithing Declaration Schedule (`/td`) with Wednesday Evening Tabs**:
+  - Executed `tithing-declaration-sync` on the updated `Blackstone-Tithing-Declaration-Schedule-2026.xlsx`, syncing 8 interview tabs (56 scheduled households and 13 open slots, excluding `Summary`):
+    - `Sunday, November 1, 2026` (12 scheduled, `2:05–4:05 PM`)
+    - `Wednesday, November 4, 2026` (3 open slots: `6:00–6:15 PM`, `6:15–6:30 PM`, `6:30–6:45 PM`)
+    - `Sunday, November 8, 2026` (12 scheduled, `2:05–4:05 PM`)
+    - `Wednesday, November 11, 2026` (3 open slots: `6:00–6:15 PM`, `6:15–6:30 PM`, `6:30–6:45 PM`)
+    - `Sunday, November 22, 2026` (12 scheduled, `2:05–4:05 PM`)
+    - `Sunday, November 29, 2026` (12 scheduled, `2:05–4:05 PM`)
+    - `Sunday, December 6, 2026` (8 scheduled + 4 open slots: `3:25–4:05 PM`)
+    - `Wednesday, December 9, 2026` (3 open slots: `6:00–6:15 PM`, `6:15–6:30 PM`, `6:30–6:45 PM`)
+  - Updated `sync_td_schedule.py` and `public/td/index.html` so both Sunday afternoon and Wednesday evening tabs display in the top date filter strip, schedule cards, Month Calendar grid, and the Request Change modal dropdowns.
+- Synchronized package, content, HTML, and asset version references to v1.2.27. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.26 — October 31, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.26 and `/td`.
