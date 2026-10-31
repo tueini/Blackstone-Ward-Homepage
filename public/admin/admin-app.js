@@ -94,36 +94,42 @@ function getCategoryColor(cat) {
 const ROLE_DEFINITIONS = {
   admin: { label: "Ward Administrator", org: "All Ward", fullAccess: true },
   bishopric: { label: "Bishopric", org: "All Ward", fullAccess: true },
+  combined: { label: "Combined Youth Leader", org: "Youth", fullAccess: false },
+  priests: { label: "Priests Quorum Leader", org: "Youth", fullAccess: false },
+  teachers: { label: "Teachers Quorum Leader", org: "Youth", fullAccess: false },
+  deacons: { label: "Deacons Quorum Leader", org: "Youth", fullAccess: false },
+  young_women: { label: "Young Women Leader", org: "Youth", fullAccess: false },
+  yw: { label: "Young Women Leader", org: "Youth", fullAccess: false },
   youth: { label: "Youth Leadership", org: "Youth", fullAccess: false },
   relief_society: { label: "Relief Society", org: "Relief Society", fullAccess: false },
   elders_quorum: { label: "Elders Quorum", org: "Elders Quorum", fullAccess: false },
-  primary: { label: "Primary", org: "Primary", fullAccess: false },
+  primary: { label: "Primary Leader", org: "Youth", fullAccess: false },
   sunday_school: { label: "Sunday School", org: "Sunday School", fullAccess: false },
   mission: { label: "Ward Mission", org: "Mission", fullAccess: false }
 };
 
 // ================= CALLING & ACCESS DEFINITIONS =================
 const CALLING_DEFINITIONS = [
-  { calling: "Bishopric", org: "bishopric", activeOnYouth: true, defaultAccess: ["Settings & Privacy", "Combined", "Priests", "Teachers", "Deacons", "Young Women", "Primary"] },
-  { calling: "Ward Activity", org: "bishopric", activeOnYouth: false, defaultAccess: [] },
-  { calling: "Ward Cleaning", org: "bishopric", activeOnYouth: false, defaultAccess: [] },
-  { calling: "Youth ADL Priest", org: "youth", activeOnYouth: true, defaultAccess: ["Priests"] },
-  { calling: "Youth Priest", org: "youth", activeOnYouth: true, defaultAccess: ["Priests"] },
-  { calling: "Youth ADL Teacher", org: "youth", activeOnYouth: true, defaultAccess: ["Teachers"] },
-  { calling: "Youth Teacher", org: "youth", activeOnYouth: true, defaultAccess: ["Teachers"] },
-  { calling: "Youth ADL Deacon", org: "youth", activeOnYouth: true, defaultAccess: ["Deacons"] },
-  { calling: "Youth Deacon", org: "youth", activeOnYouth: true, defaultAccess: ["Deacons"] },
-  { calling: "Youth YW Pres", org: "youth", activeOnYouth: true, defaultAccess: ["Combined", "Young Women"] },
-  { calling: "Youth ADL YW", org: "youth", activeOnYouth: true, defaultAccess: ["Young Women"] },
-  { calling: "Youth Builders", org: "youth", activeOnYouth: true, defaultAccess: ["Young Women"] },
-  { calling: "Youth Messengers", org: "youth", activeOnYouth: true, defaultAccess: ["Young Women"] },
-  { calling: "Youth Gatherers", org: "youth", activeOnYouth: true, defaultAccess: ["Young Women"] },
-  { calling: "Youth Primary Pres", org: "youth", activeOnYouth: true, defaultAccess: ["Primary"] },
-  { calling: "EQ Pres", org: "elders_quorum", activeOnYouth: false, defaultAccess: [] },
-  { calling: "EQ Activity", org: "elders_quorum", activeOnYouth: false, defaultAccess: [] },
-  { calling: "RS Pres", org: "relief_society", activeOnYouth: false, defaultAccess: [] },
-  { calling: "RS Activity", org: "relief_society", activeOnYouth: false, defaultAccess: [] },
-  { calling: "SS Pres", org: "sunday_school", activeOnYouth: false, defaultAccess: [] }
+  { calling: "Bishopric", org: "bishopric", role: "bishopric", activeOnYouth: true, defaultAccess: ["Settings & Privacy", "Combined", "Priests", "Teachers", "Deacons", "Young Women", "Primary"] },
+  { calling: "Ward Activity", org: "bishopric", role: "bishopric", activeOnYouth: false, defaultAccess: [] },
+  { calling: "Ward Cleaning", org: "bishopric", role: "bishopric", activeOnYouth: false, defaultAccess: [] },
+  { calling: "Youth ADL Priest", org: "youth", role: "priests", activeOnYouth: true, defaultAccess: ["Priests"] },
+  { calling: "Youth Priest", org: "youth", role: "priests", activeOnYouth: true, defaultAccess: ["Priests"] },
+  { calling: "Youth ADL Teacher", org: "youth", role: "teachers", activeOnYouth: true, defaultAccess: ["Teachers"] },
+  { calling: "Youth Teacher", org: "youth", role: "teachers", activeOnYouth: true, defaultAccess: ["Teachers"] },
+  { calling: "Youth ADL Deacon", org: "youth", role: "deacons", activeOnYouth: true, defaultAccess: ["Deacons"] },
+  { calling: "Youth Deacon", org: "youth", role: "deacons", activeOnYouth: true, defaultAccess: ["Deacons"] },
+  { calling: "Youth YW Pres", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Combined", "Young Women"] },
+  { calling: "Youth ADL YW", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Young Women"] },
+  { calling: "Youth Builders", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Young Women"] },
+  { calling: "Youth Messengers", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Young Women"] },
+  { calling: "Youth Gatherers", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Young Women"] },
+  { calling: "Youth Primary Pres", org: "youth", role: "primary", activeOnYouth: true, defaultAccess: ["Primary"] },
+  { calling: "EQ Pres", org: "elders_quorum", role: "elders_quorum", activeOnYouth: false, defaultAccess: [] },
+  { calling: "EQ Activity", org: "elders_quorum", role: "elders_quorum", activeOnYouth: false, defaultAccess: [] },
+  { calling: "RS Pres", org: "relief_society", role: "relief_society", activeOnYouth: false, defaultAccess: [] },
+  { calling: "RS Activity", org: "relief_society", role: "relief_society", activeOnYouth: false, defaultAccess: [] },
+  { calling: "SS Pres", org: "sunday_school", role: "sunday_school", activeOnYouth: false, defaultAccess: [] }
 ];
 
 const YOUTH_ADMIN_AREAS = [
@@ -142,12 +148,17 @@ function getCallingDef(callingName) {
 
 function getLeaderCalling(leader) {
   if (leader?.calling) return leader.calling;
-  if (leader?.role === 'admin' || leader?.role === 'bishopric') return 'Bishopric';
-  if (leader?.role === 'elders_quorum') return 'EQ Pres';
-  if (leader?.role === 'relief_society') return 'RS Pres';
-  if (leader?.role === 'sunday_school') return 'SS Pres';
-  if (leader?.role === 'primary') return 'Youth Primary Pres';
-  if (leader?.role === 'youth') return 'Youth Priest';
+  const r = (leader?.role || '').toLowerCase().trim();
+  if (r === 'admin' || r === 'bishopric') return 'Bishopric';
+  if (r === 'elders_quorum' || r === 'eq') return 'EQ Pres';
+  if (r === 'relief_society' || r === 'rs') return 'RS Pres';
+  if (r === 'sunday_school' || r === 'ss') return 'SS Pres';
+  if (r === 'primary') return 'Youth Primary Pres';
+  if (r === 'young_women' || r === 'yw') return 'Youth YW Pres';
+  if (r === 'priests') return 'Youth Priest';
+  if (r === 'teachers') return 'Youth Teacher';
+  if (r === 'deacons') return 'Youth Deacon';
+  if (r === 'combined' || r === 'youth') return 'Youth Priest';
   return 'Bishopric';
 }
 
@@ -155,11 +166,12 @@ function getLeaderOrg(leader) {
   const calling = getLeaderCalling(leader);
   const def = getCallingDef(calling);
   if (def) return def.org;
-  if (leader?.role === 'admin' || leader?.role === 'bishopric') return 'bishopric';
-  if (leader?.role === 'youth' || (calling && calling.startsWith('Youth'))) return 'youth';
-  if (leader?.role === 'elders_quorum') return 'elders_quorum';
-  if (leader?.role === 'relief_society') return 'relief_society';
-  if (leader?.role === 'sunday_school') return 'sunday_school';
+  const r = (leader?.role || '').toLowerCase().trim();
+  if (r === 'admin' || r === 'bishopric') return 'bishopric';
+  if (['youth', 'combined', 'priests', 'teachers', 'deacons', 'young_women', 'yw', 'primary'].includes(r) || (calling && calling.startsWith('Youth'))) return 'youth';
+  if (r === 'elders_quorum' || r === 'eq') return 'elders_quorum';
+  if (r === 'relief_society' || r === 'rs') return 'relief_society';
+  if (r === 'sunday_school' || r === 'ss') return 'sunday_school';
   return 'bishopric';
 }
 
@@ -170,11 +182,79 @@ function getLeaderAccessAreas(leader) {
   return def ? [...def.defaultAccess] : [];
 }
 
+function resolveLeaderRole(leader) {
+  if (!leader) return 'bishopric';
+  const rawRole = (leader.role || '').toLowerCase().trim();
+  const calling = getLeaderCalling(leader);
+  const def = getCallingDef(calling);
+  const areas = getLeaderAccessAreas(leader);
+
+  // Preserve primary Ward Administrator
+  if (
+    leader.id === 'leader_duane_harris' ||
+    normalizePhone(leader.phoneNumber || '') === '+15084940905' ||
+    (rawRole === 'admin' && (!leader.calling || calling === 'Bishopric' || calling === 'Ward Administrator'))
+  ) {
+    return 'admin';
+  }
+
+  // Full 7-area Youth Hub access or Bishopric calling maps to bishopric
+  if (areas.length === 7 || calling === 'Bishopric') {
+    return rawRole === 'admin' ? 'admin' : 'bishopric';
+  }
+
+  // Derive specific Youth Hub role from assigned accessAreas and calling so Youth Hub RBAC restricts tabs accurately
+  const isYouthOrg = (def && def.org === 'youth') || leader.org === 'youth' ||
+    ['youth', 'combined', 'priests', 'teachers', 'deacons', 'young_women', 'yw', 'primary'].includes(rawRole) ||
+    areas.length > 0;
+
+  if (isYouthOrg) {
+    const specificAreas = areas.filter(a => a !== 'Combined' && a !== 'Settings & Privacy');
+    if (specificAreas.length === 1) {
+      const area = specificAreas[0];
+      if (area === 'Young Women') return 'young_women';
+      if (area === 'Priests') return 'priests';
+      if (area === 'Teachers') return 'teachers';
+      if (area === 'Deacons') return 'deacons';
+      if (area === 'Primary') return 'primary';
+    }
+    if (areas.length === 1 && areas[0] === 'Combined') {
+      return 'combined';
+    }
+    if (def && def.role) {
+      return def.role;
+    }
+    if (['young_women', 'yw', 'priests', 'teachers', 'deacons', 'primary', 'combined'].includes(rawRole)) {
+      return rawRole === 'yw' ? 'young_women' : rawRole;
+    }
+    if (areas.includes('Young Women')) return 'young_women';
+    if (areas.includes('Priests')) return 'priests';
+    if (areas.includes('Teachers')) return 'teachers';
+    if (areas.includes('Deacons')) return 'deacons';
+    if (areas.includes('Primary')) return 'primary';
+    return 'combined';
+  }
+
+  if (def && def.role) return def.role;
+  if (rawRole && rawRole !== 'youth') return rawRole;
+  return 'bishopric';
+}
+
+function canUserAccessWardSettings(leader) {
+  if (!leader) return false;
+  const role = resolveLeaderRole(leader);
+  if (role === 'admin' || role === 'bishopric') return true;
+  const org = getLeaderOrg(leader);
+  if (org === 'bishopric') return true;
+  const areas = getLeaderAccessAreas(leader);
+  return areas.includes('Settings & Privacy');
+}
+
 // ================= RBAC PERMISSIONS =================
 function canUserChangePassword(targetLeader) {
   if (!targetLeader) return false;
-  const currentRole = currentLeaderProfile?.role || 'admin';
-  const targetRole = targetLeader?.role || 'relief_society';
+  const currentRole = resolveLeaderRole(currentLeaderProfile);
+  const targetRole = resolveLeaderRole(targetLeader);
 
   // 1. Ward Administrator can change all passwords
   if (currentRole === 'admin') return true;
@@ -184,17 +264,20 @@ function canUserChangePassword(targetLeader) {
     return targetRole !== 'admin';
   }
 
-  // 3. Other org users can only change passwords in their own org
+  // 3. Other org users can only change passwords in their own specific org/role
   if (targetRole === 'admin' || targetRole === 'bishopric') return false;
   const currentOrg = getLeaderOrg(currentLeaderProfile);
   const targetOrg = getLeaderOrg(targetLeader);
+  if (currentOrg === 'youth' || targetOrg === 'youth') {
+    return !!(currentRole && targetRole && currentRole === targetRole);
+  }
   return !!(currentOrg && targetOrg && currentOrg === targetOrg && currentOrg !== 'bishopric');
 }
 
 function canUserEditLeader(targetLeader) {
   if (!targetLeader) return false;
-  const currentRole = currentLeaderProfile?.role || 'admin';
-  const targetRole = targetLeader?.role || 'relief_society';
+  const currentRole = resolveLeaderRole(currentLeaderProfile);
+  const targetRole = resolveLeaderRole(targetLeader);
 
   // 1. Ward Administrator can edit all leaders
   if (currentRole === 'admin') return true;
@@ -210,8 +293,8 @@ function canUserEditLeader(targetLeader) {
 
 function canUserDeleteLeader(targetLeader) {
   if (!targetLeader) return false;
-  const currentRole = currentLeaderProfile?.role || 'admin';
-  const targetRole = targetLeader?.role || 'relief_society';
+  const currentRole = resolveLeaderRole(currentLeaderProfile);
+  const targetRole = resolveLeaderRole(targetLeader);
 
   // 1. Ward Administrator can delete leaders (except primary admin Duane Harris)
   if (currentRole === 'admin') {
@@ -228,14 +311,14 @@ function canUserDeleteLeader(targetLeader) {
 }
 
 function canUserAddLeader() {
-  const currentRole = currentLeaderProfile?.role || 'admin';
+  const currentRole = resolveLeaderRole(currentLeaderProfile);
   return currentRole === 'admin' || currentRole === 'bishopric';
 }
 
 function canUserOnboardLeader(targetLeader) {
   if (!targetLeader) return false;
-  const currentRole = currentLeaderProfile?.role || 'admin';
-  const targetRole = targetLeader?.role || 'relief_society';
+  const currentRole = resolveLeaderRole(currentLeaderProfile);
+  const targetRole = resolveLeaderRole(targetLeader);
 
   // 1. Ward Administrator can onboard all leaders
   if (currentRole === 'admin') return true;
@@ -271,20 +354,22 @@ function getSSOCookieDomain() {
 function setSSOCookie(profile) {
   if (!profile) return;
   try {
-    const ssoPayload = { ...profile };
+    const resolvedRole = resolveLeaderRole(profile);
+    const resolvedCalling = getLeaderCalling(profile);
+    const resolvedOrg = getLeaderOrg(profile);
+    const resolvedAreas = getLeaderAccessAreas(profile);
+    const ssoPayload = {
+      ...profile,
+      name: profile.displayName || profile.name || 'Ward Leader',
+      displayName: profile.displayName || profile.name || 'Ward Leader',
+      uid: profile.phoneNumber || profile.email || profile.uid || profile.id || 'leader',
+      role: resolvedRole,
+      calling: resolvedCalling,
+      org: resolvedOrg,
+      accessAreas: resolvedAreas,
+      authenticatedAt: profile.authenticatedAt || new Date().toISOString()
+    };
     delete ssoPayload.passwordHash; // Protect credentials from cookie storage
-    if (!ssoPayload.calling) {
-      ssoPayload.calling = getLeaderCalling(profile);
-    }
-    if (!ssoPayload.org) {
-      ssoPayload.org = getLeaderOrg(profile);
-    }
-    if (!ssoPayload.accessAreas) {
-      ssoPayload.accessAreas = getLeaderAccessAreas(profile);
-    }
-    if (!ssoPayload.authenticatedAt) {
-      ssoPayload.authenticatedAt = new Date().toISOString();
-    }
     const val = encodeURIComponent(JSON.stringify(ssoPayload));
     const domain = getSSOCookieDomain();
     const domainAttr = (domain === 'localhost' || domain === '127.0.0.1') ? '' : `; domain=${domain}`;
@@ -836,15 +921,20 @@ function checkAuth() {
     try {
       profile = JSON.parse(sessionStorage.getItem('wardLeaderProfile') || 'null');
     } catch (_) { }
-    if (!profile || profile.displayName === 'Master Admin' || !profile.email) {
+    if (!profile || profile.displayName === 'Master Admin' || !profile.displayName) {
       profile = {
+        id: "leader_duane_harris",
         displayName: "Duane Harris",
         email: "tueini@gmail.com",
         phoneNumber: "(508) 494-0905",
         role: "admin"
       };
-      sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
     }
+    profile.role = resolveLeaderRole(profile);
+    profile.calling = getLeaderCalling(profile);
+    profile.org = getLeaderOrg(profile);
+    profile.accessAreas = getLeaderAccessAreas(profile);
+    sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
     currentLeaderProfile = profile;
     setSSOCookie(profile);
 
@@ -858,8 +948,15 @@ function checkAuth() {
       nameEl.textContent = profile.displayName || 'Duane Harris';
       if (emailEl) emailEl.textContent = profile.email || profile.phoneNumber || 'tueini@gmail.com';
       if (roleEl) {
-        const roleDef = ROLE_DEFINITIONS[profile.role] || { label: 'Ward Administrator', fullAccess: true };
-        roleEl.textContent = roleDef.label;
+        const roleDef = ROLE_DEFINITIONS[profile.role] || { label: 'Ward Leader', fullAccess: false };
+        const areas = getLeaderAccessAreas(profile);
+        if (profile.role === 'admin' || profile.role === 'bishopric') {
+          roleEl.textContent = roleDef.label;
+        } else if (areas.length > 0 && areas.length < 7) {
+          roleEl.textContent = `${roleDef.label} • ${areas.join(', ')}`;
+        } else {
+          roleEl.textContent = roleDef.label;
+        }
       }
       if (initialsEl) {
         const parts = (profile.displayName || 'Duane Harris').trim().split(/\s+/);
@@ -890,6 +987,24 @@ function checkAuth() {
     const tabLead = document.getElementById('tab-leaders');
     if (tabLead) {
       tabLead.classList.remove('hidden');
+    }
+
+    // Restrict Settings tab (Ward Announcements & Spotlights) to Admin, Bishopric, or leaders with "Settings & Privacy" access
+    const tabSet = document.getElementById('tab-settings');
+    const secSet = document.getElementById('section-settings');
+    const tabCal = document.getElementById('tab-calendar');
+    const secCal = document.getElementById('section-calendar');
+    if (tabSet) {
+      if (canUserAccessWardSettings(profile)) {
+        tabSet.classList.remove('hidden');
+      } else {
+        tabSet.classList.add('hidden');
+        if (secSet && !secSet.classList.contains('hidden')) {
+          secSet.classList.add('hidden');
+          if (tabCal) tabCal.className = 'tab-btn active px-4 py-2 rounded-t-lg font-semibold text-xs tracking-wide transition flex items-center gap-2';
+          if (secCal) secCal.classList.remove('hidden');
+        }
+      }
     }
 
     // "+ Add Ward Leader" button is visible only to Ward Admin and Bishopric
@@ -1367,7 +1482,15 @@ function initSubscriptions() {
     leadersCache = [];
     snapshot.forEach(docSnap => {
       const data = docSnap.data();
-      leadersCache.push({ id: docSnap.id, ...data });
+      const item = { id: docSnap.id, ...data };
+      const resolvedRole = resolveLeaderRole(item);
+      const resolvedOrg = getLeaderOrg(item);
+      if (item.role !== resolvedRole || item.org !== resolvedOrg) {
+        item.role = resolvedRole;
+        item.org = resolvedOrg;
+        setDoc(doc(db, "ward_leaders", docSnap.id), { role: resolvedRole, org: resolvedOrg }, { merge: true }).catch(() => { });
+      }
+      leadersCache.push(item);
     });
 
     // Ensure Duane Harris is always present in the leaders registry
@@ -1385,6 +1508,33 @@ function initSubscriptions() {
       setDoc(doc(db, "ward_leaders", "leader_duane_harris"), duaneData, { merge: true }).catch(() => { });
     }
 
+    // Sync active session profile if current logged-in leader's role/accessAreas were updated
+    if (currentLeaderProfile) {
+      const cleanName = (currentLeaderProfile.displayName || '').toLowerCase().trim();
+      const matched = leadersCache.find(l =>
+        (currentLeaderProfile.id && l.id === currentLeaderProfile.id) ||
+        (cleanName && (l.displayName || '').toLowerCase().trim() === cleanName)
+      );
+      if (matched) {
+        currentLeaderProfile = { ...currentLeaderProfile, ...matched, role: resolveLeaderRole(matched) };
+        sessionStorage.setItem('wardLeaderProfile', JSON.stringify(currentLeaderProfile));
+        setSSOCookie(currentLeaderProfile);
+        const roleEl = document.getElementById('leader-role-label');
+        if (roleEl) {
+          const roleDef = ROLE_DEFINITIONS[currentLeaderProfile.role] || { label: 'Ward Leader', fullAccess: false };
+          const areas = getLeaderAccessAreas(currentLeaderProfile);
+          if (currentLeaderProfile.role === 'admin' || currentLeaderProfile.role === 'bishopric') {
+            roleEl.textContent = roleDef.label;
+          } else if (areas.length > 0 && areas.length < 7) {
+            roleEl.textContent = `${roleDef.label} • ${areas.join(', ')}`;
+          } else {
+            roleEl.textContent = roleDef.label;
+          }
+        }
+      }
+    }
+
+    try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
     renderLeadersTable();
   }, (err) => {
     console.error("Firestore ward_leaders error:", err);
@@ -2538,9 +2688,17 @@ function renderLeadersTable() {
   if (countSsEl) countSsEl.textContent = countSs;
 
   // Filter leaders by selected organization tab
+  const orgTabMap = {
+    bishopric: 'bishopric',
+    youth: 'youth',
+    eq: 'elders_quorum',
+    rs: 'relief_society',
+    ss: 'sunday_school'
+  };
   let filteredLeaders = leadersCache;
   if (currentLeaderOrgTab !== 'all') {
-    filteredLeaders = leadersCache.filter(leader => getLeaderOrg(leader) === currentLeaderOrgTab);
+    const targetOrg = orgTabMap[currentLeaderOrgTab] || currentLeaderOrgTab;
+    filteredLeaders = leadersCache.filter(leader => getLeaderOrg(leader) === targetOrg);
   }
 
   if (filteredLeaders.length === 0) {
@@ -3007,7 +3165,7 @@ function openLeaderModal(leader = null) {
   }
   const roleHidden = document.getElementById('leader-role');
   if (roleHidden) {
-    roleHidden.value = leader?.role || (getCallingDef(callingVal)?.org || 'bishopric');
+    roleHidden.value = leader ? resolveLeaderRole(leader) : (getCallingDef(callingVal)?.role || getCallingDef(callingVal)?.org || 'bishopric');
   }
 
   // Pre-fill or restore access areas
@@ -3063,17 +3221,12 @@ async function saveLeader() {
 
   const def = getCallingDef(calling);
   const org = def ? def.org : 'bishopric';
-  let role = org;
+  const existing = idInput ? leadersCache.find(l => l.id === idInput) : null;
 
   if (idInput) {
-    const existing = leadersCache.find(l => l.id === idInput);
     if (existing && !canUserEditLeader(existing)) {
       alert("Permission denied: You do not have permission to edit this leader.");
       return;
-    }
-    // Preserve 'admin' role if Duane Harris or already admin
-    if (existing && existing.role === 'admin' && (calling === 'Bishopric' || calling === 'Ward Administrator')) {
-      role = 'admin';
     }
   } else {
     if (!canUserAddLeader()) {
@@ -3094,6 +3247,14 @@ async function saveLeader() {
   }
 
   const id = idInput || `leader_${Date.now()}`;
+  const role = resolveLeaderRole({
+    id,
+    phoneNumber: phone,
+    calling,
+    org,
+    accessAreas,
+    role: existing?.role
+  });
   const payload = {
     displayName: name,
     email: email,
@@ -3881,7 +4042,8 @@ function initLoginLeaderLookup() {
       pool.find(l => (l.displayName || '').toLowerCase().includes(cleanVal));
 
     if (match) {
-      const roleInfo = ROLE_DEFINITIONS[match.role] || { label: 'Leader' };
+      const resolvedRole = resolveLeaderRole(match);
+      const roleInfo = ROLE_DEFINITIONS[resolvedRole] || { label: getLeaderCalling(match) || 'Leader' };
       if (matchText) matchText.textContent = `${match.displayName} (${roleInfo.label})`;
       if (matchIndicator) {
         matchIndicator.classList.remove('hidden');
@@ -3921,7 +4083,7 @@ function initLoginLeaderLookup() {
   try {
     const saved = JSON.parse(localStorage.getItem('local_ward_leaders') || '[]');
     if (saved.length > 0 && leadersCache.length === 0) {
-      leadersCache = saved;
+      leadersCache = saved.map(l => ({ ...l, role: resolveLeaderRole(l), org: getLeaderOrg(l) }));
     }
   } catch (_) { }
   updateDatalist();
@@ -3930,7 +4092,17 @@ function initLoginLeaderLookup() {
   getDocs(collection(db, "ward_leaders")).then(snap => {
     if (!snap.empty) {
       leadersCache = [];
-      snap.forEach(d => leadersCache.push({ id: d.id, ...d.data() }));
+      snap.forEach(d => {
+        const item = { id: d.id, ...d.data() };
+        const resolvedRole = resolveLeaderRole(item);
+        const resolvedOrg = getLeaderOrg(item);
+        if (item.role !== resolvedRole || item.org !== resolvedOrg) {
+          item.role = resolvedRole;
+          item.org = resolvedOrg;
+          setDoc(doc(db, "ward_leaders", d.id), { role: resolvedRole, org: resolvedOrg }, { merge: true }).catch(() => { });
+        }
+        leadersCache.push(item);
+      });
       if (!leadersCache.some(l => l.displayName === 'Duane Harris')) {
         leadersCache.unshift({
           id: 'leader_duane_harris',

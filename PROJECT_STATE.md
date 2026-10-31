@@ -1,14 +1,20 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.33
+**Version:** 1.2.34
 **Date:** October 31, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.33 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Fixed the homepage announcements sync in `public/js/home.js` and `public/admin/admin-app.js` by subscribing to the publicly readable `home_announcements` Firestore collection (filtered to Ward announcements where `org === 'Ward'` or `title` is present) in addition to `localStorage` fallback, resolving the issue where `ward_announcements` returned `403 PERMISSION_DENIED` under Firestore Security Rules.
+**State:** Version 1.2.34 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Fixed organization and access-area RBAC mapping in `public/admin/admin-app.js` and Firestore `ward_leaders` so Youth and Auxiliary leaders (such as Josie Brown, Young Women — Youth Gatherers) receive their specific organization role (`young_women`, `priests`, `teachers`, `deacons`, `primary`, `combined`, `elders_quorum`, `relief_society`, `sunday_school`, `bishopric`, `admin`) rather than a generic `"youth"` string that caused the Youth Hub Admin portal (`youth.blackstoneward.org/admin`) to fall back to `Combined` credentials. Also fixed `checkAuth()` so leaders without an email address on file are not overwritten by the Master Admin profile, updated the cross-subdomain SSO cookie (`ward_auth_session`) payload with `name`, `uid`, and resolved `role`, and restricted Ward Settings (`#tab-settings`) to Admin, Bishopric, or leaders with `"Settings & Privacy"` permission.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Organization-Specific Admin RBAC & Youth Hub Role Mapping Fix (v1.2.34):
+  - **Root Cause 1 Fixed (`role: "youth"` Falling Back to `Combined` on Youth Hub Admin)**: Previously, `saveLeader()` in `public/admin/admin-app.js` assigned `role = org` (`"youth"`) for all 12 Youth callings. When `youth.blackstoneward.org/admin` evaluated `mapProfileToYouthRole("youth")`, `"youth"` did not match `'young_women'`, `'priests'`, `'teachers'`, `'deacons'`, or `'primary'` and fell back to `'Combined'`. Added explicit `role` mappings on `CALLING_DEFINITIONS` and `resolveLeaderRole(leader)` in `public/admin/admin-app.js` so leaders with `Young Women` access (such as Josie Brown, `Youth Gatherers`) save and authenticate with `role: "young_women"`, restricting them strictly to `Young Women Management` (`Young Women` tab only).
+  - **Root Cause 2 Fixed (`checkAuth()` Overwriting Password-Authenticated Leaders Without Email)**: Removed the `|| !profile.email` fallback check in `checkAuth()` (`public/admin/admin-app.js`) that previously replaced any logged-in leader lacking an email address (like Josie Brown) with Duane Harris (`role: "admin"`).
+  - **Root Cause 3 Fixed (Cross-Subdomain `ward_auth_session` Cookie Schema & Self-Healing Firestore Sync)**: Updated `setSSOCookie()` to include `name`, `uid`, and the resolved organization `role` expected by `youth.blackstoneward.org/admin`, updated Josie Brown's Firestore `ward_leaders` record (`leader_1793217550186`) to `role: "young_women"`, and added automatic self-healing in `initSubscriptions()` and `initLoginLeaderLookup()`.
+  - **Ward Admin UI Restrictions & Org Subtab Filter Fix**: Restricted `#tab-settings` (Ward Announcements & Spotlights) via `canUserAccessWardSettings(profile)` so non-Bishopric/non-Admin leaders without `"Settings & Privacy"` access cannot modify Ward-wide homepage settings, restricted Youth password changes to matching Youth sub-organizations, and fixed `eq`/`rs`/`ss` subtab filtering in `renderLeadersTable()`.
 
 - Homepage Announcements Live Sync from `home_announcements` (v1.2.33):
   - **Root Cause Fixed (`ward_announcements` 403 vs `home_announcements` 200)**: In Firestore (`blackstoneward-b861c`), `ward_announcements` is blocked by Firestore security rules (`403 PERMISSION_DENIED`), whereas `home_announcements` (where `admin-app.js` dual-writes all Ward announcements with `org: 'Ward'`) allows public read/write.

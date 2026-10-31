@@ -1,5 +1,17 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.34 — October 31, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.34.
+- **Fixed Leader Organization RBAC & Youth Hub Access Restrictions (`public/admin/admin-app.js` & Firestore `ward_leaders`)**:
+  - Diagnosed why Josie Brown (`Youth Gatherers`, access area `Young Women`) appeared with `Combined` credentials in the Admin site:
+    1. `saveLeader()` in `public/admin/admin-app.js` previously set `role = def.org` (`"youth"`) for all Youth callings. When the Youth Hub Admin portal (`youth.blackstoneward.org/admin`) read `role: "youth"` in `mapProfileToYouthRole()`, it did not match `'young_women'` and fell back to `'Combined'`.
+    2. `checkAuth()` in `public/admin/admin-app.js` had an `|| !profile.email` fallback condition that overwrote any logged-in leader without an email address on file with the Master Admin profile.
+    3. `setSSOCookie()` wrote `displayName` and `phoneNumber` without the `name`, `uid`, and specific `role` fields expected by the Youth Hub's `getSharedSession()`.
+  - Added `resolveLeaderRole(leader)` and specific `role` mappings across `CALLING_DEFINITIONS` and `ROLE_DEFINITIONS` (`young_women`, `priests`, `teachers`, `deacons`, `primary`, `combined`, `bishopric`, `admin`, `elders_quorum`, `relief_society`, `sunday_school`), updated `saveLeader()` and `setSSOCookie()`, and patched Josie Brown's Firestore `ward_leaders/leader_1793217550186` document to `role: "young_women"`.
+  - Enforced `canUserAccessWardSettings(profile)` on `#tab-settings` in `public/admin/admin-app.js` so leaders without `admin`/`bishopric` credentials or `"Settings & Privacy"` access cannot modify Ward-wide homepage announcements/spotlights, and fixed `eq`/`rs`/`ss` subtab filtering in `renderLeadersTable()`.
+- Synchronized package, content, HTML, and asset version references to v1.2.34. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.33 — October 31, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.33.
