@@ -1,0 +1,483 @@
+{
+  "title": "Blackstone Ward Tithing Declaration",
+  "subtitle": "Sunday Interview Schedule — November through December 6, 2026",
+  "updatedAt": "2026-10-31",
+  "contacts": {
+    "toEmail": "mcdonaldlds830@gmail.com",
+    "ccEmail": "duanepharris@gmail.com"
+  },
+  "totalScheduled": 56,
+  "totalOpenSlots": 4,
+  "sundays": [
+    {
+      "tabName": "November 1, 2026",
+      "title": "Sunday, November 1, 2026",
+      "date": "2026-11-01",
+      "scheduledCount": 12,
+      "totalSlots": 12,
+      "openCount": 0,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "Bourne",
+          "members": "Garrett Austin Bourne, Cami Bourne, Lucie May Bourne, Oliver Glen Bourne",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Bogle",
+          "members": "Braxton Bogle, Mo Bogle, Miles Evan Bogle, Ellie Kei Bogle",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "Bova",
+          "members": "Ruth Bova",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Shurick",
+          "members": "Christine Anne",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Barcalow",
+          "members": "Jilda Ann Barcalow",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Batista Araujo",
+          "members": "Pamela Thayna Batista Araujo",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "Appleby",
+          "members": "Stacy Appleby",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Begin",
+          "members": "Michelle Begin",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "Bennett",
+          "members": "Sarah Bennett",
+          "available": false
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "Bishaw",
+          "members": "Ericshayne Bishaw, Kim Bishaw",
+          "available": false
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "Brown",
+          "members": "Josh Brown, Megan Brown, Will Brown, Josie Brown, Jameson Brown",
+          "available": false
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "Buckley",
+          "members": "Wade Buckley, Brieana Buckley",
+          "available": false
+        }
+      ]
+    },
+    {
+      "tabName": "November 8, 2026",
+      "title": "Sunday, November 8, 2026",
+      "date": "2026-11-08",
+      "scheduledCount": 12,
+      "totalSlots": 12,
+      "openCount": 0,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "Fuller",
+          "members": "Harrison, Alanna Lynn, Ralph Wells, Juliet Tommy",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Fairbank",
+          "members": "Keith, Rebecca, Rachel, Molly, Mathilde Lois, Abigail Susannah, Keith Arthur",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "Klein / Kein",
+          "members": "Rachel Ballard Klein, Susannah Rachel Klein, Asha Ballard Kein",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Laskowsky",
+          "members": "Brandi Laskowsky Afoakwah, Jasmiya, Buddy, Nova Star Laskowsky McNeill",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Cowden",
+          "members": "John Cowden, Mio Cowden, Melody Cowden",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Dunton",
+          "members": "Bethany B Dunton, Jackson Whitman Dunton",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "Escobar",
+          "members": "Karina Escobar",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Evans",
+          "members": "David Robert, Laurie Sue",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "Faria / Gomes Silva",
+          "members": "Tairini Priscila Lopes de Faria, Caio César Gomes Silva",
+          "available": false
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "Fisk",
+          "members": "Dan, Anna",
+          "available": false
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "Gaudette",
+          "members": "Edward Jay",
+          "available": false
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "Hernandez",
+          "members": "Juan Roberto, Nelly",
+          "available": false
+        }
+      ]
+    },
+    {
+      "tabName": "November 22, 2026",
+      "title": "Sunday, November 22, 2026",
+      "date": "2026-11-22",
+      "scheduledCount": 12,
+      "totalSlots": 12,
+      "openCount": 0,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "King",
+          "members": "Jeffrey, Kathleen, Caleb J. Fasteson",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Jensen",
+          "members": "Austin, Catherine Lee, Hillam Max",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "Hill / Carlson",
+          "members": "David Hill, Donna Carlson Hill, Samuel Scott Carlson, John Carlson",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Hunsaker",
+          "members": "Ben, Meg, Ethan Benjamin",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Laverty",
+          "members": "Michael, Lia, Colton Michael, Kael David",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Hogan",
+          "members": "Deborah",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "Holmes",
+          "members": "Terry",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Houston",
+          "members": "Cole Watenpaugh, Kendra Watenpaugh",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "Howell",
+          "members": "Emma Elizabeth, Tim, Paula Jean, Zachery Edward",
+          "available": false
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "Howell",
+          "members": "K.C.",
+          "available": false
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "Lessard",
+          "members": "Annette",
+          "available": false
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "Watson",
+          "members": "Beth",
+          "available": false
+        }
+      ]
+    },
+    {
+      "tabName": "November 29, 2026",
+      "title": "Sunday, November 29, 2026",
+      "date": "2026-11-29",
+      "scheduledCount": 12,
+      "totalSlots": 12,
+      "openCount": 0,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "Mullis",
+          "members": "Shaun Christopher, Melanie Sue, Landon Christopher, Caden Vlademar, Dallin Nicholai, Lana Sue, Rosalie Ling Rehon",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Robinson",
+          "members": "Blake, Julissa, Jaziyah",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "McDonald",
+          "members": "Brian Evan",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Martin / Hoffman",
+          "members": "Barbara Martin, Shayna Hoffman",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Saylor",
+          "members": "Virginia Saylor",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Harris",
+          "members": "Joyce",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "McKinnon",
+          "members": "Bryan, Claudia",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Phillips",
+          "members": "Joseph Quintin, Janet Ellen",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "Rickett",
+          "members": "William",
+          "available": false
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "Rowey",
+          "members": "Matt Rowey",
+          "available": false
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "Thapa",
+          "members": "Sher, Bala",
+          "available": false
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "Truscott",
+          "members": "John, Carrie",
+          "available": false
+        }
+      ]
+    },
+    {
+      "tabName": "December 6, 2026",
+      "title": "Sunday, December 6, 2026",
+      "date": "2026-12-06",
+      "scheduledCount": 8,
+      "totalSlots": 12,
+      "openCount": 4,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "Seeley",
+          "members": "Benjamin Seeley, Ana Seeley",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Venancio / Mafra",
+          "members": "Fabio Junior Venancio, Ana Paula Batista Mafra, João Lucas Batista Mafra Venâncio, Julia Mafra Venancio",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "Wild",
+          "members": "Andrew Vance, Amber Lynn, Vance Timothy, Logan Hadley, Ethan Franklyn, Lenna Annemarie, Blake Andrade",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Wild",
+          "members": "Daniel Franklyn, Danielle, Samuel",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Wild",
+          "members": "Fred",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Sofoul",
+          "members": "Stephen, Christine, Conner, Luke Scott",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "Shea",
+          "members": "Rosemary",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Sugarman",
+          "members": "Michael, Amy",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        }
+      ]
+    }
+  ]
+}

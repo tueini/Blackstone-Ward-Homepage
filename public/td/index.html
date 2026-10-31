@@ -1,0 +1,1602 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="2026 Tithing Declaration Sunday interview schedule and change request form for the Blackstone Ward in Franklin, Massachusetts.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#FAF6EF">
+  <title>Tithing Declaration Schedule — Blackstone Ward</title>
+  <link rel="icon" href="/assets/ward-logo.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/seasons.css">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/site.css">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #FAF6EF;
+      color: #152548;
+    }
+    .font-serif {
+      font-family: 'Newsreader', Georgia, Cambria, serif;
+    }
+    dialog#td-change-dialog {
+      margin: auto;
+      border: none;
+      padding: 0;
+      background: transparent;
+      max-width: 36rem;
+      width: calc(100% - 1.5rem);
+    }
+    dialog#td-change-dialog::backdrop {
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(3px);
+    }
+    .slot-card:hover .slot-action-pill {
+      background-color: #152548;
+      color: #ffffff;
+      border-color: #152548;
+    }
+    mark.td-highlight {
+      background-color: #FEF08A;
+      color: #152548;
+      border-radius: 0.25rem;
+      padding: 0 0.15rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body data-season="fall" class="min-h-screen flex flex-col bg-[#FAF6EF]">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-[#E9DECE] sticky top-0 z-30 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-3 shrink-0" aria-label="Blackstone Ward Home">
+        <img src="/assets/ward-logo-horizontal-v1.0.6.png" alt="Blackstone Ward" class="h-10 w-auto object-contain">
+      </a>
+      <nav class="flex items-center gap-3 sm:gap-5 text-xs font-semibold overflow-x-auto py-1">
+        <a href="/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Home</a>
+        <a href="/calendar/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Calendar</a>
+        <a href="/spotlights/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Spotlights</a>
+        <a href="/td/" class="text-[#152548] font-bold border-b-2 border-[#152548] pb-1 whitespace-nowrap" aria-current="page">Tithing Declaration</a>
+        <a href="/admin/" class="text-[#A74319] hover:underline transition whitespace-nowrap">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="bg-gradient-to-b from-white to-[#FAF6EF] border-b border-[#E9DECE] py-8 sm:py-10 px-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div class="space-y-2.5 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#A74319] bg-[#A74319]/10">
+            <span class="w-2 h-2 rounded-full bg-[#A74319]"></span>
+            <span>Sundays • Nov 1 – Dec 6, 2026</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-serif font-bold text-[#152548] tracking-tight">
+            Blackstone Ward Tithing Declaration
+          </h1>
+          <p class="text-sm text-[#536484] leading-relaxed">
+            Interviews with Bishopric are held on Sundays from <strong>2:05 PM to 4:05 PM</strong> at the Franklin Stake Center.
+            <strong>Click on your family name</strong> anywhere on the schedule below to propose a new date or time.
+          </p>
+        </div>
+
+        <!-- Quick Stats & Request Change CTA -->
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+          <div class="bg-white border border-[#E9DECE] rounded-2xl px-4 py-2.5 shadow-2xs text-left">
+            <span class="block text-[10px] font-bold uppercase tracking-wider text-[#536484]">Interview Sundays</span>
+            <span id="stat-sundays-count" class="text-lg font-bold text-[#152548]">5 Sundays</span>
+          </div>
+          <div class="bg-white border border-[#E9DECE] rounded-2xl px-4 py-2.5 shadow-2xs text-left">
+            <span class="block text-[10px] font-bold uppercase tracking-wider text-[#536484]">Scheduled Families</span>
+            <span id="stat-households-count" class="text-lg font-bold text-[#007B91]">56 Households</span>
+          </div>
+          <button type="button" id="btn-hero-request-change"
+            class="px-4 py-3 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-2xl text-xs flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer">
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Request a Schedule Change</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 py-6 sm:py-8 flex-1 w-full space-y-6">
+
+    <!-- Sunday Calendar Overview Strip (Nov – Dec 2026) -->
+    <section aria-label="Sundays in November and early December 2026" class="bg-white border border-[#E9DECE] rounded-3xl p-4 sm:p-5 shadow-2xs">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#007B91]"></span>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-[#152548]">Sunday Interview Dates (Nov – Dec 2026)</h2>
+        </div>
+        <span class="text-[11px] text-[#536484] hidden sm:inline">Click any Sunday below to filter, or click "All Sundays" to view all</span>
+      </div>
+      <div id="sunday-overview-strip" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        <!-- Populated dynamically -->
+      </div>
+    </section>
+
+    <!-- Search & View Mode Toolbar -->
+    <section class="bg-white border border-[#E9DECE] rounded-2xl p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <!-- Search Bar -->
+      <div class="relative flex-1 max-w-xl">
+        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </span>
+        <input type="search" id="td-family-search" placeholder="Search by family last name or member first name (e.g. Bourne, Fairbank, Wild)..."
+          autocomplete="off"
+          class="w-full pl-10 pr-24 py-2.5 rounded-xl border border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/10 outline-none text-xs sm:text-sm transition">
+        <button type="button" id="td-search-clear"
+          class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-1 text-[11px] font-semibold text-slate-500 hover:text-[#152548] bg-slate-100 hover:bg-slate-200 rounded-lg transition cursor-pointer">
+          Clear
+        </button>
+      </div>
+
+      <!-- Filter & View Switcher -->
+      <div class="flex flex-wrap items-center justify-between md:justify-end gap-3">
+        <span id="td-search-status" class="text-xs font-semibold text-[#007B91] hidden"></span>
+
+        <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200" role="group" aria-label="Schedule display mode">
+          <button type="button" id="btn-mode-cards"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#152548] text-white shadow-2xs transition cursor-pointer">
+            Sunday Schedule
+          </button>
+          <button type="button" id="btn-mode-month"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-[#152548] transition cursor-pointer">
+            Month Calendar
+          </button>
+          <button type="button" id="btn-mode-az"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-[#152548] transition cursor-pointer">
+            A–Z Family List
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 1: SUNDAY SCHEDULE CARDS (Default) -->
+    <section id="view-sunday-cards" class="space-y-6">
+      <div id="sunday-cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <!-- Sunday cards injected dynamically -->
+      </div>
+    </section>
+
+    <!-- VIEW 2: MONTH CALENDAR GRID (Nov & Dec 2026) -->
+    <section id="view-month-calendar" class="hidden space-y-8">
+      <div id="month-calendars-container" class="space-y-8">
+        <!-- November & December 2026 month grids injected dynamically -->
+      </div>
+    </section>
+
+    <!-- VIEW 3: ALPHABETICAL A-Z FAMILY DIRECTORY -->
+    <section id="view-az-directory" class="hidden">
+      <div class="bg-white border border-[#E9DECE] rounded-3xl overflow-hidden shadow-sm">
+        <div class="px-6 py-4 border-b border-[#E9DECE] bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-lg font-serif font-bold text-[#152548]">Alphabetical Household Directory (A–Z)</h2>
+            <p class="text-xs text-[#536484]">Click any family row to propose a schedule change.</p>
+          </div>
+          <span id="az-count-badge" class="text-xs font-bold text-[#007B91] bg-[#007B91]/10 px-3 py-1 rounded-full self-start sm:self-auto">56 Households</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-[#E9DECE] text-[#536484] uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="px-5 py-3">Household</th>
+                <th class="px-5 py-3">Members Included</th>
+                <th class="px-5 py-3">Sunday Date</th>
+                <th class="px-5 py-3">Time Slot</th>
+                <th class="px-5 py-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="az-table-body" class="divide-y divide-[#E9DECE]">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================== REQUEST A CHANGE MODAL (<dialog closedby="any">) ======================== -->
+  <dialog id="td-change-dialog" closedby="any" aria-labelledby="td-dialog-title">
+    <div class="bg-white border border-[#E9DECE] rounded-3xl p-6 sm:p-8 shadow-2xl relative text-[#152548] max-h-[92vh] overflow-y-auto">
+      <button type="button" id="td-dialog-close"
+        class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
+        aria-label="Close dialog">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="flex items-center gap-2 mb-1">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#A74319]"></span>
+        <span class="text-xs font-bold uppercase tracking-wider text-[#A74319]">Tithing Declaration Reschedule</span>
+      </div>
+      <h2 id="td-dialog-title" class="text-2xl font-serif font-bold text-[#152548]">Request a Schedule Change</h2>
+      <p class="text-xs text-[#536484] mt-0.5">
+        Send your proposed change directly to Executive Secretary Brian McDonald (<code class="font-mono text-[11px] text-[#152548]">mcdonaldlds830@gmail.com</code>) with a copy to <code class="font-mono text-[11px] text-[#152548]">duanepharris@gmail.com</code>.
+      </p>
+
+      <!-- Current Appointment Summary Card -->
+      <div id="td-current-slot-banner" class="mt-4 p-4 rounded-2xl bg-[#FAF6EF] border border-[#E9DECE] space-y-1.5">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-semibold text-[#536484] uppercase tracking-wider text-[10px]">Current Appointment</span>
+          <span id="td-modal-current-badge" class="px-2 py-0.5 rounded-md bg-[#152548] text-white font-semibold text-[11px]">Scheduled</span>
+        </div>
+        <div class="text-base font-bold text-[#152548]" id="td-modal-household-display">Select Household</div>
+        <div class="text-xs text-[#536484]" id="td-modal-members-display"></div>
+        <div class="text-xs font-semibold text-[#007B91] pt-0.5" id="td-modal-datetime-display"></div>
+      </div>
+
+      <!-- Change Request Form -->
+      <form id="td-change-form" class="mt-4 space-y-4">
+        <input type="hidden" id="td-form-orig-date">
+        <input type="hidden" id="td-form-orig-time">
+        <input type="hidden" id="td-form-orig-members">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label for="td-form-household" class="block text-xs font-semibold text-[#536484] mb-1">Household / Family Name *</label>
+            <input type="text" id="td-form-household" required placeholder="e.g. Bourne"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
+          </div>
+          <div>
+            <label for="td-form-contact" class="block text-xs font-semibold text-[#536484] mb-1">Your Phone or Email *</label>
+            <input type="text" id="td-form-contact" required placeholder="e.g. (508) 555-0123"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label for="td-form-request-type" class="block text-xs font-semibold text-[#536484] mb-1">What change would you like to propose? *</label>
+          <select id="td-form-request-type"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white font-medium text-[#152548]">
+            <option value="Move to another Sunday or time slot">Move to another Sunday or time slot</option>
+            <option value="Claim an open time slot on December 6">Claim an open time slot on December 6</option>
+            <option value="Swap appointment time with another family">Swap appointment time with another family</option>
+            <option value="Request a Zoom / remote interview">Request a Zoom / remote interview</option>
+            <option value="Unable to attend scheduled time — please contact us">Unable to attend scheduled time — please contact us</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label for="td-form-pref-date" class="block text-xs font-semibold text-[#536484] mb-1">Preferred New Sunday *</label>
+            <select id="td-form-pref-date"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white">
+              <option value="Sunday, December 6, 2026 (Has Open Slots)">Sunday, December 6, 2026 (Open slots available)</option>
+              <option value="Sunday, November 1, 2026">Sunday, November 1, 2026</option>
+              <option value="Sunday, November 8, 2026">Sunday, November 8, 2026</option>
+              <option value="Sunday, November 22, 2026">Sunday, November 22, 2026</option>
+              <option value="Sunday, November 29, 2026">Sunday, November 29, 2026</option>
+              <option value="Any available Sunday (Flexible)">Any available Sunday (Flexible)</option>
+            </select>
+          </div>
+          <div>
+            <label for="td-form-pref-time" class="block text-xs font-semibold text-[#536484] mb-1">Preferred Time Window / Slot *</label>
+            <select id="td-form-pref-time"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white">
+              <optgroup label="Open Slots on Sunday, Dec 6">
+                <option value="3:25–3:35 PM (Open on Dec 6)">3:25–3:35 PM (Open on Dec 6)</option>
+                <option value="3:35–3:45 PM (Open on Dec 6)">3:35–3:45 PM (Open on Dec 6)</option>
+                <option value="3:45–3:55 PM (Open on Dec 6)">3:45–3:55 PM (Open on Dec 6)</option>
+                <option value="3:55–4:05 PM (Open on Dec 6)">3:55–4:05 PM (Open on Dec 6)</option>
+              </optgroup>
+              <optgroup label="General Time Preference">
+                <option value="Any time between 2:05 PM – 4:05 PM">Any time between 2:05 PM – 4:05 PM</option>
+                <option value="Early window (2:05 PM – 2:45 PM)">Early window (2:05 PM – 2:45 PM)</option>
+                <option value="Middle window (2:45 PM – 3:25 PM)">Middle window (2:45 PM – 3:25 PM)</option>
+                <option value="Late window (3:25 PM – 4:05 PM)">Late window (3:25 PM – 4:05 PM)</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="td-form-notes" class="block text-xs font-semibold text-[#536484] mb-1">Additional Details or Notes (Optional)</label>
+          <textarea id="td-form-notes" rows="2" placeholder="Let us know any dates you are unavailable, or if swapping with another family..."
+            class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none"></textarea>
+        </div>
+
+        <!-- Primary Email & Gmail Actions -->
+        <div class="pt-2 space-y-2.5">
+          <button type="submit" id="td-submit-email-btn"
+            class="w-full py-3 bg-[#152548] hover:bg-[#0E1A34] text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-[0.99] cursor-pointer">
+            <svg class="w-4 h-4 text-emerald-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <span>Send Change Request via Email</span>
+          </button>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <a id="td-gmail-web-link" href="#" target="_blank" rel="noopener noreferrer"
+              class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-[#152548] font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-[#E9DECE] transition cursor-pointer">
+              <span>Open in Gmail (Web)</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <button type="button" id="td-copy-request-btn"
+              class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-[#152548] font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-[#E9DECE] transition cursor-pointer">
+              <span id="td-copy-request-label">Copy Request &amp; Emails</span>
+            </button>
+          </div>
+          <p id="td-submit-feedback" class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center font-medium"></p>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-[#E9DECE] py-6 text-center text-xs text-[#536484] mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>Blackstone Ward • Blackstone Valley Massachusetts Stake</p>
+      <div class="flex items-center gap-3">
+        <a href="/" class="hover:underline">Ward Home</a>
+        <span>•</span>
+        <a href="/calendar/" class="hover:underline">Calendar</a>
+        <span>•</span>
+        <span id="footer-version">v1.2.26</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- TD_DATA_START -->
+  <script id="td-schedule-data" type="application/json">
+  {
+  "title": "Blackstone Ward Tithing Declaration",
+  "subtitle": "Sunday Interview Schedule — November through December 6, 2026",
+  "updatedAt": "2026-10-31",
+  "contacts": {
+    "toEmail": "mcdonaldlds830@gmail.com",
+    "ccEmail": "duanepharris@gmail.com"
+  },
+  "totalScheduled": 56,
+  "totalOpenSlots": 4,
+  "sundays": [
+    {
+      "tabName": "November 1, 2026",
+      "title": "Sunday, November 1, 2026",
+      "date": "2026-11-01",
+      "scheduledCount": 12,
+      "totalSlots": 12,
+      "openCount": 0,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "Bourne",
+          "members": "Garrett Austin Bourne, Cami Bourne, Lucie May Bourne, Oliver Glen Bourne",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Bogle",
+          "members": "Braxton Bogle, Mo Bogle, Miles Evan Bogle, Ellie Kei Bogle",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "Bova",
+          "members": "Ruth Bova",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Shurick",
+          "members": "Christine Anne",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Barcalow",
+          "members": "Jilda Ann Barcalow",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Batista Araujo",
+          "members": "Pamela Thayna Batista Araujo",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "Appleby",
+          "members": "Stacy Appleby",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Begin",
+          "members": "Michelle Begin",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "Bennett",
+          "members": "Sarah Bennett",
+          "available": false
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "Bishaw",
+          "members": "Ericshayne Bishaw, Kim Bishaw",
+          "available": false
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "Brown",
+          "members": "Josh Brown, Megan Brown, Will Brown, Josie Brown, Jameson Brown",
+          "available": false
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "Buckley",
+          "members": "Wade Buckley, Brieana Buckley",
+          "available": false
+        }
+      ]
+    },
+    {
+      "tabName": "November 8, 2026",
+      "title": "Sunday, November 8, 2026",
+      "date": "2026-11-08",
+      "scheduledCount": 12,
+      "totalSlots": 12,
+      "openCount": 0,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "Fuller",
+          "members": "Harrison, Alanna Lynn, Ralph Wells, Juliet Tommy",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Fairbank",
+          "members": "Keith, Rebecca, Rachel, Molly, Mathilde Lois, Abigail Susannah, Keith Arthur",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "Klein / Kein",
+          "members": "Rachel Ballard Klein, Susannah Rachel Klein, Asha Ballard Kein",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Laskowsky",
+          "members": "Brandi Laskowsky Afoakwah, Jasmiya, Buddy, Nova Star Laskowsky McNeill",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Cowden",
+          "members": "John Cowden, Mio Cowden, Melody Cowden",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Dunton",
+          "members": "Bethany B Dunton, Jackson Whitman Dunton",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "Escobar",
+          "members": "Karina Escobar",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Evans",
+          "members": "David Robert, Laurie Sue",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "Faria / Gomes Silva",
+          "members": "Tairini Priscila Lopes de Faria, Caio César Gomes Silva",
+          "available": false
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "Fisk",
+          "members": "Dan, Anna",
+          "available": false
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "Gaudette",
+          "members": "Edward Jay",
+          "available": false
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "Hernandez",
+          "members": "Juan Roberto, Nelly",
+          "available": false
+        }
+      ]
+    },
+    {
+      "tabName": "November 22, 2026",
+      "title": "Sunday, November 22, 2026",
+      "date": "2026-11-22",
+      "scheduledCount": 12,
+      "totalSlots": 12,
+      "openCount": 0,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "King",
+          "members": "Jeffrey, Kathleen, Caleb J. Fasteson",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Jensen",
+          "members": "Austin, Catherine Lee, Hillam Max",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "Hill / Carlson",
+          "members": "David Hill, Donna Carlson Hill, Samuel Scott Carlson, John Carlson",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Hunsaker",
+          "members": "Ben, Meg, Ethan Benjamin",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Laverty",
+          "members": "Michael, Lia, Colton Michael, Kael David",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Hogan",
+          "members": "Deborah",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "Holmes",
+          "members": "Terry",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Houston",
+          "members": "Cole Watenpaugh, Kendra Watenpaugh",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "Howell",
+          "members": "Emma Elizabeth, Tim, Paula Jean, Zachery Edward",
+          "available": false
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "Howell",
+          "members": "K.C.",
+          "available": false
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "Lessard",
+          "members": "Annette",
+          "available": false
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "Watson",
+          "members": "Beth",
+          "available": false
+        }
+      ]
+    },
+    {
+      "tabName": "November 29, 2026",
+      "title": "Sunday, November 29, 2026",
+      "date": "2026-11-29",
+      "scheduledCount": 12,
+      "totalSlots": 12,
+      "openCount": 0,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "Mullis",
+          "members": "Shaun Christopher, Melanie Sue, Landon Christopher, Caden Vlademar, Dallin Nicholai, Lana Sue, Rosalie Ling Rehon",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Robinson",
+          "members": "Blake, Julissa, Jaziyah",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "McDonald",
+          "members": "Brian Evan",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Martin / Hoffman",
+          "members": "Barbara Martin, Shayna Hoffman",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Saylor",
+          "members": "Virginia Saylor",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Harris",
+          "members": "Joyce",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "McKinnon",
+          "members": "Bryan, Claudia",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Phillips",
+          "members": "Joseph Quintin, Janet Ellen",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "Rickett",
+          "members": "William",
+          "available": false
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "Rowey",
+          "members": "Matt Rowey",
+          "available": false
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "Thapa",
+          "members": "Sher, Bala",
+          "available": false
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "Truscott",
+          "members": "John, Carrie",
+          "available": false
+        }
+      ]
+    },
+    {
+      "tabName": "December 6, 2026",
+      "title": "Sunday, December 6, 2026",
+      "date": "2026-12-06",
+      "scheduledCount": 8,
+      "totalSlots": 12,
+      "openCount": 4,
+      "slots": [
+        {
+          "slotIndex": 1,
+          "time": "2:05–2:15 PM",
+          "household": "Seeley",
+          "members": "Benjamin Seeley, Ana Seeley",
+          "available": false
+        },
+        {
+          "slotIndex": 2,
+          "time": "2:15–2:25 PM",
+          "household": "Venancio / Mafra",
+          "members": "Fabio Junior Venancio, Ana Paula Batista Mafra, João Lucas Batista Mafra Venâncio, Julia Mafra Venancio",
+          "available": false
+        },
+        {
+          "slotIndex": 3,
+          "time": "2:25–2:35 PM",
+          "household": "Wild",
+          "members": "Andrew Vance, Amber Lynn, Vance Timothy, Logan Hadley, Ethan Franklyn, Lenna Annemarie, Blake Andrade",
+          "available": false
+        },
+        {
+          "slotIndex": 4,
+          "time": "2:35–2:45 PM",
+          "household": "Wild",
+          "members": "Daniel Franklyn, Danielle, Samuel",
+          "available": false
+        },
+        {
+          "slotIndex": 5,
+          "time": "2:45–2:55 PM",
+          "household": "Wild",
+          "members": "Fred",
+          "available": false
+        },
+        {
+          "slotIndex": 6,
+          "time": "2:55–3:05 PM",
+          "household": "Sofoul",
+          "members": "Stephen, Christine, Conner, Luke Scott",
+          "available": false
+        },
+        {
+          "slotIndex": 7,
+          "time": "3:05–3:15 PM",
+          "household": "Shea",
+          "members": "Rosemary",
+          "available": false
+        },
+        {
+          "slotIndex": 8,
+          "time": "3:15–3:25 PM",
+          "household": "Sugarman",
+          "members": "Michael, Amy",
+          "available": false
+        },
+        {
+          "slotIndex": 9,
+          "time": "3:25–3:35 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 10,
+          "time": "3:35–3:45 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 11,
+          "time": "3:45–3:55 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        },
+        {
+          "slotIndex": 12,
+          "time": "3:55–4:05 PM",
+          "household": "",
+          "members": "",
+          "available": true
+        }
+      ]
+    }
+  ]
+}
+  </script>
+  <!-- TD_DATA_END -->
+
+  <script type="module">
+    const TO_EMAIL = 'mcdonaldlds830@gmail.com';
+    const CC_EMAIL = 'duanepharris@gmail.com';
+
+    let scheduleData = null;
+    let activeSundayFilter = 'all'; // 'all' or ISO date e.g. '2026-11-01'
+    let activeViewMode = 'cards';   // 'cards' | 'month' | 'az'
+    let searchQuery = '';
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function highlightMatch(text, query) {
+      const safe = escapeHtml(text);
+      if (!query) return safe;
+      const escapedQ = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return safe.replace(new RegExp(`(${escapedQ})`, 'gi'), '<mark class="td-highlight">$1</mark>');
+    }
+
+    async function loadScheduleData() {
+      // 1. Parse embedded fallback JSON first for immediate zero-latency render
+      try {
+        const inlineEl = document.getElementById('td-schedule-data');
+        if (inlineEl && inlineEl.textContent.trim()) {
+          const parsed = JSON.parse(inlineEl.textContent);
+          if (parsed && Array.isArray(parsed.sundays)) {
+            scheduleData = parsed;
+          }
+        }
+      } catch (_) {}
+
+      // 2. Also fetch fresh /data/tithing-declaration.json in case it was updated
+      try {
+        const res = await fetch('/data/tithing-declaration.json', { cache: 'no-cache' });
+        if (res.ok) {
+          const fresh = await res.json();
+          if (fresh && Array.isArray(fresh.sundays)) {
+            scheduleData = fresh;
+          }
+        }
+      } catch (_) {}
+
+      if (scheduleData) {
+        renderAll();
+      }
+    }
+
+    function getAllSundaysWithNov15() {
+      const byDate = new Map();
+      (scheduleData?.sundays || []).forEach(s => byDate.set(s.date, s));
+
+      const overviewDates = [
+        { date: '2026-11-01', shortLabel: 'Nov 1', monthLabel: 'NOV', dayNum: '1' },
+        { date: '2026-11-08', shortLabel: 'Nov 8', monthLabel: 'NOV', dayNum: '8' },
+        { date: '2026-11-15', shortLabel: 'Nov 15', monthLabel: 'NOV', dayNum: '15', noInterviews: true },
+        { date: '2026-11-22', shortLabel: 'Nov 22', monthLabel: 'NOV', dayNum: '22' },
+        { date: '2026-11-29', shortLabel: 'Nov 29', monthLabel: 'NOV', dayNum: '29' },
+        { date: '2026-12-06', shortLabel: 'Dec 6', monthLabel: 'DEC', dayNum: '6' }
+      ];
+
+      return overviewDates.map(item => ({
+        ...item,
+        sundayObj: byDate.get(item.date) || null
+      }));
+    }
+
+    function renderOverviewStrip() {
+      const strip = document.getElementById('sunday-overview-strip');
+      if (!strip || !scheduleData) return;
+
+      const items = getAllSundaysWithNov15();
+      strip.innerHTML = '';
+
+      items.forEach(item => {
+        const s = item.sundayObj;
+        const isSelected = activeSundayFilter === item.date;
+
+        if (!s || item.noInterviews) {
+          const div = document.createElement('div');
+          div.className = 'rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-3 flex flex-col justify-between opacity-75 select-none';
+          div.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">SUN • ${item.shortLabel}</span>
+              <span class="text-[10px] font-semibold text-slate-400 px-1.5 py-0.5 rounded bg-slate-100">Off</span>
+            </div>
+            <div class="mt-2">
+              <p class="text-xs font-semibold text-slate-500">No Interviews</p>
+              <p class="text-[10px] text-slate-400">Regular Sunday</p>
+            </div>
+          `;
+          strip.appendChild(div);
+          return;
+        }
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = isSelected
+          ? 'rounded-2xl border-2 border-[#152548] bg-[#152548] text-white p-3 text-left flex flex-col justify-between shadow-sm transition cursor-pointer'
+          : 'rounded-2xl border border-[#E9DECE] hover:border-[#152548] bg-[#FAF6EF]/60 hover:bg-white p-3 text-left flex flex-col justify-between transition cursor-pointer';
+
+        const openBadge = s.openCount > 0
+          ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${isSelected ? 'bg-emerald-400/20 text-emerald-200' : 'bg-emerald-100 text-emerald-800'}">${s.openCount} open</span>`
+          : `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded ${isSelected ? 'bg-white/15 text-slate-200' : 'bg-slate-200/70 text-slate-600'}">Full</span>`;
+
+        btn.innerHTML = `
+          <div class="flex items-center justify-between gap-1 w-full">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-amber-300' : 'text-[#A74319]'}">SUN • ${item.shortLabel}</span>
+            ${openBadge}
+          </div>
+          <div class="mt-2">
+            <p class="text-sm font-bold ${isSelected ? 'text-white' : 'text-[#152548]'}">${s.scheduledCount} Families</p>
+            <p class="text-[10px] ${isSelected ? 'text-slate-300' : 'text-[#536484]'}">2:05 – 4:05 PM</p>
+          </div>
+        `;
+
+        btn.addEventListener('click', () => {
+          if (activeSundayFilter === item.date) {
+            activeSundayFilter = 'all';
+          } else {
+            activeSundayFilter = item.date;
+            if (activeViewMode === 'month') {
+              setViewMode('cards');
+            }
+          }
+          renderAll();
+        });
+
+        strip.appendChild(btn);
+      });
+    }
+
+    function slotMatchesSearch(slot, sundayTitle, q) {
+      if (!q) return true;
+      const hay = `${slot.household} ${slot.members} ${slot.time} ${sundayTitle}`.toLowerCase();
+      return hay.includes(q);
+    }
+
+    function renderSundayCards() {
+      const container = document.getElementById('sunday-cards-grid');
+      if (!container || !scheduleData) return;
+      container.innerHTML = '';
+
+      const q = searchQuery.trim().toLowerCase();
+      const sundaysToRender = (scheduleData.sundays || []).filter(s =>
+        activeSundayFilter === 'all' || s.date === activeSundayFilter
+      );
+
+      let totalMatches = 0;
+
+      sundaysToRender.forEach(sunday => {
+        const matchingSlots = sunday.slots.filter(slot => {
+          if (q && slot.available) return false;
+          return slotMatchesSearch(slot, sunday.title, q);
+        });
+
+        if (q && matchingSlots.length === 0) return;
+
+        totalMatches += matchingSlots.filter(s => !s.available).length;
+
+        const card = document.createElement('article');
+        card.className = 'bg-white border border-[#E9DECE] rounded-3xl overflow-hidden shadow-sm flex flex-col';
+
+        const openPill = sunday.openCount > 0
+          ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">${sunday.openCount} Open Slot${sunday.openCount === 1 ? '' : 's'}</span>`
+          : `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">${sunday.scheduledCount} Scheduled</span>`;
+
+        const showAllBtnHtml = activeSundayFilter !== 'all'
+          ? `<button type="button" class="btn-Reset-sunday-filter text-xs font-semibold text-[#007B91] hover:underline cursor-pointer">Show all Sundays</button>`
+          : '';
+
+        const header = document.createElement('div');
+        header.className = 'px-5 sm:px-6 py-4 bg-gradient-to-r from-[#152548] to-[#1E3260] text-white flex items-center justify-between gap-3';
+        header.innerHTML = `
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-300 block">Tithing Declaration Sunday</span>
+            <h3 class="text-lg sm:text-xl font-serif font-bold text-white leading-snug">${escapeHtml(sunday.title)}</h3>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            ${openPill}
+          </div>
+        `;
+        card.appendChild(header);
+
+        if (showAllBtnHtml) {
+          const filterBar = document.createElement('div');
+          filterBar.className = 'px-5 py-2 bg-amber-50 border-b border-amber-200/70 flex items-center justify-between text-xs';
+          filterBar.innerHTML = `
+            <span class="text-amber-900 font-medium">Filtered to <strong>${escapeHtml(sunday.tabName)}</strong></span>
+            ${showAllBtnHtml}
+          `;
+          filterBar.querySelector('.btn-Reset-sunday-filter')?.addEventListener('click', () => {
+            activeSundayFilter = 'all';
+            renderAll();
+          });
+          card.appendChild(filterBar);
+        }
+
+        const list = document.createElement('div');
+        list.className = 'divide-y divide-[#E9DECE]';
+
+        matchingSlots.forEach(slot => {
+          const row = document.createElement('button');
+          row.type = 'button';
+
+          if (slot.available) {
+            row.className = 'slot-card w-full text-left px-5 sm:px-6 py-3 bg-emerald-50/40 hover:bg-emerald-50/90 transition flex items-center justify-between gap-3 cursor-pointer group';
+            row.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 font-mono font-bold text-xs shrink-0 border border-emerald-200">
+                  ${escapeHtml(slot.time)}
+                </span>
+                <div class="min-w-0">
+                  <span class="text-xs sm:text-sm font-bold text-emerald-800 block">Open Interview Slot</span>
+                  <span class="text-[11px] text-emerald-700 block">Click to request this time slot for your family</span>
+                </div>
+              </div>
+              <span class="slot-action-pill shrink-0 px-2.5 py-1 rounded-lg border border-emerald-300 bg-white text-emerald-800 text-[11px] font-semibold transition">
+                Claim Slot →
+              </span>
+            `;
+            row.addEventListener('click', () => openChangeModal({
+              sundayTitle: sunday.title,
+              sundayTab: sunday.tabName,
+              time: slot.time,
+              household: '',
+              members: '',
+              isAvailableSlot: true
+            }));
+          } else {
+            row.className = 'slot-card w-full text-left px-5 sm:px-6 py-3 hover:bg-[#FAF6EF] transition flex items-start sm:items-center justify-between gap-3 cursor-pointer group';
+            row.innerHTML = `
+              <div class="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-[#152548] font-mono font-semibold text-xs shrink-0 border border-slate-200/80 mt-0.5 sm:mt-0">
+                  ${escapeHtml(slot.time)}
+                </span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm font-bold text-[#152548] group-hover:text-[#A74319] transition">
+                    ${highlightMatch(slot.household, q)}
+                  </div>
+                  <div class="text-xs text-[#536484] leading-snug line-clamp-2">
+                    ${highlightMatch(slot.members, q)}
+                  </div>
+                </div>
+              </div>
+              <span class="slot-action-pill shrink-0 px-2.5 py-1 rounded-lg border border-[#E9DECE] bg-[#FAF6EF] text-[#152548] text-[11px] font-semibold transition whitespace-nowrap">
+                Request Change
+              </span>
+            `;
+            row.addEventListener('click', () => openChangeModal({
+              sundayTitle: sunday.title,
+              sundayTab: sunday.tabName,
+              time: slot.time,
+              household: slot.household,
+              members: slot.members,
+              isAvailableSlot: false
+            }));
+          }
+
+          list.appendChild(row);
+        });
+
+        card.appendChild(list);
+        container.appendChild(card);
+      });
+
+      if (container.children.length === 0) {
+        container.innerHTML = `
+          <div class="lg:col-span-2 bg-white border border-[#E9DECE] rounded-3xl p-10 text-center space-y-3">
+            <p class="text-base font-bold text-[#152548]">No matching household or family member found for "${escapeHtml(searchQuery)}".</p>
+            <p class="text-xs text-[#536484]">Try searching by last name or click below to view the full schedule or request an appointment time.</p>
+            <div class="flex items-center justify-center gap-3 pt-2">
+              <button type="button" id="btn-empty-reset" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-[#152548] cursor-pointer">
+                Reset Search
+              </button>
+              <button type="button" id="btn-empty-request" class="px-4 py-2 rounded-xl bg-[#152548] text-white text-xs font-semibold cursor-pointer">
+                Request Appointment Time
+              </button>
+            </div>
+          </div>
+        `;
+        document.getElementById('btn-empty-reset')?.addEventListener('click', () => {
+          searchQuery = '';
+          activeSundayFilter = 'all';
+          const input = document.getElementById('td-family-search');
+          if (input) input.value = '';
+          renderAll();
+        });
+        document.getElementById('btn-empty-request')?.addEventListener('click', () => openChangeModal(null));
+      }
+
+      updateSearchStatusBadge(totalMatches);
+    }
+
+    function renderMonthCalendarView() {
+      const container = document.getElementById('month-calendars-container');
+      if (!container || !scheduleData) return;
+      container.innerHTML = '';
+
+      const q = searchQuery.trim().toLowerCase();
+      const sundayByDate = new Map();
+      (scheduleData.sundays || []).forEach(s => sundayByDate.set(s.date, s));
+
+      const months = [
+        { year: 2026, monthIndex: 10, name: 'November 2026', daysInMonth: 30, startDow: 0 }, // Nov 1, 2026 is Sunday (0)
+        { year: 2026, monthIndex: 11, name: 'December 2026 (First Sunday)', daysInMonth: 12, startDow: 2 } // Dec 1, 2026 is Tuesday (2); show first 2 weeks
+      ];
+
+      months.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'bg-white border border-[#E9DECE] rounded-3xl p-5 sm:p-7 shadow-sm space-y-4';
+
+        const header = document.createElement('div');
+        header.className = 'flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#E9DECE]';
+        header.innerHTML = `
+          <div>
+            <h3 class="text-2xl font-serif font-bold text-[#152548]">${escapeHtml(m.name)}</h3>
+            <p class="text-xs text-[#536484]">Click any family chip on Sunday to open the schedule change request form.</p>
+          </div>
+          <span class="text-xs font-semibold text-[#A74319] bg-[#A74319]/10 px-3 py-1 rounded-full self-start sm:self-auto">
+            Sundays • 2:05 PM – 4:05 PM
+          </span>
+        `;
+        card.appendChild(header);
+
+        const scrollWrap = document.createElement('div');
+        scrollWrap.className = 'overflow-x-auto';
+
+        const gridWrap = document.createElement('div');
+        gridWrap.className = 'min-w-[680px]';
+
+        gridWrap.innerHTML = `
+          <div class="grid grid-cols-7 text-center pb-2 text-[11px] font-bold text-slate-400 tracking-wider uppercase">
+            <div class="text-[#A74319]">SUN (Interviews)</div>
+            <div>MON</div>
+            <div>TUE</div>
+            <div>WED</div>
+            <div>THU</div>
+            <div>FRI</div>
+            <div>SAT</div>
+          </div>
+        `;
+
+        const daysGrid = document.createElement('div');
+        daysGrid.className = 'grid grid-cols-7 border-t border-l border-[#E9DECE]';
+
+        for (let i = 0; i < m.startDow; i++) {
+          const emptyCell = document.createElement('div');
+          emptyCell.className = 'min-h-[90px] bg-slate-50/50 border-r border-b border-[#E9DECE] p-2';
+          daysGrid.appendChild(emptyCell);
+        }
+
+        const totalCells = Math.ceil((m.startDow + m.daysInMonth) / 7) * 7;
+        for (let day = 1; day <= totalCells - m.startDow; day++) {
+          const cell = document.createElement('div');
+          if (day > m.daysInMonth) {
+            cell.className = 'min-h-[90px] bg-slate-50/50 border-r border-b border-[#E9DECE] p-2';
+            daysGrid.appendChild(cell);
+            continue;
+          }
+
+          const mm = String(m.monthIndex + 1).padStart(2, '0');
+          const dd = String(day).padStart(2, '0');
+          const iso = `${m.year}-${mm}-${dd}`;
+          const dow = (m.startDow + day - 1) % 7;
+          const isSunday = dow === 0;
+          const sundayData = sundayByDate.get(iso);
+
+          cell.className = isSunday
+            ? 'min-h-[140px] bg-[#FAF6EF]/50 border-r border-b border-[#E9DECE] p-2 flex flex-col gap-1.5 col-span-1'
+            : 'min-h-[90px] bg-white border-r border-b border-[#E9DECE] p-2 text-slate-400';
+
+          const topRow = document.createElement('div');
+          topRow.className = 'flex items-center justify-between';
+          topRow.innerHTML = `
+            <span class="text-xs font-bold ${isSunday ? 'text-[#152548]' : 'text-slate-400'}">${day}</span>
+            ${sundayData ? `<span class="text-[10px] font-bold text-[#007B91]">${sundayData.scheduledCount} fam</span>` : ''}
+          `;
+          cell.appendChild(topRow);
+
+          if (sundayData) {
+            const chipsWrap = document.createElement('div');
+            chipsWrap.className = 'space-y-1 mt-0.5';
+
+            sundayData.slots.forEach(slot => {
+              if (q && !slotMatchesSearch(slot, sundayData.title, q)) return;
+
+              const chip = document.createElement('button');
+              chip.type = 'button';
+              const shortTime = slot.time.replace(/\s*PM$/i, '').split('–')[0];
+
+              if (slot.available) {
+                chip.className = 'w-full text-left px-1.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-[10px] text-emerald-800 font-semibold transition cursor-pointer truncate';
+                chip.textContent = `${shortTime} • Open Slot`;
+                chip.addEventListener('click', () => openChangeModal({
+                  sundayTitle: sundayData.title,
+                  sundayTab: sundayData.tabName,
+                  time: slot.time,
+                  household: '',
+                  members: '',
+                  isAvailableSlot: true
+                }));
+              } else {
+                chip.className = 'w-full text-left px-1.5 py-1 rounded bg-white hover:bg-[#152548] hover:text-white border border-[#E9DECE] text-[10px] text-[#152548] transition cursor-pointer leading-tight';
+                chip.innerHTML = `<span class="font-mono opacity-75">${escapeHtml(shortTime)}</span> <strong class="font-semibold">${highlightMatch(slot.household, q)}</strong>`;
+                chip.title = `${slot.time} — ${slot.household} (${slot.members})`;
+                chip.addEventListener('click', () => openChangeModal({
+                  sundayTitle: sundayData.title,
+                  sundayTab: sundayData.tabName,
+                  time: slot.time,
+                  household: slot.household,
+                  members: slot.members,
+                  isAvailableSlot: false
+                }));
+              }
+
+              chipsWrap.appendChild(chip);
+            });
+
+            cell.appendChild(chipsWrap);
+          } else if (isSunday && iso === '2026-11-15') {
+            const note = document.createElement('p');
+            note.className = 'text-[10px] text-slate-400 italic mt-2';
+            note.textContent = 'No Tithing Declaration interviews scheduled';
+            cell.appendChild(note);
+          }
+
+          daysGrid.appendChild(cell);
+        }
+
+        gridWrap.appendChild(daysGrid);
+        scrollWrap.appendChild(gridWrap);
+        card.appendChild(scrollWrap);
+        container.appendChild(card);
+      });
+    }
+
+    function renderAZDirectoryView() {
+      const tbody = document.getElementById('az-table-body');
+      const countBadge = document.getElementById('az-count-badge');
+      if (!tbody || !scheduleData) return;
+      tbody.innerHTML = '';
+
+      const q = searchQuery.trim().toLowerCase();
+      const allHouseholds = [];
+
+      (scheduleData.sundays || []).forEach(sunday => {
+        if (activeSundayFilter !== 'all' && sunday.date !== activeSundayFilter) return;
+        sunday.slots.forEach(slot => {
+          if (slot.available) return;
+          if (q && !slotMatchesSearch(slot, sunday.title, q)) return;
+          allHouseholds.push({
+            household: slot.household,
+            members: slot.members,
+            time: slot.time,
+            sundayTitle: sunday.title,
+            sundayTab: sunday.tabName,
+            date: sunday.date
+          });
+        });
+      });
+
+      allHouseholds.sort((a, b) =>
+        a.household.localeCompare(b.household) || a.date.localeCompare(b.date) || a.time.localeCompare(b.time)
+      );
+
+      if (countBadge) {
+        countBadge.textContent = `${allHouseholds.length} Household${allHouseholds.length === 1 ? '' : 's'}`;
+      }
+
+      allHouseholds.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-[#FAF6EF] transition cursor-pointer';
+        tr.innerHTML = `
+          <td class="px-5 py-3 font-bold text-[#152548] text-sm">${highlightMatch(item.household, q)}</td>
+          <td class="px-5 py-3 text-slate-600">${highlightMatch(item.members, q)}</td>
+          <td class="px-5 py-3 font-semibold text-[#152548] whitespace-nowrap">${escapeHtml(item.sundayTab)}</td>
+          <td class="px-5 py-3 font-mono text-slate-700 whitespace-nowrap">${escapeHtml(item.time)}</td>
+          <td class="px-5 py-3 text-right whitespace-nowrap">
+            <button type="button" class="px-3 py-1.5 rounded-lg bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold text-xs transition cursor-pointer">
+              Request Change
+            </button>
+          </td>
+        `;
+        tr.addEventListener('click', () => openChangeModal({
+          sundayTitle: item.sundayTitle,
+          sundayTab: item.sundayTab,
+          time: item.time,
+          household: item.household,
+          members: item.members,
+          isAvailableSlot: false
+        }));
+        tbody.appendChild(tr);
+      });
+
+      updateSearchStatusBadge(allHouseholds.length);
+    }
+
+    function updateSearchStatusBadge(matchCount) {
+      const statusEl = document.getElementById('td-search-status');
+      const clearBtn = document.getElementById('td-search-clear');
+      if (!statusEl) return;
+
+      if (searchQuery.trim()) {
+        statusEl.textContent = `${matchCount} matching slot${matchCount === 1 ? '' : 's'}`;
+        statusEl.classList.remove('hidden');
+        clearBtn?.classList.remove('hidden');
+      } else {
+        statusEl.classList.add('hidden');
+        clearBtn?.classList.add('hidden');
+      }
+    }
+
+    function setViewMode(mode) {
+      activeViewMode = mode;
+      const vCards = document.getElementById('view-sunday-cards');
+      const vMonth = document.getElementById('view-month-calendar');
+      const vAz = document.getElementById('view-az-directory');
+
+      const bCards = document.getElementById('btn-mode-cards');
+      const bMonth = document.getElementById('btn-mode-month');
+      const bAz = document.getElementById('btn-mode-az');
+
+      const activeCls = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#152548] text-white shadow-2xs transition cursor-pointer';
+      const inactiveCls = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-[#152548] transition cursor-pointer';
+
+      if (bCards) bCards.className = mode === 'cards' ? activeCls : inactiveCls;
+      if (bMonth) bMonth.className = mode === 'month' ? activeCls : inactiveCls;
+      if (bAz) bAz.className = mode === 'az' ? activeCls : inactiveCls;
+
+      vCards?.classList.toggle('hidden', mode !== 'cards');
+      vMonth?.classList.toggle('hidden', mode !== 'month');
+      vAz?.classList.toggle('hidden', mode !== 'az');
+
+      renderAll();
+    }
+
+    function renderAll() {
+      if (!scheduleData) return;
+      const sCount = document.getElementById('stat-sundays-count');
+      const hCount = document.getElementById('stat-households-count');
+      if (sCount) sCount.textContent = `${scheduleData.sundays.length} Sundays`;
+      if (hCount) hCount.textContent = `${scheduleData.totalScheduled} Households`;
+
+      renderOverviewStrip();
+      if (activeViewMode === 'cards') renderSundayCards();
+      else if (activeViewMode === 'month') renderMonthCalendarView();
+      else if (activeViewMode === 'az') renderAZDirectoryView();
+    }
+
+    // ======================== CHANGE REQUEST MODAL LOGIC ========================
+    const dialog = document.getElementById('td-change-dialog');
+
+    // Fallback for browsers without <dialog closedby="any"> support (e.g. Safari)
+    if (dialog && !('closedBy' in HTMLDialogElement.prototype)) {
+      dialog.addEventListener('click', (event) => {
+        if (event.target !== dialog) return;
+        const rect = dialog.getBoundingClientRect();
+        const isDialogContent = (
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width
+        );
+        if (isDialogContent) return;
+        dialog.close();
+      });
+    }
+
+    function buildChangeEmailPayload() {
+      const household = (document.getElementById('td-form-household')?.value || '').trim() || 'Ward Family';
+      const contact = (document.getElementById('td-form-contact')?.value || '').trim() || 'Not provided';
+      const origDate = document.getElementById('td-form-orig-date')?.value || 'Unscheduled / Open Slot Request';
+      const origTime = document.getElementById('td-form-orig-time')?.value || '—';
+      const origMembers = document.getElementById('td-form-orig-members')?.value || '—';
+      const reqType = document.getElementById('td-form-request-type')?.value || 'Move to another Sunday or time slot';
+      const prefDate = document.getElementById('td-form-pref-date')?.value || '';
+      const prefTime = document.getElementById('td-form-pref-time')?.value || '';
+      const notes = (document.getElementById('td-form-notes')?.value || '').trim();
+
+      const subject = `Tithing Declaration Schedule Change Request — ${household} Household`;
+      const lines = [
+        `Hello Brother McDonald,`,
+        ``,
+        `The ${household} household would like to request a change to our 2026 Tithing Declaration appointment:`,
+        ``,
+        `• Household: ${household}`,
+        `• Household Members: ${origMembers}`,
+        `• Contact (Phone / Email): ${contact}`,
+        `• Current Scheduled Slot: ${origDate} (${origTime})`,
+        ``,
+        `PROPOSED CHANGE:`,
+        `• Request Type: ${reqType}`,
+        `• Preferred Sunday: ${prefDate}`,
+        `• Preferred Time Window / Slot: ${prefTime}`,
+        notes ? `• Additional Notes: ${notes}` : null,
+        ``,
+        `Submitted via https://blackstoneward.org/td`
+      ].filter(line => line !== null);
+
+      const body = lines.join('\r\n');
+      const mailtoUrl = `mailto:${encodeURIComponent(TO_EMAIL)}?cc=${encodeURIComponent(CC_EMAIL)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(TO_EMAIL)}&cc=${encodeURIComponent(CC_EMAIL)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      return { subject, body, mailtoUrl, gmailUrl, household };
+    }
+
+    function syncDialogLinks() {
+      const { gmailUrl } = buildChangeEmailPayload();
+      const gmailLink = document.getElementById('td-gmail-web-link');
+      if (gmailLink) gmailLink.href = gmailUrl;
+    }
+
+    function openChangeModal(slotContext) {
+      if (!dialog) return;
+
+      const feedback = document.getElementById('td-submit-feedback');
+      if (feedback) feedback.classList.add('hidden');
+
+      const householdDisplay = document.getElementById('td-modal-household-display');
+      const membersDisplay = document.getElementById('td-modal-members-display');
+      const datetimeDisplay = document.getElementById('td-modal-datetime-display');
+      const badgeEl = document.getElementById('td-modal-current-badge');
+
+      const householdInput = document.getElementById('td-form-household');
+      const origDateInput = document.getElementById('td-form-orig-date');
+      const origTimeInput = document.getElementById('td-form-orig-time');
+      const origMembersInput = document.getElementById('td-form-orig-members');
+      const reqTypeSelect = document.getElementById('td-form-request-type');
+      const prefDateSelect = document.getElementById('td-form-pref-date');
+      const prefTimeSelect = document.getElementById('td-form-pref-time');
+
+      if (slotContext && slotContext.isAvailableSlot) {
+        if (badgeEl) {
+          badgeEl.textContent = 'Open Slot Selected';
+          badgeEl.className = 'px-2 py-0.5 rounded-md bg-emerald-700 text-white font-semibold text-[11px]';
+        }
+        if (householdDisplay) householdDisplay.textContent = `Claim Open Slot: ${slotContext.sundayTitle}`;
+        if (membersDisplay) membersDisplay.textContent = 'Enter your household name below to request this open interview slot.';
+        if (datetimeDisplay) datetimeDisplay.textContent = `${slotContext.sundayTitle} • ${slotContext.time}`;
+
+        if (householdInput) householdInput.value = '';
+        if (origDateInput) origDateInput.value = 'Requesting Open Slot';
+        if (origTimeInput) origTimeInput.value = `${slotContext.sundayTab} @ ${slotContext.time}`;
+        if (origMembersInput) origMembersInput.value = '—';
+        if (reqTypeSelect) reqTypeSelect.value = 'Claim an open time slot on December 6';
+        if (prefDateSelect) prefDateSelect.value = 'Sunday, December 6, 2026 (Has Open Slots)';
+        if (prefTimeSelect) {
+          const matchOpt = [...prefTimeSelect.options].find(o => o.value.startsWith(slotContext.time));
+          if (matchOpt) prefTimeSelect.value = matchOpt.value;
+        }
+      } else if (slotContext && slotContext.household) {
+        if (badgeEl) {
+          badgeEl.textContent = 'Currently Scheduled';
+          badgeEl.className = 'px-2 py-0.5 rounded-md bg-[#152548] text-white font-semibold text-[11px]';
+        }
+        if (householdDisplay) householdDisplay.textContent = `${slotContext.household} Household`;
+        if (membersDisplay) membersDisplay.textContent = `Members: ${slotContext.members}`;
+        if (datetimeDisplay) datetimeDisplay.textContent = `${slotContext.sundayTitle} • ${slotContext.time}`;
+
+        if (householdInput) householdInput.value = slotContext.household;
+        if (origDateInput) origDateInput.value = slotContext.sundayTitle;
+        if (origTimeInput) origTimeInput.value = slotContext.time;
+        if (origMembersInput) origMembersInput.value = slotContext.members;
+        if (reqTypeSelect) reqTypeSelect.value = 'Move to another Sunday or time slot';
+      } else {
+        if (badgeEl) {
+          badgeEl.textContent = 'General Request';
+          badgeEl.className = 'px-2 py-0.5 rounded-md bg-slate-700 text-white font-semibold text-[11px]';
+        }
+        if (householdDisplay) householdDisplay.textContent = 'Propose Tithing Declaration Time';
+        if (membersDisplay) membersDisplay.textContent = 'Enter your family name and preferred Sunday below.';
+        if (datetimeDisplay) datetimeDisplay.textContent = 'Sundays Nov 1 – Dec 6, 2026 (2:05 – 4:05 PM)';
+
+        if (householdInput) householdInput.value = '';
+        if (origDateInput) origDateInput.value = 'General Schedule Request';
+        if (origTimeInput) origTimeInput.value = '—';
+        if (origMembersInput) origMembersInput.value = '—';
+      }
+
+      syncDialogLinks();
+      dialog.showModal();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadScheduleData();
+
+      // View mode buttons
+      document.getElementById('btn-mode-cards')?.addEventListener('click', () => setViewMode('cards'));
+      document.getElementById('btn-mode-month')?.addEventListener('click', () => setViewMode('month'));
+      document.getElementById('btn-mode-az')?.addEventListener('click', () => setViewMode('az'));
+
+      // Hero CTA button
+      document.getElementById('btn-hero-request-change')?.addEventListener('click', () => openChangeModal(null));
+
+      // Search input
+      const searchInput = document.getElementById('td-family-search');
+      const clearBtn = document.getElementById('td-search-clear');
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          searchQuery = searchInput.value;
+          renderAll();
+        });
+      }
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          searchQuery = '';
+          if (searchInput) {
+            searchInput.value = '';
+            searchInput.focus();
+          }
+          renderAll();
+        });
+      }
+
+      // Modal close button
+      document.getElementById('td-dialog-close')?.addEventListener('click', () => dialog?.close());
+
+      // Form input listeners to keep Gmail Web link in sync
+      const form = document.getElementById('td-change-form');
+      if (form) {
+        form.addEventListener('input', syncDialogLinks);
+        form.addEventListener('change', syncDialogLinks);
+
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const { mailtoUrl } = buildChangeEmailPayload();
+          const feedback = document.getElementById('td-submit-feedback');
+          if (feedback) {
+            feedback.textContent = `Opening your email app addressed to ${TO_EMAIL} (CC: ${CC_EMAIL})...`;
+            feedback.classList.remove('hidden');
+          }
+          window.location.href = mailtoUrl;
+        });
+      }
+
+      // Copy request button
+      const copyBtn = document.getElementById('td-copy-request-btn');
+      const copyLabel = document.getElementById('td-copy-request-label');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          const { subject, body } = buildChangeEmailPayload();
+          const fullClip = `To: ${TO_EMAIL}\nCC: ${CC_EMAIL}\nSubject: ${subject}\n\n${body}`;
+          try {
+            await navigator.clipboard.writeText(fullClip);
+            if (copyLabel) copyLabel.textContent = '✓ Copied to Clipboard!';
+            setTimeout(() => {
+              if (copyLabel) copyLabel.textContent = 'Copy Request & Emails';
+            }, 2200);
+          } catch (_) {
+            alert(fullClip);
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

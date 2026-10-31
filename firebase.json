@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "target": "blackstoneward",
+    "target": "staging",
     "public": "public",
     "cleanUrls": true,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
@@ -10,6 +10,7 @@
         {"key": "Referrer-Policy", "value": "strict-origin-when-cross-origin"}
       ]},
       {"source": "/data/ward.json", "headers": [{"key": "Cache-Control", "value": "public, max-age=60"}]},
+      {"source": "/data/tithing-declaration.json", "headers": [{"key": "Cache-Control", "value": "public, max-age=60"}]},
       {"source": "/security-config.js", "headers": [{"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"}]}
     ],
     "redirects": [

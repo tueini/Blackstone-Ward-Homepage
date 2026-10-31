@@ -94,12 +94,81 @@ function getCategoryColor(cat) {
 const ROLE_DEFINITIONS = {
   admin: { label: "Ward Administrator", org: "All Ward", fullAccess: true },
   bishopric: { label: "Bishopric", org: "All Ward", fullAccess: true },
+  youth: { label: "Youth Leadership", org: "Youth", fullAccess: false },
   relief_society: { label: "Relief Society", org: "Relief Society", fullAccess: false },
   elders_quorum: { label: "Elders Quorum", org: "Elders Quorum", fullAccess: false },
   primary: { label: "Primary", org: "Primary", fullAccess: false },
   sunday_school: { label: "Sunday School", org: "Sunday School", fullAccess: false },
   mission: { label: "Ward Mission", org: "Mission", fullAccess: false }
 };
+
+// ================= CALLING & ACCESS DEFINITIONS =================
+const CALLING_DEFINITIONS = [
+  { calling: "Bishopric", org: "bishopric", activeOnYouth: true, defaultAccess: ["Settings & Privacy", "Combined", "Priests", "Teachers", "Deacons", "Young Women", "Primary"] },
+  { calling: "Ward Activity", org: "bishopric", activeOnYouth: false, defaultAccess: [] },
+  { calling: "Ward Cleaning", org: "bishopric", activeOnYouth: false, defaultAccess: [] },
+  { calling: "Youth ADL Priest", org: "youth", activeOnYouth: true, defaultAccess: ["Priests"] },
+  { calling: "Youth Priest", org: "youth", activeOnYouth: true, defaultAccess: ["Priests"] },
+  { calling: "Youth ADL Teacher", org: "youth", activeOnYouth: true, defaultAccess: ["Teachers"] },
+  { calling: "Youth Teacher", org: "youth", activeOnYouth: true, defaultAccess: ["Teachers"] },
+  { calling: "Youth ADL Deacon", org: "youth", activeOnYouth: true, defaultAccess: ["Deacons"] },
+  { calling: "Youth Deacon", org: "youth", activeOnYouth: true, defaultAccess: ["Deacons"] },
+  { calling: "Youth YW Pres", org: "youth", activeOnYouth: true, defaultAccess: ["Combined", "Young Women"] },
+  { calling: "Youth ADL YW", org: "youth", activeOnYouth: true, defaultAccess: ["Young Women"] },
+  { calling: "Youth Builders", org: "youth", activeOnYouth: true, defaultAccess: ["Young Women"] },
+  { calling: "Youth Messengers", org: "youth", activeOnYouth: true, defaultAccess: ["Young Women"] },
+  { calling: "Youth Gatherers", org: "youth", activeOnYouth: true, defaultAccess: ["Young Women"] },
+  { calling: "Youth Primary Pres", org: "youth", activeOnYouth: true, defaultAccess: ["Primary"] },
+  { calling: "EQ Pres", org: "elders_quorum", activeOnYouth: false, defaultAccess: [] },
+  { calling: "EQ Activity", org: "elders_quorum", activeOnYouth: false, defaultAccess: [] },
+  { calling: "RS Pres", org: "relief_society", activeOnYouth: false, defaultAccess: [] },
+  { calling: "RS Activity", org: "relief_society", activeOnYouth: false, defaultAccess: [] },
+  { calling: "SS Pres", org: "sunday_school", activeOnYouth: false, defaultAccess: [] }
+];
+
+const YOUTH_ADMIN_AREAS = [
+  "Settings & Privacy",
+  "Combined",
+  "Priests",
+  "Teachers",
+  "Deacons",
+  "Young Women",
+  "Primary"
+];
+
+function getCallingDef(callingName) {
+  return CALLING_DEFINITIONS.find(c => c.calling === callingName) || null;
+}
+
+function getLeaderCalling(leader) {
+  if (leader?.calling) return leader.calling;
+  if (leader?.role === 'admin' || leader?.role === 'bishopric') return 'Bishopric';
+  if (leader?.role === 'elders_quorum') return 'EQ Pres';
+  if (leader?.role === 'relief_society') return 'RS Pres';
+  if (leader?.role === 'sunday_school') return 'SS Pres';
+  if (leader?.role === 'primary') return 'Youth Primary Pres';
+  if (leader?.role === 'youth') return 'Youth Priest';
+  return 'Bishopric';
+}
+
+function getLeaderOrg(leader) {
+  const calling = getLeaderCalling(leader);
+  const def = getCallingDef(calling);
+  if (def) return def.org;
+  if (leader?.role === 'admin' || leader?.role === 'bishopric') return 'bishopric';
+  if (leader?.role === 'youth' || (calling && calling.startsWith('Youth'))) return 'youth';
+  if (leader?.role === 'elders_quorum') return 'elders_quorum';
+  if (leader?.role === 'relief_society') return 'relief_society';
+  if (leader?.role === 'sunday_school') return 'sunday_school';
+  return 'bishopric';
+}
+
+function getLeaderAccessAreas(leader) {
+  if (Array.isArray(leader?.accessAreas)) return leader.accessAreas;
+  const calling = getLeaderCalling(leader);
+  const def = getCallingDef(calling);
+  return def ? [...def.defaultAccess] : [];
+}
 
 // ================= RBAC PERMISSIONS =================
 function canUserChangePassword(targetLeader) {
@@ -117,9 +186,9 @@ function canUserChangePassword(targetLeader) {
 
   // 3. Other org users can only change passwords in their own org
   if (targetRole === 'admin' || targetRole === 'bishopric') return false;
-  const currentOrg = ROLE_DEFINITIONS[currentRole]?.org;
-  const targetOrg = ROLE_DEFINITIONS[targetRole]?.org;
-  return !!(currentOrg && targetOrg && currentOrg === targetOrg && currentOrg !== 'All Ward');
+  const currentOrg = getLeaderOrg(currentLeaderProfile);
+  const targetOrg = getLeaderOrg(targetLeader);
+  return !!(currentOrg && targetOrg && currentOrg === targetOrg && currentOrg !== 'bishopric');
 }
 
 function canUserEditLeader(targetLeader) {
@@ -204,6 +273,15 @@ function setSSOCookie(profile) {
   try {
     const ssoPayload = { ...profile };
     delete ssoPayload.passwordHash; // Protect credentials from cookie storage
+    if (!ssoPayload.calling) {
+      ssoPayload.calling = getLeaderCalling(profile);
+    }
+    if (!ssoPayload.org) {
+      ssoPayload.org = getLeaderOrg(profile);
+    }
+    if (!ssoPayload.accessAreas) {
+      ssoPayload.accessAreas = getLeaderAccessAreas(profile);
+    }
     if (!ssoPayload.authenticatedAt) {
       ssoPayload.authenticatedAt = new Date().toISOString();
     }
@@ -482,6 +560,55 @@ function getWebAuthnRpId() {
   return hostname;
 }
 
+function getPlatformBiometricName() {
+  const userAgent = navigator.userAgent || '';
+  const platform = navigator.userAgentData?.platform || navigator.platform || '';
+  const isIOS = /iPad|iPhone|iPod/.test(userAgent) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isMac = /Mac/.test(platform) || /Mac/.test(userAgent);
+  const isWindows = /Win/.test(platform) || /Windows/.test(userAgent);
+  const isAndroid = /Android/.test(userAgent);
+
+  if (isIOS || isMac) {
+    return "Touch ID / Face ID";
+  }
+  if (isWindows) {
+    return "Windows Hello";
+  }
+  if (isAndroid) {
+    return "Fingerprint / Face Unlock";
+  }
+  return "Passkey / Biometrics";
+}
+
+async function initBiometricUI() {
+  const bioName = getPlatformBiometricName();
+
+  const loginLabel = document.getElementById('passkey-login-label');
+  if (loginLabel) loginLabel.textContent = `Sign In with ${bioName}`;
+
+  const enrollLabel = document.getElementById('passkey-enroll-label');
+  if (enrollLabel) enrollLabel.textContent = `Enable ${bioName}`;
+
+  const promptDesc = document.getElementById('passkey-prompt-desc');
+  if (promptDesc) {
+    promptDesc.textContent = `Would you like to enable ${bioName} on this device? You can sign in with a single tap next time — no text codes required.`;
+  }
+
+  const promptBtnLabel = document.getElementById('passkey-prompt-btn-label');
+  if (promptBtnLabel) promptBtnLabel.textContent = `Enable ${bioName} Now`;
+
+  // Hardware check: if platform authenticator is not available, gracefully hide the biometric login button
+  if (window.PublicKeyCredential && typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
+    try {
+      const isAvailable = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      const container = document.getElementById('passkey-login-container');
+      if (!isAvailable && container) {
+        container.classList.add('hidden');
+      }
+    } catch (_) { }
+  }
+}
+
 async function initPasskeyAutofill() {
   if (!window.PublicKeyCredential || typeof PublicKeyCredential.isConditionalMediationAvailable !== 'function') {
     return;
@@ -581,7 +708,7 @@ async function handleEnrollPasskey() {
         rpId: rpId,
         enrolledAt: new Date().toISOString()
       }));
-      alert("TouchID / FaceID successfully enabled for this device!");
+      alert(`${getPlatformBiometricName()} successfully enabled for this device!`);
       const btn = document.getElementById('btn-enroll-passkey');
       if (btn) btn.classList.add('hidden');
       const promptModal = document.getElementById('passkey-prompt-modal');
@@ -616,7 +743,7 @@ function maybeShowPasskeyOnboardingPrompt(profile) {
 
 async function handlePasskeyLogin() {
   if (!window.PublicKeyCredential) {
-    alert("TouchID / FaceID is not supported on this browser.");
+    alert(`${getPlatformBiometricName()} is not supported on this browser.`);
     return;
   }
 
@@ -675,13 +802,14 @@ async function handlePasskeyLogin() {
       checkAuth();
     }
   } catch (e) {
+    const bioName = getPlatformBiometricName();
     if (e.name !== 'NotAllowedError') {
       console.error("Passkey login error:", e);
-      alert("TouchID / FaceID verification failed. Please sign in with phone text first to set up or refresh your passkey.");
+      alert(`${bioName} verification failed. Please sign in with phone text first to set up or refresh your passkey.`);
     } else {
       const saved = localStorage.getItem('wardPasskeyRegistered');
       if (!saved && hintEl) {
-        hintEl.textContent = "No TouchID / FaceID passkey found on this device for blackstoneward.org yet. Please sign in with your phone text code below first, then click 'Enable TouchID / FaceID'.";
+        hintEl.textContent = `No ${bioName} passkey found on this device for blackstoneward.org yet. Please sign in with your phone text code below first, then click 'Enable ${bioName}'.`;
         hintEl.classList.remove('hidden');
       }
     }
@@ -786,11 +914,12 @@ function checkAuth() {
     loginView.classList.remove('hidden');
     dashView.classList.add('hidden');
 
-    // Show TouchID / FaceID button if browser supports biometrics/WebAuthn
+    // Show biometric button if browser supports biometrics/WebAuthn and initialize platform labels
     const passkeyBox = document.getElementById('passkey-login-container');
     if (passkeyBox) {
       if (window.PublicKeyCredential) {
         passkeyBox.classList.remove('hidden');
+        initBiometricUI();
       } else {
         passkeyBox.classList.add('hidden');
       }
@@ -2252,6 +2381,132 @@ function updateLeadersBulkBar() {
   }
 }
 
+let currentLeaderOrgTab = 'all'; // 'all', 'bishopric', 'youth', 'eq', 'rs', 'ss'
+let isAccessMatrixVisible = false;
+
+function renderAccessMatrixTable() {
+  const tbody = document.getElementById('access-matrix-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const orgLabels = {
+    bishopric: 'Bishopric',
+    youth: 'Youth',
+    elders_quorum: 'EQ',
+    relief_society: 'RS',
+    sunday_school: 'SS'
+  };
+
+  CALLING_DEFINITIONS.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50/80 transition';
+
+    const youthStatusBadge = item.activeOnYouth
+      ? '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Active</span>'
+      : '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500">Ward Portal</span>';
+
+    let cellsHtml = '';
+    YOUTH_ADMIN_AREAS.forEach(area => {
+      const hasAccess = item.defaultAccess.includes(area);
+      if (hasAccess) {
+        cellsHtml += `<td class="px-2.5 py-2 text-center"><span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">✓ Yes</span></td>`;
+      } else {
+        cellsHtml += `<td class="px-2.5 py-2 text-center text-slate-300 text-xs font-mono">—</td>`;
+      }
+    });
+
+    tr.innerHTML = `
+      <td class="px-3.5 py-2 font-semibold text-[#152548] text-xs">${escapeHtml(item.calling)}</td>
+      <td class="px-3 py-2 text-[11px] text-slate-600 font-medium">${escapeHtml(orgLabels[item.org] || item.org)}</td>
+      <td class="px-2.5 py-2 text-center">${youthStatusBadge}</td>
+      ${cellsHtml}
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function syncCallingAccessModal(callingName, customAccess = null) {
+  const def = getCallingDef(callingName);
+  const targetAreas = customAccess !== null ? customAccess : (def ? def.defaultAccess : []);
+  const checks = document.querySelectorAll('.youth-area-check');
+  checks.forEach(chk => {
+    chk.checked = targetAreas.includes(chk.value);
+  });
+  const hint = document.getElementById('youth-access-hint');
+  if (hint) {
+    if (callingName === 'Bishopric') {
+      hint.textContent = 'Bishopric has full read/write access to all 7 Youth Hub admin areas.';
+      hint.className = 'text-[11px] text-emerald-700 font-medium italic mt-1';
+    } else if (def && def.activeOnYouth) {
+      hint.textContent = `Active on Youth Hub: Default read/write access for ${callingName} pre-selected.`;
+      hint.className = 'text-[11px] text-blue-700 font-medium italic mt-1';
+    } else {
+      hint.textContent = 'Ward Portal role. Inactive on Youth Hub (permissions can be customized or pre-configured).';
+      hint.className = 'text-[11px] text-slate-500 italic mt-1';
+    }
+  }
+}
+
+function initLeaderOrgTabs() {
+  const tabs = document.querySelectorAll('.leader-org-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const org = tab.getAttribute('data-org');
+      if (!org) return;
+      currentLeaderOrgTab = org;
+
+      // Update tab styles
+      tabs.forEach(t => {
+        const isCurrent = t.getAttribute('data-org') === org;
+        const countSpan = t.querySelector('span[id^="count-leaders-"]');
+        if (isCurrent) {
+          t.className = 'leader-org-tab active px-3 py-1.5 rounded-lg text-xs font-bold transition bg-[#152548] text-white flex items-center gap-1.5 shadow-2xs cursor-pointer';
+          if (countSpan) countSpan.className = 'text-[10px] font-bold bg-white/20 text-white px-1.5 py-0.2 rounded-full';
+        } else {
+          t.className = 'leader-org-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-[#152548] hover:bg-slate-100 flex items-center gap-1.5 cursor-pointer';
+          if (countSpan) countSpan.className = 'text-[10px] font-bold bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded-full';
+        }
+      });
+
+      renderLeadersTable();
+    });
+  });
+
+  const matrixToggleBtn = document.getElementById('btn-toggle-access-matrix');
+  const matrixPanel = document.getElementById('leaders-access-matrix-panel');
+  const matrixBtnText = document.getElementById('btn-toggle-matrix-text');
+  if (matrixToggleBtn && matrixPanel) {
+    matrixToggleBtn.addEventListener('click', () => {
+      isAccessMatrixVisible = !isAccessMatrixVisible;
+      if (isAccessMatrixVisible) {
+        matrixPanel.classList.remove('hidden');
+        matrixToggleBtn.classList.add('bg-blue-50', 'border-blue-300', 'text-blue-800');
+        if (matrixBtnText) matrixBtnText.textContent = 'Hide Access Matrix';
+        renderAccessMatrixTable();
+      } else {
+        matrixPanel.classList.add('hidden');
+        matrixToggleBtn.classList.remove('bg-blue-50', 'border-blue-300', 'text-blue-800');
+        if (matrixBtnText) matrixBtnText.textContent = 'Website Access Matrix';
+      }
+    });
+  }
+
+  const callingSelect = document.getElementById('leader-calling');
+  if (callingSelect) {
+    callingSelect.addEventListener('change', () => {
+      syncCallingAccessModal(callingSelect.value);
+    });
+  }
+
+  const btnResetAccess = document.getElementById('btn-reset-calling-access');
+  if (btnResetAccess) {
+    btnResetAccess.addEventListener('click', () => {
+      const calling = document.getElementById('leader-calling')?.value || 'Bishopric';
+      syncCallingAccessModal(calling);
+    });
+  }
+}
+
 function renderLeadersTable() {
   const tbody = document.getElementById('leaders-table-body');
   if (!tbody) return;
@@ -2259,11 +2514,47 @@ function renderLeadersTable() {
   selectedLeaderIds.clear();
   updateLeadersBulkBar();
 
-  if (leadersCache.length === 0) {
+  // Update count badges on tabs
+  const countAll = leadersCache.length;
+  const countBishopric = leadersCache.filter(l => getLeaderOrg(l) === 'bishopric').length;
+  const countYouth = leadersCache.filter(l => getLeaderOrg(l) === 'youth').length;
+  const countEq = leadersCache.filter(l => getLeaderOrg(l) === 'elders_quorum').length;
+  const countRs = leadersCache.filter(l => getLeaderOrg(l) === 'relief_society').length;
+  const countSs = leadersCache.filter(l => getLeaderOrg(l) === 'sunday_school').length;
+
+  const countAllEl = document.getElementById('count-leaders-all');
+  if (countAllEl) countAllEl.textContent = countAll;
+  const countBishEl = document.getElementById('count-leaders-bishopric');
+  if (countBishEl) countBishEl.textContent = countBishopric;
+  const countYouthEl = document.getElementById('count-leaders-youth');
+  if (countYouthEl) countYouthEl.textContent = countYouth;
+  const countEqEl = document.getElementById('count-leaders-eq');
+  if (countEqEl) countEqEl.textContent = countEq;
+  const countRsEl = document.getElementById('count-leaders-rs');
+  if (countRsEl) countRsEl.textContent = countRs;
+  const countSsEl = document.getElementById('count-leaders-ss');
+  if (countSsEl) countSsEl.textContent = countSs;
+
+  // Filter leaders by selected organization tab
+  let filteredLeaders = leadersCache;
+  if (currentLeaderOrgTab !== 'all') {
+    filteredLeaders = leadersCache.filter(leader => getLeaderOrg(leader) === currentLeaderOrgTab);
+  }
+
+  if (filteredLeaders.length === 0) {
+    const orgLabels = {
+      all: 'leaders',
+      bishopric: 'Bishopric leaders',
+      youth: 'Youth leaders',
+      eq: 'Elders Quorum leaders',
+      rs: 'Relief Society leaders',
+      ss: 'Sunday School leaders'
+    };
+    const label = orgLabels[currentLeaderOrgTab] || 'leaders';
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td colspan="7" class="px-4 py-8 text-center text-slate-400">
-        <p class="font-medium text-sm">No registered leaders yet.</p>
+      <td colspan="8" class="px-4 py-8 text-center text-slate-400">
+        <p class="font-medium text-sm">No registered ${label} yet.</p>
         <p class="text-xs mt-1">Click "+ Add Ward Leader" above to register a cell phone number for passwordless login.</p>
       </td>
     `;
@@ -2271,11 +2562,12 @@ function renderLeadersTable() {
     return;
   }
 
-  leadersCache.forEach(leader => {
+  filteredLeaders.forEach(leader => {
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-slate-50 transition';
 
-    const roleInfo = ROLE_DEFINITIONS[leader.role] || { label: leader.role || 'Leader', org: 'Ward' };
+    const calling = getLeaderCalling(leader);
+    const accessAreas = getLeaderAccessAreas(leader);
 
     let statusBadge = '';
     if (leader.onboarded) {
@@ -2284,6 +2576,15 @@ function renderLeadersTable() {
       statusBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">Active</span>';
     } else {
       statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-600">Inactive</span>';
+    }
+
+    let accessBadge = '';
+    if (accessAreas.length === 7) {
+      accessBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200" title="Settings &amp; Privacy, Combined, Priests, Teachers, Deacons, Young Women, Primary"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Full Youth Access (7)</span>';
+    } else if (accessAreas.length > 0) {
+      accessBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200" title="${escapeHtml(accessAreas.join(', '))}">${escapeHtml(accessAreas.join(', '))}</span>`;
+    } else {
+      accessBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-500 border border-slate-200">Ward Portal Only</span>';
     }
 
     const canEdit = canUserEditLeader(leader);
@@ -2364,9 +2665,12 @@ function renderLeadersTable() {
       <td class="px-4 py-3 text-slate-600">${escapeHtml(leader.email || '—')}</td>
       <td class="px-4 py-3 font-mono text-slate-600">${escapeHtml(leader.phoneNumber || '')}</td>
       <td class="px-4 py-3">
-        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
-          ${escapeHtml(roleInfo.label)}
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-[#152548] border border-slate-200">
+          ${escapeHtml(calling)}
         </span>
+      </td>
+      <td class="px-4 py-3">
+        ${accessBadge}
       </td>
       <td class="px-4 py-3">${statusBadge}</td>
       <td class="px-4 py-3 text-right">
@@ -2452,31 +2756,91 @@ function openOnboardModal(leader) {
   const roleInfo = ROLE_DEFINITIONS[leader.role] || { label: leader.role || 'Ward Leader' };
   const formattedPhone = leader.phoneNumber || '';
   const name = leader.displayName || 'Ward Leader';
-  const email = leader.email || '—';
+  const email = (leader.email || '').trim();
+  const callingLabel = getLeaderCalling(leader) || roleInfo.label;
+  const accessAreas = getLeaderAccessAreas(leader);
 
   document.getElementById('onboard-modal-title').textContent = `Onboard: ${name}`;
   document.getElementById('onboard-name-val').textContent = name;
-  document.getElementById('onboard-role-badge').textContent = roleInfo.label;
-  document.getElementById('onboard-phone-val').textContent = formattedPhone;
-  document.getElementById('onboard-email-val').textContent = email;
+  document.getElementById('onboard-role-badge').textContent = callingLabel;
+  document.getElementById('onboard-phone-val').textContent = formattedPhone || '—';
+  document.getElementById('onboard-email-val').textContent = email || '— (Add email in Edit)';
 
-  const inviteMsg = `Hello ${name},\n\nYou have been registered with leadership access to the Blackstone Ward Administration Portal as ${roleInfo.label}.\n\nTo sign in:\n1. Visit: https://test.blackstoneward.org/admin/\n2. Select your name or enter your phone: ${formattedPhone}\n3. Click "Send Text Code" and enter your 6-digit verification code.\n\nWelcome to the leadership portal!`;
+  const portalOrigin = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'https://test.blackstoneward.org'
+    : window.location.origin;
+  const portalUrl = `${portalOrigin}/admin/`;
+  const youthAccessLine = accessAreas.length > 0
+    ? `\nYouth Hub Admin Access (https://youth.blackstoneward.org): ${accessAreas.join(', ')}\n`
+    : '';
+
+  const inviteMsg = `Hello ${name},\n\nYou have been registered with leadership access to the Blackstone Ward Administration Portal as ${callingLabel}.${youthAccessLine}\nTo sign in:\n1. Visit: ${portalUrl}\n2. Type your first and last name (${name}) and enter your mobile phone: ${formattedPhone}\n3. Click "Send Text Code" and enter your 6-digit verification code.\n\nWelcome to the leadership portal!`;
 
   const msgTextarea = document.getElementById('onboard-message-text');
   if (msgTextarea) msgTextarea.value = inviteMsg;
 
   const smsLink = document.getElementById('onboard-sms-link');
+  const smsLabel = document.getElementById('onboard-sms-label');
+  const emailLink = document.getElementById('onboard-email-link');
+  const emailLabel = document.getElementById('onboard-email-label');
+  const markBtn = document.getElementById('onboard-mark-btn');
+  const markText = document.getElementById('onboard-mark-text');
+
+  if (smsLabel) smsLabel.textContent = 'Send Text (SMS)';
+  if (emailLabel) emailLabel.textContent = email ? 'Send Email' : 'Send Email (Add Recipient)';
+
+  function syncOnboardLinks() {
+    const currentMsg = msgTextarea ? msgTextarea.value : inviteMsg;
+    if (smsLink) {
+      const rawDigits = formattedPhone.replace(/[^\d+]/g, '');
+      smsLink.href = `sms:${rawDigits}?&body=${encodeURIComponent(currentMsg)}`;
+    }
+    if (emailLink) {
+      const subject = `Blackstone Ward Leadership Portal Access — ${callingLabel}`;
+      const mailBody = currentMsg.replace(/\r?\n/g, '\r\n');
+      emailLink.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
+    }
+  }
+
+  syncOnboardLinks();
+  if (msgTextarea) {
+    msgTextarea.oninput = syncOnboardLinks;
+  }
+
+  function completeLeaderOnboarding() {
+    leader.onboarded = true;
+    leader.onboardedAt = new Date().toISOString();
+    const idx = leadersCache.findIndex(l => l.id === leader.id);
+    if (idx >= 0) leadersCache[idx] = leader;
+    try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
+    renderLeadersTable();
+    if (markText) markText.textContent = "✓ Marked Onboarded!";
+    setDoc(doc(db, "ward_leaders", leader.id), { onboarded: true, onboardedAt: leader.onboardedAt }, { merge: true }).catch(() => { });
+  }
+
   if (smsLink) {
-    const rawDigits = formattedPhone.replace(/[^\d+]/g, '');
-    smsLink.href = `sms:${rawDigits}?&body=${encodeURIComponent(inviteMsg)}`;
+    smsLink.onclick = () => {
+      syncOnboardLinks();
+      completeLeaderOnboarding();
+      if (smsLabel) smsLabel.textContent = "✓ Text Opened & Onboarded";
+    };
+  }
+
+  if (emailLink) {
+    emailLink.onclick = () => {
+      syncOnboardLinks();
+      completeLeaderOnboarding();
+      if (emailLabel) emailLabel.textContent = "✓ Email Opened & Onboarded";
+    };
   }
 
   const copyBtn = document.getElementById('onboard-copy-btn');
   const copyText = document.getElementById('onboard-copy-text');
   if (copyBtn) {
     copyBtn.onclick = async () => {
+      const currentMsg = msgTextarea ? msgTextarea.value : inviteMsg;
       try {
-        await navigator.clipboard.writeText(inviteMsg);
+        await navigator.clipboard.writeText(currentMsg);
         if (copyText) copyText.textContent = "✓ Copied!";
         setTimeout(() => { if (copyText) copyText.textContent = "Copy Invitation"; }, 2000);
       } catch (_) {
@@ -2485,8 +2849,6 @@ function openOnboardModal(leader) {
     };
   }
 
-  const markBtn = document.getElementById('onboard-mark-btn');
-  const markText = document.getElementById('onboard-mark-text');
   if (markBtn) {
     if (leader.onboarded) {
       if (markText) markText.textContent = "✓ Already Onboarded (Click to Re-confirm)";
@@ -2494,14 +2856,122 @@ function openOnboardModal(leader) {
       if (markText) markText.textContent = "Mark Leader as Onboarded";
     }
     markBtn.onclick = async () => {
-      leader.onboarded = true;
-      leader.onboardedAt = new Date().toISOString();
-      const idx = leadersCache.findIndex(l => l.id === leader.id);
-      if (idx >= 0) leadersCache[idx] = leader;
-      try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
-      renderLeadersTable();
-      if (markText) markText.textContent = "✓ Marked Onboarded!";
-      setDoc(doc(db, "ward_leaders", leader.id), { onboarded: true, onboardedAt: leader.onboardedAt }, { merge: true }).catch(() => { });
+      completeLeaderOnboarding();
+      setTimeout(() => closeModals(), 800);
+    };
+  }
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function openBulkOnboardModal(leadersList) {
+  if (!Array.isArray(leadersList) || leadersList.length === 0) return;
+  if (leadersList.length === 1) {
+    openOnboardModal(leadersList[0]);
+    return;
+  }
+
+  const modal = document.getElementById('onboard-modal');
+  if (!modal) return;
+
+  const names = leadersList.map(l => l.displayName || 'Leader').join(', ');
+  const callings = Array.from(new Set(leadersList.map(l => getLeaderCalling(l)))).join(', ');
+  const phones = leadersList.map(l => (l.phoneNumber || '').trim()).filter(Boolean);
+  const emails = leadersList.map(l => (l.email || '').trim()).filter(Boolean);
+
+  document.getElementById('onboard-modal-title').textContent = `Bulk Onboard (${leadersList.length} Leaders)`;
+  document.getElementById('onboard-name-val').textContent = names;
+  document.getElementById('onboard-role-badge').textContent = callings;
+  document.getElementById('onboard-phone-val').textContent = `${phones.length} phone number(s)`;
+  document.getElementById('onboard-email-val').textContent = emails.length > 0 ? `${emails.length} email(s): ${emails.join(', ')}` : '—';
+
+  const portalOrigin = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'https://test.blackstoneward.org'
+    : window.location.origin;
+  const portalUrl = `${portalOrigin}/admin/`;
+
+  const inviteMsg = `Hello Blackstone Ward Leaders,\n\nYou have been registered with leadership access to the Blackstone Ward Administration Portal and Youth Hub.\n\nTo sign in:\n1. Visit: ${portalUrl}\n2. Type your first and last name and enter your mobile phone number\n3. Click "Send Text Code" and enter your 6-digit verification code.\n\nWelcome to the leadership portal!`;
+
+  const msgTextarea = document.getElementById('onboard-message-text');
+  if (msgTextarea) msgTextarea.value = inviteMsg;
+
+  const smsLink = document.getElementById('onboard-sms-link');
+  const smsLabel = document.getElementById('onboard-sms-label');
+  const emailLink = document.getElementById('onboard-email-link');
+  const emailLabel = document.getElementById('onboard-email-label');
+  const markBtn = document.getElementById('onboard-mark-btn');
+  const markText = document.getElementById('onboard-mark-text');
+
+  if (smsLabel) smsLabel.textContent = `Send Text (${phones.length})`;
+  if (emailLabel) emailLabel.textContent = emails.length > 0 ? `Send Email (${emails.length})` : 'Send Email';
+  if (markText) markText.textContent = `Mark ${leadersList.length} Leaders as Onboarded`;
+
+  function syncBulkLinks() {
+    const currentMsg = msgTextarea ? msgTextarea.value : inviteMsg;
+    if (smsLink) {
+      const rawPhoneList = phones.map(p => p.replace(/[^\d+]/g, '')).filter(Boolean).join(',');
+      smsLink.href = `sms:${rawPhoneList}?&body=${encodeURIComponent(currentMsg)}`;
+    }
+    if (emailLink) {
+      const subject = `Blackstone Ward Leadership Portal Access`;
+      const mailBody = currentMsg.replace(/\r?\n/g, '\r\n');
+      const bccParam = emails.length > 0 ? `bcc=${encodeURIComponent(emails.join(','))}&` : '';
+      emailLink.href = `mailto:?${bccParam}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
+    }
+  }
+
+  syncBulkLinks();
+  if (msgTextarea) {
+    msgTextarea.oninput = syncBulkLinks;
+  }
+
+  function completeBulkOnboarding() {
+    const now = new Date().toISOString();
+    leadersList.forEach(l => {
+      l.onboarded = true;
+      l.onboardedAt = now;
+      setDoc(doc(db, "ward_leaders", l.id), { onboarded: true, onboardedAt: now }, { merge: true }).catch(() => { });
+    });
+    try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
+    renderLeadersTable();
+    if (markText) markText.textContent = `✓ Marked ${leadersList.length} Onboarded!`;
+  }
+
+  if (smsLink) {
+    smsLink.onclick = () => {
+      syncBulkLinks();
+      completeBulkOnboarding();
+      if (smsLabel) smsLabel.textContent = "✓ Text Opened & Onboarded";
+    };
+  }
+
+  if (emailLink) {
+    emailLink.onclick = () => {
+      syncBulkLinks();
+      completeBulkOnboarding();
+      if (emailLabel) emailLabel.textContent = "✓ Email Opened & Onboarded";
+    };
+  }
+
+  const copyBtn = document.getElementById('onboard-copy-btn');
+  const copyText = document.getElementById('onboard-copy-text');
+  if (copyBtn) {
+    copyBtn.onclick = async () => {
+      const currentMsg = msgTextarea ? msgTextarea.value : inviteMsg;
+      try {
+        await navigator.clipboard.writeText(currentMsg);
+        if (copyText) copyText.textContent = "✓ Copied!";
+        setTimeout(() => { if (copyText) copyText.textContent = "Copy Invitation"; }, 2000);
+      } catch (_) {
+        alert("Invitation text copied to clipboard!");
+      }
+    };
+  }
+
+  if (markBtn) {
+    markBtn.onclick = () => {
+      completeBulkOnboarding();
       setTimeout(() => closeModals(), 800);
     };
   }
@@ -2528,21 +2998,19 @@ function openLeaderModal(leader = null) {
   document.getElementById('leader-email').value = leader?.email || '';
   document.getElementById('leader-phone').value = leader?.phoneNumber || '';
 
-  const roleSelect = document.getElementById('leader-role');
-  if (roleSelect) {
-    // Only Ward Admin can assign the Ward Administrator role
-    const adminOpt = roleSelect.querySelector('option[value="admin"]');
-    if (adminOpt) {
-      if (currentLeaderProfile?.role === 'admin') {
-        adminOpt.disabled = false;
-        adminOpt.classList.remove('hidden');
-      } else {
-        adminOpt.disabled = true;
-        adminOpt.classList.add('hidden');
-      }
-    }
-    roleSelect.value = leader?.role || (currentLeaderProfile?.role === 'admin' ? 'relief_society' : 'relief_society');
+  const callingSelect = document.getElementById('leader-calling');
+  const callingVal = leader ? getLeaderCalling(leader) : 'Bishopric';
+  if (callingSelect) {
+    callingSelect.value = callingVal;
   }
+  const roleHidden = document.getElementById('leader-role');
+  if (roleHidden) {
+    roleHidden.value = leader?.role || (getCallingDef(callingVal)?.org || 'bishopric');
+  }
+
+  // Pre-fill or restore access areas
+  const accessAreas = leader ? getLeaderAccessAreas(leader) : (getCallingDef('Bishopric')?.defaultAccess || []);
+  syncCallingAccessModal(callingVal, accessAreas);
 
   document.getElementById('leader-active').checked = leader ? leader.active !== false : true;
 
@@ -2581,9 +3049,19 @@ async function saveLeader() {
   const name = document.getElementById('leader-name').value.trim();
   const email = (document.getElementById('leader-email')?.value || '').trim();
   const rawPhone = document.getElementById('leader-phone').value.trim();
-  const role = document.getElementById('leader-role').value;
+  const calling = document.getElementById('leader-calling')?.value || 'Bishopric';
   const active = document.getElementById('leader-active').checked;
   const newPw = (document.getElementById('leader-password')?.value || '').trim();
+
+  // Read checked youth access areas
+  const accessAreas = [];
+  document.querySelectorAll('.youth-area-check:checked').forEach(chk => {
+    accessAreas.push(chk.value);
+  });
+
+  const def = getCallingDef(calling);
+  const org = def ? def.org : 'bishopric';
+  let role = org;
 
   if (idInput) {
     const existing = leadersCache.find(l => l.id === idInput);
@@ -2591,17 +3069,15 @@ async function saveLeader() {
       alert("Permission denied: You do not have permission to edit this leader.");
       return;
     }
+    // Preserve 'admin' role if Duane Harris or already admin
+    if (existing && existing.role === 'admin' && (calling === 'Bishopric' || calling === 'Ward Administrator')) {
+      role = 'admin';
+    }
   } else {
     if (!canUserAddLeader()) {
       alert("Permission denied: You do not have permission to add new leaders.");
       return;
     }
-  }
-
-  // Restrict creating or assigning the Ward Administrator role
-  if (role === 'admin' && currentLeaderProfile?.role !== 'admin') {
-    alert("Permission denied: Only the Ward Administrator can assign the Ward Administrator role.");
-    return;
   }
 
   if (!name || !rawPhone) {
@@ -2620,7 +3096,10 @@ async function saveLeader() {
     displayName: name,
     email: email,
     phoneNumber: phone,
+    calling: calling,
     role: role,
+    org: org,
+    accessAreas: accessAreas,
     active: active,
     updatedAt: new Date().toISOString()
   };
@@ -2667,7 +3146,7 @@ function openAdminSetPasswordModal(leader) {
 
   const roleInfo = ROLE_DEFINITIONS[leader.role] || { label: leader.role || 'Leader' };
   document.getElementById('admin-set-pw-name').textContent = leader.displayName || 'Leader';
-  document.getElementById('admin-set-pw-role').textContent = roleInfo.label;
+  document.getElementById('admin-set-pw-role').textContent = leader.calling || roleInfo.label;
   document.getElementById('admin-set-pw-leader-id').value = leader.id;
   const pwInput = document.getElementById('admin-set-pw-input');
   if (pwInput) pwInput.value = '';
@@ -2807,6 +3286,9 @@ function setupModalTriggers() {
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModals();
   });
+
+  initLeaderOrgTabs();
+  renderAccessMatrixTable();
 }
 
 // ================= INITIALIZE =================
@@ -2881,6 +3363,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Passkey Events
+  initBiometricUI();
   const passkeyBtn = document.getElementById('passkey-login-btn');
   if (passkeyBtn) passkeyBtn.addEventListener('click', handlePasskeyLogin);
 
@@ -3099,22 +3582,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const btnBulkOnboard = document.getElementById('btn-bulk-onboard');
   if (btnBulkOnboard) {
-    btnBulkOnboard.addEventListener('click', async () => {
+    btnBulkOnboard.addEventListener('click', () => {
       if (selectedLeaderIds.size === 0) return;
       const validLeadersToOnboard = Array.from(selectedLeaderIds).map(id => leadersCache.find(l => l.id === id)).filter(l => l && canUserOnboardLeader(l));
       if (validLeadersToOnboard.length === 0) {
         alert("Permission denied: None of the selected leaders can be onboarded with your current permissions.");
         return;
       }
-      if (!confirm(`Mark ${validLeadersToOnboard.length} selected leader(s) as Onboarded?`)) return;
-      const now = new Date().toISOString();
-      validLeadersToOnboard.forEach(l => {
-        l.onboarded = true;
-        l.onboardedAt = now;
-        setDoc(doc(db, "ward_leaders", l.id), { onboarded: true, onboardedAt: now }, { merge: true }).catch(() => { });
-      });
-      try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
-      renderLeadersTable();
+      openBulkOnboardModal(validLeadersToOnboard);
     });
   }
 
@@ -3425,6 +3900,19 @@ function initLoginLeaderLookup() {
   if (pwLookup) {
     pwLookup.addEventListener('input', () => handleNameMatch(pwLookup.value));
     pwLookup.addEventListener('change', () => handleNameMatch(pwLookup.value));
+  }
+
+  function updateDatalist() {
+    const datalist = document.getElementById('authorized-leaders-datalist');
+    if (!datalist) return;
+    datalist.innerHTML = '';
+    leadersCache.forEach(l => {
+      if (l.displayName) {
+        const opt = document.createElement('option');
+        opt.value = l.displayName;
+        datalist.appendChild(opt);
+      }
+    });
   }
 
   // Pre-load leaders from localStorage if available

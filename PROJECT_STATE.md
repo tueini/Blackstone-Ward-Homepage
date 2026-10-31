@@ -1,14 +1,53 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.22
-**Date:** October 23, 2026
+**Version:** 1.2.26
+**Date:** October 31, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.22 explicitly approved and deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and staging (`test.blackstoneward.org`). Configures WebAuthn Relying Party ID apex domain scoping (`blackstoneward.org`), enables internal platform transport (`TouchID`/`FaceID`) targeting, and adds inline onboarding hints to eliminate unexpected cross-device QR code prompts.
+**State:** Version 1.2.26 deployed live to production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and committed/pushed to GitHub (`origin/main`). Adds Tithing Declaration schedule page at `/td` (`public/td/index.html` and `public/data/tithing-declaration.json`) sourced from the Sunday tabs of `Blackstone-Tithing-Declaration-Schedule-2026.xlsx` (excluding the `Summary` tab), with interactive schedule change request modal routing to `mcdonaldlds830@gmail.com` (CC `duanepharris@gmail.com`), and workspace skill `tithing-declaration-sync` for future Excel resourcing.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Tithing Declaration Schedule Page (`/td`) & Reusable Excel Sync Skill:
+  - **Tithing Declaration Page (`public/td/index.html`)**: Accessible at `/td` (`blackstoneward.org/td` and `test.blackstoneward.org/td`). Displays all 5 interview Sundays (`November 1`, `November 8`, `November 22`, `November 29`, and `December 6, 2026` — 56 scheduled households and 4 open slots) sourced from the Sunday tabs of `Blackstone-Tithing-Declaration-Schedule-2026.xlsx`, strictly excluding the `Summary` tab.
+  - **Three Interactive Views & Instant Search**:
+    - **Sunday Schedule Cards (Default)**: Displays a Nov–Dec 2026 Sunday overview strip (including Nov 15 marked as No Interviews) alongside Sunday schedule cards showing every 10-minute slot (`2:05–4:05 PM`), household name, and household members included.
+    - **Month Calendar View**: 7-column November & December 2026 calendar grid with clickable family appointment chips on each Sunday.
+    - **A–Z Household Directory**: Alphabetical table of all 56 scheduled households with instant search/highlight filtering by family last name or member first name.
+  - **Interactive Schedule Change Request Modal (`<dialog id="td-change-dialog" closedby="any">`)**: Clicking any family name (or open slot) opens a pre-populated modal allowing the family to propose a new Sunday/time window, swap slots, or request a Zoom interview. Submitting sends the structured change request to `mcdonaldlds830@gmail.com` with `CC: duanepharris@gmail.com` (with 1-click Email client launch, Gmail Web composer option, and clipboard copy fallback).
+  - **Workspace Skill (`tithing-declaration-sync`)**: Created `.agents/skills/tithing-declaration-sync/SKILL.md` and `.agents/skills/tithing-declaration-sync/scripts/sync_td_schedule.py` so future updates to `Blackstone-Tithing-Declaration-Schedule-2026.xlsx` can re-source `public/data/tithing-declaration.json` and `public/td/index.html` with a single command while automatically excluding the `Summary` tab.
+
+- Leader Onboarding Send Text (SMS) & Send Email Notification Workflow:
+  - **Send Text (SMS) & Send Email Actions**: Enhanced `#onboard-modal` in `public/admin/index.html` and `openOnboardModal()` in `public/admin/admin-app.js` with dedicated **Send Text (SMS)** (`sms:`) and **Send Email** (`mailto:`) action buttons alongside **Copy Invitation** and **Mark Leader as Onboarded**.
+  - **Editable Invitation Sync**: Made `#onboard-message-text` editable before sending, dynamically syncing any message edits into the `sms:` and `mailto:` URLs, and automatically including the leader's calling and Youth Hub access areas.
+  - **One-Click Status Completion**: Clicking either **Send Text (SMS)** or **Send Email** launches the native messaging or email client with the invitation ready to send and automatically marks the leader as **Onboarded** (`onboarded: true`) in Firestore (`ward_leaders`) and local storage.
+  - **Interactive Bulk Onboarding (`openBulkOnboardModal`)**: Upgraded **Bulk Onboard** (`#btn-bulk-onboard`) to open the Onboarding Modal for all selected leaders, enabling multi-recipient SMS (`sms:phone1,phone2?...`) and BCC email (`mailto:?bcc=email1,email2&...`) onboarding notifications.
+
+- Authorized Leaders & Users Organization Tabs & Sub-navigation:
+  - **Organization Subtabs**: Implemented `All Leaders`, `Bishopric`, `Youth`, `EQ`, `RS`, and `SS` filter subtabs on `#section-leaders` in `public/admin/index.html` and `public/admin/admin-app.js`.
+  - **Live Count Badges**: Real-time counter pills showing leader counts across each organization.
+  - **Contextual Empty States**: Custom empty states per tab guiding administrators to register leaders for that specific organization.
+  - **Bishopric Mapping**: Current ward users automatically display in both `All Leaders` and `Bishopric` tabs.
+
+- Calling & Role Separation with 20 Leadership Positions:
+  - **Clean Column Separation**: Roster table now clearly distinguishes between ecclesiastical `Calling` and `Website & Youth Access`.
+  - **20 Supported Callings**: Bishopric, Ward Activity, Ward Cleaning, Youth ADL Priest, Youth Priest, Youth ADL Teacher, Youth Teacher, Youth ADL Deacon, Youth Deacon, Youth YW Pres, Youth ADL YW, Youth Builders, Youth Messengers, Youth Gatherers, Youth Primary Pres, EQ Pres, EQ Activity, RS Pres, RS Activity, SS Pres.
+
+- Dedicated Role & Website Access Matrix Panel:
+  - **Matrix Interface**: Interactive panel displaying all 20 callings and their read/write permissions across the 7 youth admin areas (`Settings & Privacy`, `Combined`, `Priests`, `Teachers`, `Deacons`, `Young Women`, `Primary`).
+  - **Status Overview**: Visual indicators identifying active youth leadership roles vs ward-only positions.
+
+- Add / Edit Leader Modal & SSO Cookie Integration:
+  - **Grouped Calling Dropdown**: Structured selection by organization within `#leader-modal`.
+  - **Youth Hub Permission Checkboxes**: Pre-filled read/write checkboxes based on calling, with manual customization and "Reset to Calling Defaults" button.
+  - **SSO Bridge Sync**: `setSSOCookie` automatically serializes `calling`, `org`, and `accessAreas` into the `ward_auth_session` cookie for immediate consumption by `youth.blackstoneward.org`.
+
+- Dynamic Platform-Aware Biometric UI & Hardware Detection (Option 2):
+  - **Dynamic OS Biometric Nomenclature**: Added `getPlatformBiometricName()` in `public/admin/admin-app.js`. Dynamically tailors labels to native system terms: *"Touch ID / Face ID"* on Mac & iOS, *"Windows Hello"* on Windows, *"Fingerprint / Face Unlock"* on Android, and *"Passkey / Biometrics"* as universal fallback.
+  - **Unified Component Updates**: Created `initBiometricUI()` updating `#passkey-login-label`, header `#passkey-enroll-label`, first-login modal `#passkey-prompt-desc`, and prompt button `#passkey-prompt-btn-label`.
+  - **Hardware Sensor Availability Gate**: Checks `PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()` to automatically hide the biometric button on desktop computers or devices lacking platform biometric sensors, leaving a clean phone SMS login form.
 
 - WebAuthn Passkey Relying Party Apex Scoping & Biometric Guidance:
   - **Apex Domain RP ID (`blackstoneward.org`)**: Added `getWebAuthnRpId()` helper in `public/admin/admin-app.js`. WebAuthn Relying Party ID is scoped to `blackstoneward.org` when running on any Blackstone Ward subdomain (`test.blackstoneward.org`, `blackstoneward.org`, etc.), allowing passkeys created on staging or production to be shared without domain mismatch, falling back to hostname on `localhost`.

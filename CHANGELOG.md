@@ -1,5 +1,55 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.26 — October 31, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.26 and `/td`.
+- **Tithing Declaration Schedule Page (`/td`)**:
+  - Created `public/td/index.html` and `public/data/tithing-declaration.json` accessible at `/td` (`blackstoneward.org/td` and `test.blackstoneward.org/td`).
+  - Sourced all 5 interview Sunday tabs (`November 1, 2026`, `November 8, 2026`, `November 22, 2026`, `November 29, 2026`, and `December 6, 2026` — 56 scheduled households and 4 open slots) from `Blackstone-Tithing-Declaration-Schedule-2026.xlsx`, strictly excluding the `Summary` tab.
+  - Implemented 3 interactive views (**Sunday Schedule Cards**, **Month Calendar Grid**, and **A–Z Family List**), a Nov–Dec 2026 Sunday overview filter strip, and live search by household or individual member name.
+  - Implemented clickable family slots that spawn a native `<dialog closedby="any">` schedule change request form (`#td-change-dialog`) pre-filled with the family's current date, time, and household members, routing change requests to `mcdonaldlds830@gmail.com` and CCing `duanepharris@gmail.com` via email client (`mailto:`), Gmail Web, or clipboard copy.
+- **Reusable Excel Re-Sourcing Skill (`tithing-declaration-sync`)**:
+  - Created `.agents/skills/tithing-declaration-sync/SKILL.md` and `.agents/skills/tithing-declaration-sync/scripts/sync_td_schedule.py` to parse future edits to `Blackstone-Tithing-Declaration-Schedule-2026.xlsx` (ignoring `Summary`) and automatically update `public/data/tithing-declaration.json` and `public/td/index.html`.
+- Synchronized package, content, HTML, and asset version references to v1.2.26. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.25 — October 28, 2026
+
+- After explicit approval, deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`).
+- **Leader Onboarding Send Text (SMS) & Send Email Notification Workflow**:
+  - Added dedicated **Send Text (SMS)** (`#onboard-sms-link`) and **Send Email** (`#onboard-email-link`) buttons in `#onboard-modal` (`public/admin/index.html` and `public/admin/admin-app.js`).
+  - Pre-fills the personalized onboarding invitation with the leader's name, calling, Youth Hub access areas (when applicable), and step-by-step login instructions.
+  - Made the invitation message textarea (`#onboard-message-text`) editable prior to sending, dynamically updating both `sms:` and `mailto:` links on input.
+  - Clicking **Send Text (SMS)** or **Send Email** opens the user's native Messages or Mail client with the recipient, subject, and body pre-populated and automatically marks the leader as **Onboarded** (`onboarded: true`) in Firestore (`ward_leaders`) and local storage.
+  - Upgraded **Bulk Onboard** (`#btn-bulk-onboard`) via `openBulkOnboardModal()` to open the Onboarding Modal for multiple selected leaders with multi-recipient `sms:` and `mailto:?bcc=` support.
+- Synchronized package, content, HTML, and asset version references to v1.2.25. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.24 — October 28, 2026
+
+- **Authorized Leaders & Users Organization Tabs & Sub-navigation**:
+  - Implemented 6 subtabs on the Authorized Leaders & Users page (`#section-leaders`): `All Leaders`, `Bishopric`, `Youth`, `EQ` (Elders Quorum), `RS` (Relief Society), and `SS` (Sunday School).
+  - Dynamically filters the leader roster with live count badges for each organization and tab-specific empty states.
+  - Existing Bishopric members automatically display under both `All Leaders` and `Bishopric`.
+- **Calling and Role Separation with Expanded Leadership Registry**:
+  - Separated ecclesiastical `Calling` from system `Role` and permissions.
+  - Expanded leadership registry to support 20 distinct callings: Bishopric, Ward Activity, Ward Cleaning, Youth ADL Priest, Youth Priest, Youth ADL Teacher, Youth Teacher, Youth ADL Deacon, Youth Deacon, Youth YW Pres, Youth ADL YW, Youth Builders, Youth Messengers, Youth Gatherers, Youth Primary Pres, EQ Pres, EQ Activity, RS Pres, RS Activity, SS Pres.
+  - Table now displays distinct `Calling` and `Website & Youth Access` columns.
+- **Dedicated Role & Website Access Matrix Panel**:
+  - Added interactive toggleable `#leaders-access-matrix-panel` displaying all 20 callings mapped across the 7 admin areas of `youth.blackstoneward.org` (Settings & Privacy, Combined, Priests, Teachers, Deacons, Young Women, Primary).
+  - Clear visual indicators of Youth Hub active status vs Ward Portal Only roles.
+- **Add / Edit Leader Modal Enhancements & SSO Integration**:
+  - Upgraded `#leader-modal` with grouped Calling selector and 7 Youth Hub Admin Access read/write checkboxes.
+  - Auto-selects default access areas when a calling is chosen (e.g., Bishopric has full access to all 7 areas; Youth Priest has Priests; Youth YW Pres has Combined and Young Women; Youth Primary Pres has Primary), with full custom override capability and "Reset to Calling Defaults" button.
+  - Enhanced `setSSOCookie` to include `calling`, `org`, and `accessAreas` in the cross-subdomain SSO session cookie `ward_auth_session` for seamless integration with `youth.blackstoneward.org`.
+- Synchronized package, content, HTML, and asset version references to v1.2.24. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.23 — October 23, 2026
+
+- **Dynamic Platform-Aware Biometric UI & Hardware Detection (Option 2)**:
+  - Added `getPlatformBiometricName()` in `public/admin/admin-app.js` to automatically detect the client OS (`Mac`/`iOS` -> *"Touch ID / Face ID"*, `Windows` -> *"Windows Hello"*, `Android` -> *"Fingerprint / Face Unlock"*, fallback -> *"Passkey / Biometrics"*).
+  - Implemented `initBiometricUI()` updating action labels across login buttons, header enrollment buttons, and first-login onboarding modals.
+  - Added native platform hardware verification via `PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()` to gracefully hide the biometric sign-in button on devices lacking biometric hardware.
+- Synchronized package, content, HTML, and asset version references to v1.2.23. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.22 — October 23, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.22.
