@@ -22,7 +22,8 @@
     .font-serif {
       font-family: 'Newsreader', Georgia, Cambria, serif;
     }
-    dialog#td-change-dialog {
+    dialog#td-change-dialog,
+    dialog#td-contact-dialog {
       margin: auto;
       border: none;
       padding: 0;
@@ -30,7 +31,8 @@
       max-width: 36rem;
       width: calc(100% - 1.5rem);
     }
-    dialog#td-change-dialog::backdrop {
+    dialog#td-change-dialog::backdrop,
+    dialog#td-contact-dialog::backdrop {
       background-color: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(3px);
     }
@@ -168,37 +170,29 @@
   <!-- Hero Banner -->
   <section class="bg-gradient-to-b from-white to-[#FAF6EF] border-b border-[#E9DECE] py-8 sm:py-10 px-4">
     <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div class="space-y-2.5 max-w-3xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#A74319] bg-[#A74319]/10">
-            <span class="w-2 h-2 rounded-full bg-[#A74319]"></span>
-            <span>Nov 1 – Dec 6, 2026 • Sundays &amp; Select Wednesdays</span>
-          </div>
           <h1 class="text-3xl sm:text-4xl font-serif font-bold text-[#152548] tracking-tight">
             Blackstone Ward Tithing Declaration
           </h1>
           <p class="text-sm text-[#536484] leading-relaxed">
-            Interviews with Bishopric are held on Sundays (<strong>2:05 PM – 4:05 PM</strong>) and select Wednesday evenings (<strong>6:00 PM – 6:45 PM</strong>) at the Franklin Stake Center.
-            <strong>Click on your family name</strong> (or any open slot) below to propose a new date or time.
+            Interviews with the Bishop are held on Sundays and Wednesdays at the Franklin Stake Center.
           </p>
         </div>
 
-        <!-- Quick Stats & Request Change CTA -->
-        <div class="flex flex-wrap items-center gap-3 shrink-0">
-          <div class="bg-white border border-[#E9DECE] rounded-2xl px-4 py-2.5 shadow-2xs text-left">
-            <span class="block text-[10px] font-bold uppercase tracking-wider text-[#536484]">Interview Dates</span>
-            <span id="stat-sundays-count" class="text-lg font-bold text-[#152548]">7 Dates</span>
-          </div>
-          <div class="bg-white border border-[#E9DECE] rounded-2xl px-4 py-2.5 shadow-2xs text-left">
-            <span class="block text-[10px] font-bold uppercase tracking-wider text-[#536484]">Scheduled Families</span>
-            <span id="stat-households-count" class="text-lg font-bold text-[#007B91]">56 Households</span>
-          </div>
-          <button type="button" id="btn-hero-request-change"
-            class="px-4 py-3 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-2xl text-xs flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer">
-            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Request a Schedule Change</span>
+        <!-- Contact Us Card / Button -->
+        <div class="flex items-center shrink-0">
+          <button type="button" id="btn-hero-contact-us"
+            class="bg-white hover:bg-[#152548] text-[#152548] hover:text-white border-2 border-[#152548] rounded-2xl px-5 py-3 shadow-sm hover:shadow-md transition flex items-center gap-3 cursor-pointer group active:scale-95">
+            <span class="w-9 h-9 rounded-xl bg-[#152548]/10 group-hover:bg-white/15 flex items-center justify-center transition">
+              <svg class="w-5 h-5 text-[#152548] group-hover:text-amber-300 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </span>
+            <span class="text-left">
+              <span class="block text-sm font-bold leading-tight">Contact Us</span>
+              <span class="block text-[11px] text-[#536484] group-hover:text-slate-200 transition">Submit a Question or Request</span>
+            </span>
           </button>
         </div>
       </div>
@@ -227,42 +221,41 @@
       </div>
     </section>
 
-    <!-- Search & View Mode Toolbar -->
-    <section class="bg-white border border-[#E9DECE] rounded-2xl p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <!-- Search Bar -->
-      <div class="relative flex-1 max-w-xl">
-        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-        </span>
-        <input type="search" id="td-family-search" placeholder="Search by family last name or member first name (e.g. Bourne, Fairbank, Wild)..."
-          autocomplete="off"
-          class="w-full pl-10 pr-24 py-2.5 rounded-xl border border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/10 outline-none text-xs sm:text-sm transition">
-        <button type="button" id="td-search-clear"
-          class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-1 text-[11px] font-semibold text-slate-500 hover:text-[#152548] bg-slate-100 hover:bg-slate-200 rounded-lg transition cursor-pointer">
-          Clear
-        </button>
-      </div>
-
-      <!-- Filter & View Switcher -->
-      <div class="flex flex-wrap items-center justify-between md:justify-end gap-3">
-        <span id="td-search-status" class="text-xs font-semibold text-[#007B91] hidden"></span>
-
-        <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200" role="group" aria-label="Schedule display mode">
-          <button type="button" id="btn-mode-cards"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#152548] text-white shadow-2xs transition cursor-pointer">
-            Interview Schedule
-          </button>
-          <button type="button" id="btn-mode-month"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-[#152548] transition cursor-pointer">
-            Month Calendar
-          </button>
-          <button type="button" id="btn-mode-az"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-[#152548] transition cursor-pointer">
-            A–Z Family List
+    <!-- Search & Standard Tabbed Navigation -->
+    <section class="bg-white border border-[#E9DECE] rounded-2xl pt-4 px-4 pb-0 shadow-2xs space-y-4">
+      <!-- Search Bar Row -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="relative flex-1 min-w-[260px] max-w-xl">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#152548]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </span>
+          <input type="search" id="td-family-search" placeholder="Search by family last name or member first name (e.g. Bourne, Fairbank, Wild)..."
+            autocomplete="off"
+            class="w-full pl-11 pr-24 py-2.5 rounded-xl border-2 border-[#152548] bg-white focus:border-[#007B91] focus:ring-4 focus:ring-[#152548]/15 outline-none text-xs sm:text-sm font-medium text-[#152548] placeholder:text-slate-500 shadow-2xs transition">
+          <button type="button" id="td-search-clear"
+            class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:text-[#152548] bg-slate-100 hover:bg-slate-200 rounded-lg transition cursor-pointer">
+            Clear
           </button>
         </div>
+        <span id="td-search-status" class="text-xs font-bold text-[#007B91] hidden"></span>
+      </div>
+
+      <!-- Standard Tabbed Interface -->
+      <div class="border-b-2 border-[#152548] flex items-end gap-1.5 sm:gap-2 pt-1 overflow-x-auto" role="tablist" aria-label="Schedule display mode">
+        <button type="button" id="btn-mode-cards" role="tab" aria-selected="true"
+          class="px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold bg-[#152548] text-white border-2 border-b-0 border-[#152548] transition cursor-pointer whitespace-nowrap">
+          Interview Schedule
+        </button>
+        <button type="button" id="btn-mode-month" role="tab" aria-selected="false"
+          class="px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-semibold bg-[#FAF6EF] hover:bg-slate-100 text-[#536484] hover:text-[#152548] border border-b-0 border-[#E9DECE] transition cursor-pointer whitespace-nowrap">
+          Month Calendar
+        </button>
+        <button type="button" id="btn-mode-az" role="tab" aria-selected="false"
+          class="px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-semibold bg-[#FAF6EF] hover:bg-slate-100 text-[#536484] hover:text-[#152548] border border-b-0 border-[#E9DECE] transition cursor-pointer whitespace-nowrap">
+          A–Z Family List
+        </button>
       </div>
     </section>
 
@@ -437,6 +430,69 @@
     </div>
   </dialog>
 
+  <!-- ======================== CONTACT US MODAL (<dialog closedby="any">) ======================== -->
+  <dialog id="td-contact-dialog" closedby="any" aria-labelledby="td-contact-title">
+    <div class="bg-white border border-[#E9DECE] rounded-3xl p-6 sm:p-8 shadow-2xl relative text-[#152548] max-h-[92vh] overflow-y-auto">
+      <button type="button" id="td-contact-close"
+        class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
+        aria-label="Close dialog">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="flex items-center gap-2 mb-1">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#A74319]"></span>
+        <span class="text-xs font-bold uppercase tracking-wider text-[#A74319]">Contact Us</span>
+      </div>
+      <h2 id="td-contact-title" class="text-2xl font-serif font-bold text-[#152548]">Submit a Question or Request</h2>
+      <p class="text-xs text-[#536484] mt-0.5">
+        Send your query to Executive Secretary Brian McDonald (mcdonaldlds830@gmail.com)
+      </p>
+
+      <form id="td-contact-form" class="mt-4 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="td-contact-household" class="block text-xs font-semibold text-[#152548] mb-1">Household/Family Name <span class="text-[#A74319]">*</span></label>
+            <input type="text" id="td-contact-household" required
+              placeholder="e.g. Bourne"
+              class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] bg-slate-50/70 focus:bg-white focus:border-[#152548] outline-none text-xs font-medium text-[#152548]">
+          </div>
+          <div>
+            <label for="td-contact-info" class="block text-xs font-semibold text-[#152548] mb-1">Your Phone/Email</label>
+            <input type="text" id="td-contact-info"
+              placeholder="Phone or email for confirmation"
+              class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] bg-slate-50/70 focus:bg-white focus:border-[#152548] outline-none text-xs font-medium text-[#152548]">
+          </div>
+        </div>
+
+        <div>
+          <label for="td-contact-message" class="block text-xs font-semibold text-[#152548] mb-1">Your Question or Request</label>
+          <textarea id="td-contact-message" rows="4" required
+            placeholder="Type your question or request here..."
+            class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] bg-slate-50/70 focus:bg-white focus:border-[#152548] outline-none text-xs font-medium text-[#152548]"></textarea>
+        </div>
+
+        <div class="pt-2 space-y-2.5">
+          <button type="submit" id="td-contact-submit-btn"
+            class="w-full py-3 px-4 bg-[#152548] hover:bg-[#1e3463] text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer">
+            <svg class="w-4 h-4 text-emerald-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <span>Submit via Email</span>
+          </button>
+
+          <a id="td-contact-gmail-link" href="#" target="_blank" rel="noopener noreferrer"
+            class="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-[#152548] font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-[#E9DECE] transition cursor-pointer">
+            <span>Open in Gmail (Web)</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <p id="td-contact-feedback" class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center font-medium"></p>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
   <!-- Footer -->
   <footer class="bg-white border-t border-[#E9DECE] py-6 text-center text-xs text-[#536484] mt-auto">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
@@ -446,7 +502,7 @@
         <span>•</span>
         <a href="/calendar/" class="hover:underline">Calendar</a>
         <span>•</span>
-        <span id="footer-version">v1.2.35</span>
+        <span id="footer-version">v1.2.38</span>
       </div>
     </div>
   </footer>
@@ -1607,12 +1663,21 @@
       const bMonth = document.getElementById('btn-mode-month');
       const bAz = document.getElementById('btn-mode-az');
 
-      const activeCls = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#152548] text-white shadow-2xs transition cursor-pointer';
-      const inactiveCls = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-[#152548] transition cursor-pointer';
+      const activeCls = 'px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold bg-[#152548] text-white border-2 border-b-0 border-[#152548] transition cursor-pointer whitespace-nowrap';
+      const inactiveCls = 'px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-semibold bg-[#FAF6EF] hover:bg-slate-100 text-[#536484] hover:text-[#152548] border border-b-0 border-[#E9DECE] transition cursor-pointer whitespace-nowrap';
 
-      if (bCards) bCards.className = mode === 'cards' ? activeCls : inactiveCls;
-      if (bMonth) bMonth.className = mode === 'month' ? activeCls : inactiveCls;
-      if (bAz) bAz.className = mode === 'az' ? activeCls : inactiveCls;
+      if (bCards) {
+        bCards.className = mode === 'cards' ? activeCls : inactiveCls;
+        bCards.setAttribute('aria-selected', mode === 'cards' ? 'true' : 'false');
+      }
+      if (bMonth) {
+        bMonth.className = mode === 'month' ? activeCls : inactiveCls;
+        bMonth.setAttribute('aria-selected', mode === 'month' ? 'true' : 'false');
+      }
+      if (bAz) {
+        bAz.className = mode === 'az' ? activeCls : inactiveCls;
+        bAz.setAttribute('aria-selected', mode === 'az' ? 'true' : 'false');
+      }
 
       vCards?.classList.toggle('hidden', mode !== 'cards');
       vMonth?.classList.toggle('hidden', mode !== 'month');
@@ -1695,21 +1760,63 @@
 
     // ======================== CHANGE REQUEST MODAL LOGIC ========================
     const dialog = document.getElementById('td-change-dialog');
+    const contactDialog = document.getElementById('td-contact-dialog');
 
     // Fallback for browsers without <dialog closedby="any"> support (e.g. Safari)
-    if (dialog && !('closedBy' in HTMLDialogElement.prototype)) {
-      dialog.addEventListener('click', (event) => {
-        if (event.target !== dialog) return;
-        const rect = dialog.getBoundingClientRect();
-        const isDialogContent = (
-          rect.top <= event.clientY &&
-          event.clientY <= rect.top + rect.height &&
-          rect.left <= event.clientX &&
-          event.clientX <= rect.left + rect.width
-        );
-        if (isDialogContent) return;
-        dialog.close();
-      });
+    [dialog, contactDialog].forEach(dlg => {
+      if (dlg && !('closedBy' in HTMLDialogElement.prototype)) {
+        dlg.addEventListener('click', (event) => {
+          if (event.target !== dlg) return;
+          const rect = dlg.getBoundingClientRect();
+          const isDialogContent = (
+            rect.top <= event.clientY &&
+            event.clientY <= rect.top + rect.height &&
+            rect.left <= event.clientX &&
+            event.clientX <= rect.left + rect.width
+          );
+          if (isDialogContent) return;
+          dlg.close();
+        });
+      }
+    });
+
+    function buildContactEmailPayload() {
+      const household = (document.getElementById('td-contact-household')?.value || '').trim() || 'Ward Family';
+      const contactInfo = (document.getElementById('td-contact-info')?.value || '').trim() || 'Not provided';
+      const message = (document.getElementById('td-contact-message')?.value || '').trim();
+
+      const subject = `Tithing Declaration Question / Request — ${household} Household`;
+      const lines = [
+        `Hello Brother McDonald,`,
+        ``,
+        `Household/Family Name: ${household}`,
+        `Contact (Phone / Email): ${contactInfo}`,
+        ``,
+        `Question or Request:`,
+        message || '(No message entered)',
+        ``,
+        `Submitted via https://blackstoneward.org/td`
+      ];
+
+      const body = lines.join('\r\n');
+      const mailtoUrl = `mailto:${encodeURIComponent(TO_EMAIL)}?cc=${encodeURIComponent(CC_EMAIL)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(TO_EMAIL)}&cc=${encodeURIComponent(CC_EMAIL)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      return { subject, body, mailtoUrl, gmailUrl, household };
+    }
+
+    function syncContactDialogLinks() {
+      const { gmailUrl } = buildContactEmailPayload();
+      const gmailLink = document.getElementById('td-contact-gmail-link');
+      if (gmailLink) gmailLink.href = gmailUrl;
+    }
+
+    function openContactModal() {
+      if (!contactDialog) return;
+      const feedback = document.getElementById('td-contact-feedback');
+      if (feedback) feedback.classList.add('hidden');
+      syncContactDialogLinks();
+      contactDialog.showModal();
     }
 
     function buildChangeEmailPayload() {
@@ -2022,6 +2129,7 @@
 
       // Hero CTA button
       document.getElementById('btn-hero-request-change')?.addEventListener('click', () => openChangeModal(null));
+      document.getElementById('btn-hero-contact-us')?.addEventListener('click', () => openContactModal());
 
       // Search input
       const searchInput = document.getElementById('td-family-search');
@@ -2043,8 +2151,27 @@
         });
       }
 
-      // Modal close button
+      // Modal close buttons
       document.getElementById('td-dialog-close')?.addEventListener('click', () => dialog?.close());
+      document.getElementById('td-contact-close')?.addEventListener('click', () => contactDialog?.close());
+
+      // Contact Us form listeners
+      const contactForm = document.getElementById('td-contact-form');
+      if (contactForm) {
+        contactForm.addEventListener('input', syncContactDialogLinks);
+        contactForm.addEventListener('change', syncContactDialogLinks);
+
+        contactForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const { mailtoUrl } = buildContactEmailPayload();
+          const feedback = document.getElementById('td-contact-feedback');
+          if (feedback) {
+            feedback.textContent = `Opening your email app addressed to ${TO_EMAIL} (CC: ${CC_EMAIL})...`;
+            feedback.classList.remove('hidden');
+          }
+          window.location.href = mailtoUrl;
+        });
+      }
 
       // Form input listeners to keep Gmail Web link in sync
       const form = document.getElementById('td-change-form');

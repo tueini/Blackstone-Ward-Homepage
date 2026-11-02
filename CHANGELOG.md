@@ -1,5 +1,30 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.38 — November 2, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.38 and `/td`.
+- **Tithing Declaration (`/td`) Hero Subtitle, Contact Us Modal, Search Field Highlight & Standard Tabbed Interface (`public/td/index.html`)**:
+  - Changed the hero subtitle text under the main title to `"Interviews with the Bishop are held on Sundays and Wednesdays at the Franklin Stake Center."`
+  - Removed the `Interview Dates` and `Scheduled Families` cards from the top hero banner and replaced them with a `"Contact Us"` card/button (`#btn-hero-contact-us`).
+  - Added the `"Contact Us"` modal (`#td-contact-dialog`) titled `"Submit a Question or Request"` with subtitle `"Send your query to Executive Secretary Brian McDonald (mcdonaldlds830@gmail.com)"`, fields for `Household/Family Name*`, `Your Phone/Email`, and `Your Question or Request`, and actions for `"Submit via Email"` and `"Open in Gmail (Web)"`.
+  - Highlighted the family search input (`#td-family-search`) with a heavier `border-2 border-[#152548]` outline and a darker, bolder magnifying glass icon (`w-5 h-5`, `text-[#152548]`, `stroke-width="2.5"`).
+  - Converted the `Interview Schedule`, `Month Calendar`, and `A–Z Family List` buttons into a standard tabbed interface (`role="tablist"` / `role="tab"`).
+- Synchronized package, content, HTML, and asset version references to v1.2.38. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.37 — November 2, 2026
+
+- After explicit approval, deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`).
+- **Tithing Declaration (`/td`) Top Hero Request Change Button Removal (`public/td/index.html`)**:
+  - Removed the `"Request a Schedule Change"` button (`#btn-hero-request-change`) at the top of the `/td` page so schedule changes are initiated directly from upcoming family or open slots.
+- Synchronized package, content, HTML, and asset version references to v1.2.37. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.36 — November 2, 2026
+
+- After explicit approval, deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`).
+- **Tithing Declaration (`/td`) Hero Date-Range String Removal (`public/td/index.html`)**:
+  - Removed the `"• Nov 1 – Dec 6, 2026 • Sundays & Select Wednesdays"` badge above the main page heading on `/td`.
+- Synchronized package, content, HTML, and asset version references to v1.2.36. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.35 — November 2, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.35 and `/td`.

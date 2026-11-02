@@ -1,14 +1,27 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.35
+**Version:** 1.2.38
 **Date:** November 2, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.35 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Removed the `"Sunday Afternoon Tithing Declaration"` eyebrow string from each schedule card on `/td` (`public/td/index.html`) and hid the `"Request Change"` (and `"Claim Slot"`) buttons and modal click actions on schedule cards and rows whose date is in the past relative to Eastern time (`America/New_York`).
+**State:** Version 1.2.38 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Updated `/td` hero subtitle, replaced the two quick-stat cards with a `"Contact Us"` card/button spawning a question/request submission modal (`#td-contact-dialog`), highlighted the family search bar with a heavier outline and darker magnifying glass icon, and converted the 3 view buttons into a standard tabbed interface (`role="tablist"`).
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Tithing Declaration (`/td`) Hero Subtitle, Contact Us Modal, Highlighted Search & Standard Tabbed Interface (v1.2.38):
+  - **Hero Subtitle Update**: Updated the subtitle under `"Blackstone Ward Tithing Declaration"` to `"Interviews with the Bishop are held on Sundays and Wednesdays at the Franklin Stake Center."`
+  - **Removed Stat Cards & Added `"Contact Us"` Card/Button**: Removed the `Interview Dates` and `Scheduled Families` cards from the top hero banner and replaced them with a `"Contact Us"` card/button (`#btn-hero-contact-us`) that opens `<dialog id="td-contact-dialog" closedby="any">`.
+  - **Contact Us Modal (`Submit a Question or Request`)**: Includes the title `"Submit a Question or Request"`, subtitle `"Send your query to Executive Secretary Brian McDonald (mcdonaldlds830@gmail.com)"`, fields for `Household/Family Name*`, `Your Phone/Email`, and `Your Question or Request`, plus `"Submit via Email"` and `"Open in Gmail (Web)"` actions.
+  - **Highlighted Search Field & Darker Magnifying Glass Icon**: Added a heavier outline (`border-2 border-[#152548]`) to `#td-family-search` and made the magnifying glass icon larger and darker (`w-5 h-5`, `text-[#152548]`, `stroke-width="2.5"`).
+  - **Standard Tabbed Interface**: Converted `Interview Schedule`, `Month Calendar`, and `A–Z Family List` into a standard `role="tablist"` / `role="tab"` interface with bottom tab-bar border and top-rounded active/inactive tab states.
+
+- Tithing Declaration (`/td`) Top Hero Request Change Button Removal (v1.2.37):
+  - **Removed Hero CTA Button**: Removed the `"Request a Schedule Change"` button (`#btn-hero-request-change`) from the top hero banner in `public/td/index.html`, keeping change requests anchored directly on individual future appointment slots.
+
+- Tithing Declaration (`/td`) Top Hero Date-Range Pill Removal (v1.2.36):
+  - **Removed Hero Date-Range String**: Removed the top `"• Nov 1 – Dec 6, 2026 • Sundays & Select Wednesdays"` pill above the main `"Blackstone Ward Tithing Declaration"` heading in `public/td/index.html`.
 
 - Tithing Declaration (`/td`) Card Header Cleanup & Past-Date Request Change Removal (v1.2.35):
   - **Removed Card Eyebrow String**: Removed `"Sunday Afternoon Tithing Declaration"` from the header of each schedule card in `public/td/index.html` so cards display the interview date cleanly.
