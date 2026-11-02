@@ -1,14 +1,18 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.34
-**Date:** October 31, 2026
+**Version:** 1.2.35
+**Date:** November 2, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.34 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Fixed organization and access-area RBAC mapping in `public/admin/admin-app.js` and Firestore `ward_leaders` so Youth and Auxiliary leaders (such as Josie Brown, Young Women — Youth Gatherers) receive their specific organization role (`young_women`, `priests`, `teachers`, `deacons`, `primary`, `combined`, `elders_quorum`, `relief_society`, `sunday_school`, `bishopric`, `admin`) rather than a generic `"youth"` string that caused the Youth Hub Admin portal (`youth.blackstoneward.org/admin`) to fall back to `Combined` credentials. Also fixed `checkAuth()` so leaders without an email address on file are not overwritten by the Master Admin profile, updated the cross-subdomain SSO cookie (`ward_auth_session`) payload with `name`, `uid`, and resolved `role`, and restricted Ward Settings (`#tab-settings`) to Admin, Bishopric, or leaders with `"Settings & Privacy"` permission.
+**State:** Version 1.2.35 deployed to live production (`blackstoneward.org`) and staging (`test.blackstoneward.org`), and pushed to GitHub (`origin/main`). Removed the `"Sunday Afternoon Tithing Declaration"` eyebrow string from each schedule card on `/td` (`public/td/index.html`) and hid the `"Request Change"` (and `"Claim Slot"`) buttons and modal click actions on schedule cards and rows whose date is in the past relative to Eastern time (`America/New_York`).
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Tithing Declaration (`/td`) Card Header Cleanup & Past-Date Request Change Removal (v1.2.35):
+  - **Removed Card Eyebrow String**: Removed `"Sunday Afternoon Tithing Declaration"` from the header of each schedule card in `public/td/index.html` so cards display the interview date cleanly.
+  - **Past-Date `"Request Change"` Removal**: Added `getTodayEasternISO()` and `isPastScheduleDate()` in `public/td/index.html` (`America/New_York` timezone) so that when an interview date is in the past (e.g., `2026-11-01` after Nov 1 has passed), the `"Request Change"` (and `"Claim Slot"`) buttons and modal click triggers are removed from the schedule cards, A–Z list, and modal date options.
 
 - Organization-Specific Admin RBAC & Youth Hub Role Mapping Fix (v1.2.34):
   - **Root Cause 1 Fixed (`role: "youth"` Falling Back to `Combined` on Youth Hub Admin)**: Previously, `saveLeader()` in `public/admin/admin-app.js` assigned `role = org` (`"youth"`) for all 12 Youth callings. When `youth.blackstoneward.org/admin` evaluated `mapProfileToYouthRole("youth")`, `"youth"` did not match `'young_women'`, `'priests'`, `'teachers'`, `'deacons'`, or `'primary'` and fell back to `'Combined'`. Added explicit `role` mappings on `CALLING_DEFINITIONS` and `resolveLeaderRole(leader)` in `public/admin/admin-app.js` so leaders with `Young Women` access (such as Josie Brown, `Youth Gatherers`) save and authenticate with `role: "young_women"`, restricting them strictly to `Young Women Management` (`Young Women` tab only).

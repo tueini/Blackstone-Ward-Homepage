@@ -446,7 +446,7 @@
         <span>•</span>
         <a href="/calendar/" class="hover:underline">Calendar</a>
         <span>•</span>
-        <span id="footer-version">v1.2.33</span>
+        <span id="footer-version">v1.2.35</span>
       </div>
     </div>
   </footer>
@@ -1023,6 +1023,25 @@
   <!-- TD_DATA_END -->
 
   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrWB07WNqObtjiZb_NntJQZ0dhHyLRBas",
+      authDomain: "blackstoneward-b861c.firebaseapp.com",
+      projectId: "blackstoneward-b861c",
+      storageBucket: "blackstoneward-b861c.firebasestorage.app",
+      messagingSenderId: "609425206588",
+      appId: "1:609425206588:web:99ae3cb602c82e212dc239",
+      measurementId: "G-0T68YN4Y2P"
+    };
+
+    let db = null;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    } catch (_) {}
+
     const TO_EMAIL = 'mcdonaldlds830@gmail.com';
     const CC_EMAIL = 'duanepharris@gmail.com';
 
@@ -1072,6 +1091,21 @@
 
       if (scheduleData) {
         renderAll();
+      }
+
+      // 3. Subscribe to real-time updates from Bishopric Hub (Firestore: home_content/tithing_declaration_2026)
+      if (db) {
+        try {
+          onSnapshot(doc(db, 'home_content', 'tithing_declaration_2026'), (snap) => {
+            if (snap.exists()) {
+              const live = snap.data();
+              if (live && Array.isArray(live.sundays)) {
+                scheduleData = live;
+                renderAll();
+              }
+            }
+          });
+        } catch (_) {}
       }
     }
 
@@ -1139,6 +1173,28 @@
       return hay.includes(q);
     }
 
+    function getTodayEasternISO() {
+      try {
+        const parts = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'America/New_York',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).formatToParts(new Date());
+        const y = parts.find(p => p.type === 'year')?.value;
+        const m = parts.find(p => p.type === 'month')?.value;
+        const d = parts.find(p => p.type === 'day')?.value;
+        if (y && m && d) return `${y}-${m}-${d}`;
+      } catch (_) {}
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+
+    function isPastScheduleDate(isoDate) {
+      if (!isoDate) return false;
+      return String(isoDate).slice(0, 10) < getTodayEasternISO();
+    }
+
     function renderSundayCards() {
       const container = document.getElementById('sunday-cards-grid');
       if (!container || !scheduleData) return;
@@ -1161,6 +1217,7 @@
 
         totalMatches += matchingSlots.filter(s => !s.available).length;
 
+        const isPastCard = isPastScheduleDate(sunday.date);
         const card = document.createElement('article');
         card.className = 'bg-white border border-[#E9DECE] rounded-3xl overflow-hidden shadow-sm flex flex-col';
 
@@ -1176,15 +1233,11 @@
         const headerBg = isWednesday
           ? 'bg-gradient-to-r from-[#005F73] to-[#007B91]'
           : 'bg-gradient-to-r from-[#152548] to-[#1E3260]';
-        const eyebrowText = isWednesday
-          ? 'Wednesday Evening Tithing Declaration'
-          : 'Sunday Afternoon Tithing Declaration';
 
         const header = document.createElement('div');
         header.className = `px-5 sm:px-6 py-4 ${headerBg} text-white flex items-center justify-between gap-3`;
         header.innerHTML = `
           <div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-300 block">${eyebrowText}</span>
             <h3 class="text-lg sm:text-xl font-serif font-bold text-white leading-snug">${escapeHtml(sunday.title)}</h3>
           </div>
           <div class="flex items-center gap-2 shrink-0">
@@ -1211,11 +1264,13 @@
         list.className = 'divide-y divide-[#E9DECE]';
 
         matchingSlots.forEach(slot => {
-          const row = document.createElement('button');
-          row.type = 'button';
+          const row = document.createElement(isPastCard ? 'div' : 'button');
+          if (!isPastCard) row.type = 'button';
 
           if (slot.available) {
-            row.className = 'slot-card w-full text-left px-5 sm:px-6 py-3 bg-emerald-50/40 hover:bg-emerald-50/90 transition flex items-center justify-between gap-3 cursor-pointer group';
+            row.className = isPastCard
+              ? 'w-full text-left px-5 sm:px-6 py-3 bg-emerald-50/40 flex items-center justify-between gap-3'
+              : 'slot-card w-full text-left px-5 sm:px-6 py-3 bg-emerald-50/40 hover:bg-emerald-50/90 transition flex items-center justify-between gap-3 cursor-pointer group';
             row.innerHTML = `
               <div class="flex items-center gap-3 min-w-0">
                 <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 font-mono font-bold text-xs shrink-0 border border-emerald-200">
@@ -1223,30 +1278,35 @@
                 </span>
                 <div class="min-w-0">
                   <span class="text-xs sm:text-sm font-bold text-emerald-800 block">Open Interview Slot</span>
-                  <span class="text-[11px] text-emerald-700 block">Click to request this time slot for your family</span>
+                  ${isPastCard ? '' : '<span class="text-[11px] text-emerald-700 block">Click to request this time slot for your family</span>'}
                 </div>
               </div>
+              ${isPastCard ? '' : `
               <span class="slot-action-pill shrink-0 px-2.5 py-1 rounded-lg border border-emerald-300 bg-white text-emerald-800 text-[11px] font-semibold transition">
                 Claim Slot →
-              </span>
+              </span>`}
             `;
-            row.addEventListener('click', () => openChangeModal({
-              sundayTitle: sunday.title,
-              sundayTab: sunday.tabName,
-              time: slot.time,
-              household: '',
-              members: '',
-              isAvailableSlot: true
-            }));
+            if (!isPastCard) {
+              row.addEventListener('click', () => openChangeModal({
+                sundayTitle: sunday.title,
+                sundayTab: sunday.tabName,
+                time: slot.time,
+                household: '',
+                members: '',
+                isAvailableSlot: true
+              }));
+            }
           } else {
-            row.className = 'slot-card w-full text-left px-5 sm:px-6 py-3 hover:bg-[#FAF6EF] transition flex items-start sm:items-center justify-between gap-3 cursor-pointer group';
+            row.className = isPastCard
+              ? 'w-full text-left px-5 sm:px-6 py-3 flex items-start sm:items-center justify-between gap-3'
+              : 'slot-card w-full text-left px-5 sm:px-6 py-3 hover:bg-[#FAF6EF] transition flex items-start sm:items-center justify-between gap-3 cursor-pointer group';
             row.innerHTML = `
               <div class="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                 <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-[#152548] font-mono font-semibold text-xs shrink-0 border border-slate-200/80 mt-0.5 sm:mt-0">
                   ${escapeHtml(slot.time)}
                 </span>
                 <div class="min-w-0 flex-1">
-                  <div class="text-sm font-bold text-[#152548] group-hover:text-[#A74319] transition">
+                  <div class="text-sm font-bold text-[#152548] ${isPastCard ? '' : 'group-hover:text-[#A74319] transition'}">
                     ${highlightMatch(slot.household, q)}
                   </div>
                   <div class="text-xs text-[#536484] leading-snug line-clamp-2">
@@ -1254,18 +1314,21 @@
                   </div>
                 </div>
               </div>
+              ${isPastCard ? '' : `
               <span class="slot-action-pill shrink-0 px-2.5 py-1 rounded-lg border border-[#E9DECE] bg-[#FAF6EF] text-[#152548] text-[11px] font-semibold transition whitespace-nowrap">
                 Request Change
-              </span>
+              </span>`}
             `;
-            row.addEventListener('click', () => openChangeModal({
-              sundayTitle: sunday.title,
-              sundayTab: sunday.tabName,
-              time: slot.time,
-              household: slot.household,
-              members: slot.members,
-              isAvailableSlot: false
-            }));
+            if (!isPastCard) {
+              row.addEventListener('click', () => openChangeModal({
+                sundayTitle: sunday.title,
+                sundayTab: sunday.tabName,
+                time: slot.time,
+                household: slot.household,
+                members: slot.members,
+                isAvailableSlot: false
+              }));
+            }
           }
 
           list.appendChild(row);
@@ -1394,39 +1457,48 @@
           cell.appendChild(topRow);
 
           if (sundayData) {
+            const isPastDay = isPastScheduleDate(iso);
             const chipsWrap = document.createElement('div');
             chipsWrap.className = 'space-y-1 mt-0.5';
 
             sundayData.slots.forEach(slot => {
               if (q && !slotMatchesSearch(slot, sundayData.title, q)) return;
 
-              const chip = document.createElement('button');
-              chip.type = 'button';
+              const chip = document.createElement(isPastDay ? 'div' : 'button');
+              if (!isPastDay) chip.type = 'button';
               const shortTime = slot.time.replace(/\s*PM$/i, '').split('–')[0];
 
               if (slot.available) {
-                chip.className = 'w-full text-left px-1.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-[10px] text-emerald-800 font-semibold transition cursor-pointer truncate';
+                chip.className = isPastDay
+                  ? 'w-full text-left px-1.5 py-1 rounded bg-emerald-50 border border-emerald-200 text-[10px] text-emerald-800 font-semibold truncate'
+                  : 'w-full text-left px-1.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-[10px] text-emerald-800 font-semibold transition cursor-pointer truncate';
                 chip.textContent = `${shortTime} • Open Slot`;
-                chip.addEventListener('click', () => openChangeModal({
-                  sundayTitle: sundayData.title,
-                  sundayTab: sundayData.tabName,
-                  time: slot.time,
-                  household: '',
-                  members: '',
-                  isAvailableSlot: true
-                }));
+                if (!isPastDay) {
+                  chip.addEventListener('click', () => openChangeModal({
+                    sundayTitle: sundayData.title,
+                    sundayTab: sundayData.tabName,
+                    time: slot.time,
+                    household: '',
+                    members: '',
+                    isAvailableSlot: true
+                  }));
+                }
               } else {
-                chip.className = 'w-full text-left px-1.5 py-1 rounded bg-white hover:bg-[#152548] hover:text-white border border-[#E9DECE] text-[10px] text-[#152548] transition cursor-pointer leading-tight';
+                chip.className = isPastDay
+                  ? 'w-full text-left px-1.5 py-1 rounded bg-white border border-[#E9DECE] text-[10px] text-[#152548] leading-tight'
+                  : 'w-full text-left px-1.5 py-1 rounded bg-white hover:bg-[#152548] hover:text-white border border-[#E9DECE] text-[10px] text-[#152548] transition cursor-pointer leading-tight';
                 chip.innerHTML = `<span class="font-mono opacity-75">${escapeHtml(shortTime)}</span> <strong class="font-semibold">${highlightMatch(slot.household, q)}</strong>`;
                 chip.title = `${slot.time} — ${slot.household} (${slot.members})`;
-                chip.addEventListener('click', () => openChangeModal({
-                  sundayTitle: sundayData.title,
-                  sundayTab: sundayData.tabName,
-                  time: slot.time,
-                  household: slot.household,
-                  members: slot.members,
-                  isAvailableSlot: false
-                }));
+                if (!isPastDay) {
+                  chip.addEventListener('click', () => openChangeModal({
+                    sundayTitle: sundayData.title,
+                    sundayTab: sundayData.tabName,
+                    time: slot.time,
+                    household: slot.household,
+                    members: slot.members,
+                    isAvailableSlot: false
+                  }));
+                }
               }
 
               chipsWrap.appendChild(chip);
@@ -1479,27 +1551,31 @@
       }
 
       allHouseholds.forEach(item => {
+        const isPastItem = isPastScheduleDate(item.date);
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-[#FAF6EF] transition cursor-pointer';
+        tr.className = isPastItem ? 'transition' : 'hover:bg-[#FAF6EF] transition cursor-pointer';
         tr.innerHTML = `
           <td class="px-5 py-3 font-bold text-[#152548] text-sm">${highlightMatch(item.household, q)}</td>
           <td class="px-5 py-3 text-slate-600">${highlightMatch(item.members, q)}</td>
           <td class="px-5 py-3 font-semibold text-[#152548] whitespace-nowrap">${escapeHtml(item.sundayTitle)}</td>
           <td class="px-5 py-3 font-mono text-slate-700 whitespace-nowrap">${escapeHtml(item.time)}</td>
           <td class="px-5 py-3 text-right whitespace-nowrap">
+            ${isPastItem ? '' : `
             <button type="button" class="px-3 py-1.5 rounded-lg bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold text-xs transition cursor-pointer">
               Request Change
-            </button>
+            </button>`}
           </td>
         `;
-        tr.addEventListener('click', () => openChangeModal({
-          sundayTitle: item.sundayTitle,
-          sundayTab: item.sundayTab,
-          time: item.time,
-          household: item.household,
-          members: item.members,
-          isAvailableSlot: false
-        }));
+        if (!isPastItem) {
+          tr.addEventListener('click', () => openChangeModal({
+            sundayTitle: item.sundayTitle,
+            sundayTab: item.sundayTab,
+            time: item.time,
+            household: item.household,
+            members: item.members,
+            isAvailableSlot: false
+          }));
+        }
         tbody.appendChild(tr);
       });
 
@@ -1552,7 +1628,7 @@
 
       if (prefDateSelect) {
         prefDateSelect.innerHTML = '';
-        scheduleData.sundays.forEach(s => {
+        scheduleData.sundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
           const opt = document.createElement('option');
           const openSuffix = s.openCount > 0 ? ` (${s.openCount} open slot${s.openCount === 1 ? '' : 's'})` : '';
           opt.value = `${s.title}${openSuffix}`;
@@ -1570,7 +1646,7 @@
         prefTimeSelect.innerHTML = '';
         const openGroup = document.createElement('optgroup');
         openGroup.label = 'Available Open Slots';
-        scheduleData.sundays.forEach(s => {
+        scheduleData.sundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
           const shortD = s.shortDate || s.tabName.replace(/,\s*\d{4}$/, '');
           s.slots.filter(sl => sl.available).forEach(sl => {
             const opt = document.createElement('option');
@@ -1862,6 +1938,14 @@
             households.push(h);
           }
         });
+      });
+
+      (scheduleData.unassigned || []).forEach(u => {
+        const h = (u.household || '').trim();
+        if (h && !seen.has(h.toLowerCase())) {
+          seen.add(h.toLowerCase());
+          households.push(h);
+        }
       });
 
       // 1. Direct or compact match against participant household last names (e.g. "Bourne", "St. Pierre", "McInnis")

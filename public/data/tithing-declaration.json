@@ -1,13 +1,14 @@
 {
   "title": "Blackstone Ward Tithing Declaration",
   "subtitle": "Interview Schedule — November through Early December 2026",
-  "updatedAt": "2026-10-31",
+  "updatedAt": "2026-11-01",
   "contacts": {
     "toEmail": "mcdonaldlds830@gmail.com",
     "ccEmail": "duanepharris@gmail.com"
   },
   "totalScheduled": 56,
-  "totalOpenSlots": 10,
+  "totalOpenSlots": 11,
+  "unassigned": [],
   "sundays": [
     {
       "tabName": "November 1, 2026",
@@ -15,94 +16,140 @@
       "date": "2026-11-01",
       "dayOfWeek": "Sunday",
       "shortDate": "Nov 1",
-      "timeWindow": "2:05 – 4:05 PM",
+      "timeWindow": "11:30 AM & 2:05 – 4:05 PM",
       "scheduledCount": 12,
-      "totalSlots": 12,
-      "openCount": 0,
+      "totalSlots": 13,
+      "openCount": 1,
       "slots": [
         {
           "slotIndex": 1,
-          "time": "2:05–2:15 PM",
-          "household": "Bourne",
-          "members": "Garrett Austin Bourne, Cami Bourne, Lucie May Bourne, Oliver Glen Bourne",
-          "available": false
+          "time": "11:30 AM",
+          "startTime24": "11:30",
+          "durationMinutes": 10,
+          "household": "",
+          "members": "",
+          "available": true,
+          "status": "open"
         },
         {
           "slotIndex": 2,
-          "time": "2:15–2:25 PM",
-          "household": "Bogle",
-          "members": "Braxton Bogle, Mo Bogle, Miles Evan Bogle, Ellie Kei Bogle",
-          "available": false
+          "time": "2:05 PM",
+          "startTime24": "14:05",
+          "durationMinutes": 10,
+          "household": "Bourne",
+          "members": "Garrett Austin Bourne, Cami Bourne, Lucie May Bourne, Oliver Glen Bourne",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 3,
-          "time": "2:25–2:35 PM",
-          "household": "Bova",
-          "members": "Ruth Bova",
-          "available": false
+          "time": "2:15 PM",
+          "startTime24": "14:15",
+          "durationMinutes": 10,
+          "household": "Bogle",
+          "members": "Braxton Bogle, Mo Bogle, Miles Evan Bogle, Ellie Kei Bogle",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 4,
-          "time": "2:35–2:45 PM",
-          "household": "Shurick",
-          "members": "Christine Anne",
-          "available": false
+          "time": "2:25 PM",
+          "startTime24": "14:25",
+          "durationMinutes": 10,
+          "household": "Bova",
+          "members": "Ruth Bova",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 5,
-          "time": "2:45–2:55 PM",
-          "household": "Barcalow",
-          "members": "Jilda Ann Barcalow",
-          "available": false
+          "time": "2:35 PM",
+          "startTime24": "14:35",
+          "durationMinutes": 10,
+          "household": "Shurick",
+          "members": "Christine Anne",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 6,
-          "time": "2:55–3:05 PM",
-          "household": "Batista Araujo",
-          "members": "Pamela Thayna Batista Araujo",
-          "available": false
+          "time": "2:45 PM",
+          "startTime24": "14:45",
+          "durationMinutes": 10,
+          "household": "Barcalow",
+          "members": "Jilda Ann Barcalow",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 7,
-          "time": "3:05–3:15 PM",
-          "household": "Appleby",
-          "members": "Stacy Appleby",
-          "available": false
+          "time": "2:55 PM",
+          "startTime24": "14:55",
+          "durationMinutes": 10,
+          "household": "Batista Araujo",
+          "members": "Pamela Thayna Batista Araujo",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 8,
-          "time": "3:15–3:25 PM",
-          "household": "Begin",
-          "members": "Michelle Begin",
-          "available": false
+          "time": "3:05 PM",
+          "startTime24": "15:05",
+          "durationMinutes": 10,
+          "household": "Appleby",
+          "members": "Stacy Appleby",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 9,
-          "time": "3:25–3:35 PM",
-          "household": "Bennett",
-          "members": "Sarah Bennett",
-          "available": false
+          "time": "3:15 PM",
+          "startTime24": "15:15",
+          "durationMinutes": 10,
+          "household": "Begin",
+          "members": "Michelle Begin",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 10,
-          "time": "3:35–3:45 PM",
-          "household": "Bishaw",
-          "members": "Ericshayne Bishaw, Kim Bishaw",
-          "available": false
+          "time": "3:25 PM",
+          "startTime24": "15:25",
+          "durationMinutes": 10,
+          "household": "Bennett",
+          "members": "Sarah Bennett",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 11,
-          "time": "3:45–3:55 PM",
-          "household": "Brown",
-          "members": "Josh Brown, Megan Brown, Will Brown, Josie Brown, Jameson Brown",
-          "available": false
+          "time": "3:35 PM",
+          "startTime24": "15:35",
+          "durationMinutes": 10,
+          "household": "Bishaw",
+          "members": "Ericshayne Bishaw, Kim Bishaw",
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 12,
-          "time": "3:55–4:05 PM",
+          "time": "3:45 PM",
+          "startTime24": "15:45",
+          "durationMinutes": 10,
+          "household": "Brown",
+          "members": "Josh Brown, Megan Brown, Will Brown, Josie Brown, Jameson Brown",
+          "available": false,
+          "status": "scheduled"
+        },
+        {
+          "slotIndex": 13,
+          "time": "3:55 PM",
+          "startTime24": "15:55",
+          "durationMinutes": 10,
           "household": "Buckley",
           "members": "Wade Buckley, Brieana Buckley",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         }
       ]
     },
@@ -119,24 +166,33 @@
       "slots": [
         {
           "slotIndex": 1,
-          "time": "6:00-6:15 PM",
+          "time": "6:00 PM",
+          "startTime24": "18:00",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         },
         {
           "slotIndex": 2,
-          "time": "6:15-6:30 PM",
+          "time": "6:15 PM",
+          "startTime24": "18:15",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         },
         {
           "slotIndex": 3,
-          "time": "6:30-6:45 PM",
+          "time": "6:30 PM",
+          "startTime24": "18:30",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         }
       ]
     },
@@ -153,87 +209,123 @@
       "slots": [
         {
           "slotIndex": 1,
-          "time": "2:05–2:15 PM",
+          "time": "2:05 PM",
+          "startTime24": "14:05",
+          "durationMinutes": 10,
           "household": "Fuller",
           "members": "Harrison, Alanna Lynn, Ralph Wells, Juliet Tommy",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 2,
-          "time": "2:15–2:25 PM",
+          "time": "2:15 PM",
+          "startTime24": "14:15",
+          "durationMinutes": 10,
           "household": "Fairbank",
           "members": "Keith, Rebecca, Rachel, Molly, Mathilde Lois, Abigail Susannah, Keith Arthur",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 3,
-          "time": "2:25–2:35 PM",
+          "time": "2:25 PM",
+          "startTime24": "14:25",
+          "durationMinutes": 10,
           "household": "Klein / Kein",
           "members": "Rachel Ballard Klein, Susannah Rachel Klein, Asha Ballard Kein",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 4,
-          "time": "2:35–2:45 PM",
+          "time": "2:35 PM",
+          "startTime24": "14:35",
+          "durationMinutes": 10,
           "household": "Laskowsky",
           "members": "Brandi Laskowsky Afoakwah, Jasmiya, Buddy, Nova Star Laskowsky McNeill",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 5,
-          "time": "2:45–2:55 PM",
+          "time": "2:45 PM",
+          "startTime24": "14:45",
+          "durationMinutes": 10,
           "household": "Cowden",
           "members": "John Cowden, Mio Cowden, Melody Cowden",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 6,
-          "time": "2:55–3:05 PM",
+          "time": "2:55 PM",
+          "startTime24": "14:55",
+          "durationMinutes": 10,
           "household": "Dunton",
           "members": "Bethany B Dunton, Jackson Whitman Dunton",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 7,
-          "time": "3:05–3:15 PM",
+          "time": "3:05 PM",
+          "startTime24": "15:05",
+          "durationMinutes": 10,
           "household": "Escobar",
           "members": "Karina Escobar",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 8,
-          "time": "3:15–3:25 PM",
+          "time": "3:15 PM",
+          "startTime24": "15:15",
+          "durationMinutes": 10,
           "household": "Evans",
           "members": "David Robert, Laurie Sue",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 9,
-          "time": "3:25–3:35 PM",
+          "time": "3:25 PM",
+          "startTime24": "15:25",
+          "durationMinutes": 10,
           "household": "Faria / Gomes Silva",
           "members": "Tairini Priscila Lopes de Faria, Caio César Gomes Silva",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 10,
-          "time": "3:35–3:45 PM",
+          "time": "3:35 PM",
+          "startTime24": "15:35",
+          "durationMinutes": 10,
           "household": "Fisk",
           "members": "Dan, Anna",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 11,
-          "time": "3:45–3:55 PM",
+          "time": "3:45 PM",
+          "startTime24": "15:45",
+          "durationMinutes": 10,
           "household": "Gaudette",
           "members": "Edward Jay",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 12,
-          "time": "3:55–4:05 PM",
+          "time": "3:55 PM",
+          "startTime24": "15:55",
+          "durationMinutes": 10,
           "household": "Hernandez",
           "members": "Juan Roberto, Nelly",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         }
       ]
     },
@@ -250,24 +342,33 @@
       "slots": [
         {
           "slotIndex": 1,
-          "time": "6:00-6:15 PM",
+          "time": "6:00 PM",
+          "startTime24": "18:00",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         },
         {
           "slotIndex": 2,
-          "time": "6:15-6:30 PM",
+          "time": "6:15 PM",
+          "startTime24": "18:15",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         },
         {
           "slotIndex": 3,
-          "time": "6:30-6:45 PM",
+          "time": "6:30 PM",
+          "startTime24": "18:30",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         }
       ]
     },
@@ -284,87 +385,123 @@
       "slots": [
         {
           "slotIndex": 1,
-          "time": "2:05–2:15 PM",
+          "time": "2:05 PM",
+          "startTime24": "14:05",
+          "durationMinutes": 10,
           "household": "King",
           "members": "Jeffrey, Kathleen, Caleb J. Fasteson",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 2,
-          "time": "2:15–2:25 PM",
+          "time": "2:15 PM",
+          "startTime24": "14:15",
+          "durationMinutes": 10,
           "household": "Jensen",
           "members": "Austin, Catherine Lee, Hillam Max",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 3,
-          "time": "2:25–2:35 PM",
+          "time": "2:25 PM",
+          "startTime24": "14:25",
+          "durationMinutes": 10,
           "household": "Hill / Carlson",
           "members": "David Hill, Donna Carlson Hill, Samuel Scott Carlson, John Carlson",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 4,
-          "time": "2:35–2:45 PM",
+          "time": "2:35 PM",
+          "startTime24": "14:35",
+          "durationMinutes": 10,
           "household": "Hunsaker",
           "members": "Ben, Meg, Ethan Benjamin",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 5,
-          "time": "2:45–2:55 PM",
+          "time": "2:45 PM",
+          "startTime24": "14:45",
+          "durationMinutes": 10,
           "household": "Laverty",
           "members": "Michael, Lia, Colton Michael, Kael David",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 6,
-          "time": "2:55–3:05 PM",
+          "time": "2:55 PM",
+          "startTime24": "14:55",
+          "durationMinutes": 10,
           "household": "Hogan",
           "members": "Deborah",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 7,
-          "time": "3:05–3:15 PM",
+          "time": "3:05 PM",
+          "startTime24": "15:05",
+          "durationMinutes": 10,
           "household": "Holmes",
           "members": "Terry",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 8,
-          "time": "3:15–3:25 PM",
+          "time": "3:15 PM",
+          "startTime24": "15:15",
+          "durationMinutes": 10,
           "household": "Houston",
           "members": "Cole Watenpaugh, Kendra Watenpaugh",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 9,
-          "time": "3:25–3:35 PM",
+          "time": "3:25 PM",
+          "startTime24": "15:25",
+          "durationMinutes": 10,
           "household": "Howell",
           "members": "Emma Elizabeth, Tim, Paula Jean, Zachery Edward",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 10,
-          "time": "3:35–3:45 PM",
+          "time": "3:35 PM",
+          "startTime24": "15:35",
+          "durationMinutes": 10,
           "household": "Howell",
           "members": "K.C.",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 11,
-          "time": "3:45–3:55 PM",
+          "time": "3:45 PM",
+          "startTime24": "15:45",
+          "durationMinutes": 10,
           "household": "Lessard",
           "members": "Annette",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 12,
-          "time": "3:55–4:05 PM",
+          "time": "3:55 PM",
+          "startTime24": "15:55",
+          "durationMinutes": 10,
           "household": "Watson",
           "members": "Beth",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         }
       ]
     },
@@ -381,87 +518,123 @@
       "slots": [
         {
           "slotIndex": 1,
-          "time": "2:05–2:15 PM",
+          "time": "2:05 PM",
+          "startTime24": "14:05",
+          "durationMinutes": 10,
           "household": "Mullis",
           "members": "Shaun Christopher, Melanie Sue, Landon Christopher, Caden Vlademar, Dallin Nicholai, Lana Sue, Rosalie Ling Rehon",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 2,
-          "time": "2:15–2:25 PM",
+          "time": "2:15 PM",
+          "startTime24": "14:15",
+          "durationMinutes": 10,
           "household": "Robinson",
           "members": "Blake, Julissa, Jaziyah",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 3,
-          "time": "2:25–2:35 PM",
+          "time": "2:25 PM",
+          "startTime24": "14:25",
+          "durationMinutes": 10,
           "household": "McDonald",
           "members": "Brian Evan",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 4,
-          "time": "2:35–2:45 PM",
+          "time": "2:35 PM",
+          "startTime24": "14:35",
+          "durationMinutes": 10,
           "household": "Martin / Hoffman",
           "members": "Barbara Martin, Shayna Hoffman",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 5,
-          "time": "2:45–2:55 PM",
+          "time": "2:45 PM",
+          "startTime24": "14:45",
+          "durationMinutes": 10,
           "household": "Saylor",
           "members": "Virginia Saylor",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 6,
-          "time": "2:55–3:05 PM",
+          "time": "2:55 PM",
+          "startTime24": "14:55",
+          "durationMinutes": 10,
           "household": "Harris",
           "members": "Joyce",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 7,
-          "time": "3:05–3:15 PM",
+          "time": "3:05 PM",
+          "startTime24": "15:05",
+          "durationMinutes": 10,
           "household": "McKinnon",
           "members": "Bryan, Claudia",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 8,
-          "time": "3:15–3:25 PM",
+          "time": "3:15 PM",
+          "startTime24": "15:15",
+          "durationMinutes": 10,
           "household": "Phillips",
           "members": "Joseph Quintin, Janet Ellen",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 9,
-          "time": "3:25–3:35 PM",
+          "time": "3:25 PM",
+          "startTime24": "15:25",
+          "durationMinutes": 10,
           "household": "Rickett",
           "members": "William",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 10,
-          "time": "3:35–3:45 PM",
+          "time": "3:35 PM",
+          "startTime24": "15:35",
+          "durationMinutes": 10,
           "household": "Rowey",
           "members": "Matt Rowey",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 11,
-          "time": "3:45–3:55 PM",
+          "time": "3:45 PM",
+          "startTime24": "15:45",
+          "durationMinutes": 10,
           "household": "Thapa",
           "members": "Sher, Bala",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 12,
-          "time": "3:55–4:05 PM",
+          "time": "3:55 PM",
+          "startTime24": "15:55",
+          "durationMinutes": 10,
           "household": "Truscott",
           "members": "John, Carrie",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         }
       ]
     },
@@ -478,87 +651,123 @@
       "slots": [
         {
           "slotIndex": 1,
-          "time": "2:05–2:15 PM",
+          "time": "2:05 PM",
+          "startTime24": "14:05",
+          "durationMinutes": 10,
           "household": "Seeley",
           "members": "Benjamin Seeley, Ana Seeley",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 2,
-          "time": "2:15–2:25 PM",
+          "time": "2:15 PM",
+          "startTime24": "14:15",
+          "durationMinutes": 10,
           "household": "Venancio / Mafra",
           "members": "Fabio Junior Venancio, Ana Paula Batista Mafra, João Lucas Batista Mafra Venâncio, Julia Mafra Venancio",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 3,
-          "time": "2:25–2:35 PM",
+          "time": "2:25 PM",
+          "startTime24": "14:25",
+          "durationMinutes": 10,
           "household": "Wild",
           "members": "Andrew Vance, Amber Lynn, Vance Timothy, Logan Hadley, Ethan Franklyn, Lenna Annemarie, Blake Andrade",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 4,
-          "time": "2:35–2:45 PM",
+          "time": "2:35 PM",
+          "startTime24": "14:35",
+          "durationMinutes": 10,
           "household": "Wild",
           "members": "Daniel Franklyn, Danielle, Samuel",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 5,
-          "time": "2:45–2:55 PM",
+          "time": "2:45 PM",
+          "startTime24": "14:45",
+          "durationMinutes": 10,
           "household": "Wild",
           "members": "Fred",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 6,
-          "time": "2:55–3:05 PM",
+          "time": "2:55 PM",
+          "startTime24": "14:55",
+          "durationMinutes": 10,
           "household": "Sofoul",
           "members": "Stephen, Christine, Conner, Luke Scott",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 7,
-          "time": "3:05–3:15 PM",
+          "time": "3:05 PM",
+          "startTime24": "15:05",
+          "durationMinutes": 10,
           "household": "Shea",
           "members": "Rosemary",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 8,
-          "time": "3:15–3:25 PM",
+          "time": "3:15 PM",
+          "startTime24": "15:15",
+          "durationMinutes": 10,
           "household": "Sugarman",
           "members": "Michael, Amy",
-          "available": false
+          "available": false,
+          "status": "scheduled"
         },
         {
           "slotIndex": 9,
-          "time": "3:25–3:35 PM",
+          "time": "3:25 PM",
+          "startTime24": "15:25",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         },
         {
           "slotIndex": 10,
-          "time": "3:35–3:45 PM",
+          "time": "3:35 PM",
+          "startTime24": "15:35",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         },
         {
           "slotIndex": 11,
-          "time": "3:45–3:55 PM",
+          "time": "3:45 PM",
+          "startTime24": "15:45",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         },
         {
           "slotIndex": 12,
-          "time": "3:55–4:05 PM",
+          "time": "3:55 PM",
+          "startTime24": "15:55",
+          "durationMinutes": 10,
           "household": "",
           "members": "",
-          "available": true
+          "available": true,
+          "status": "open"
         }
       ]
     }

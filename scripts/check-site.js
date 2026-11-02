@@ -42,6 +42,7 @@ assert.ok(app.includes(`from './content.js?v=${manifest.version}'`), 'Content mo
 assert.ok(!app.includes('innerHTML'), 'Content must render as text, not injected markup');
 assert.ok(!app.includes('addDoc(') && !app.includes('setDoc(') && !app.includes('updateDoc('), 'Homepage must not write to Firestore');
 const hosting = JSON.parse(fs.readFileSync(path.join(root, 'firebase.json'), 'utf8'));
-assert.ok(['staging', 'blackstoneward'].includes(hosting.hosting.target), 'Hosting target must be staging or blackstoneward');
+const hostingConfigs = Array.isArray(hosting.hosting) ? hosting.hosting : [hosting.hosting];
+assert.ok(hostingConfigs.length > 0 && hostingConfigs.every(h => ['staging', 'blackstoneward'].includes(h?.target)), 'Hosting target must be staging or blackstoneward');
 assert.ok(!hosting.firestore && !hosting.functions, 'Homepage deployment must not include rules or functions');
 console.log('Site integrity, public content, asset links, and hosting scope verified.');

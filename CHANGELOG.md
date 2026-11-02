@@ -1,5 +1,13 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.35 — November 2, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.35 and `/td`.
+- **Tithing Declaration (`/td`) Schedule Card Header Cleanup & Past-Date Action Removal (`public/td/index.html`)**:
+  - Removed the `"Sunday Afternoon Tithing Declaration"` eyebrow string from each schedule card header.
+  - Added Eastern-time (`America/New_York`) date comparison (`getTodayEasternISO()` / `isPastScheduleDate()`) so any schedule card in the past automatically hides the `"Request Change"` (and `"Claim Slot"`) button and disables opening the change request modal for completed dates.
+- Synchronized package, content, HTML, and asset version references to v1.2.35. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.34 — October 31, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.34.
