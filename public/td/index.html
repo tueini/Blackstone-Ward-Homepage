@@ -1330,8 +1330,10 @@
         list.className = 'divide-y divide-[#E9DECE]';
 
         matchingSlots.forEach(slot => {
-          const row = document.createElement(isPastCard ? 'div' : 'button');
-          if (!isPastCard) row.type = 'button';
+          const isAttendedSlot = !slot.available && slot.status === 'attended';
+          const isLockedSlot = isPastCard || isAttendedSlot;
+          const row = document.createElement(isLockedSlot ? 'div' : 'button');
+          if (!isLockedSlot) row.type = 'button';
 
           if (slot.available) {
             row.className = isPastCard
@@ -1363,7 +1365,7 @@
               }));
             }
           } else {
-            row.className = isPastCard
+            row.className = isLockedSlot
               ? 'w-full text-left px-5 sm:px-6 py-3 flex items-start sm:items-center justify-between gap-3'
               : 'slot-card w-full text-left px-5 sm:px-6 py-3 hover:bg-[#FAF6EF] transition flex items-start sm:items-center justify-between gap-3 cursor-pointer group';
             row.innerHTML = `
@@ -1372,7 +1374,7 @@
                   ${escapeHtml(slot.time)}
                 </span>
                 <div class="min-w-0 flex-1">
-                  <div class="text-sm font-bold text-[#152548] ${isPastCard ? '' : 'group-hover:text-[#A74319] transition'}">
+                  <div class="text-sm font-bold text-[#152548] ${isLockedSlot ? '' : 'group-hover:text-[#A74319] transition'}">
                     ${highlightMatch(slot.household, q)}
                   </div>
                   <div class="text-xs text-[#536484] leading-snug line-clamp-2">
@@ -1380,12 +1382,12 @@
                   </div>
                 </div>
               </div>
-              ${isPastCard ? '' : `
+              ${isLockedSlot ? '' : `
               <span class="slot-action-pill shrink-0 px-2.5 py-1 rounded-lg border border-[#E9DECE] bg-[#FAF6EF] text-[#152548] text-[11px] font-semibold transition whitespace-nowrap">
                 Request Change
               </span>`}
             `;
-            if (!isPastCard) {
+            if (!isLockedSlot) {
               row.addEventListener('click', () => openChangeModal({
                 sundayTitle: sunday.title,
                 sundayTab: sunday.tabName,
@@ -1559,8 +1561,9 @@
             sundayData.slots.forEach(slot => {
               if (q && !slotMatchesSearch(slot, sundayData.title, q)) return;
 
-              const chip = document.createElement(isPastDay ? 'div' : 'button');
-              if (!isPastDay) chip.type = 'button';
+              const isLockedChip = isPastDay || (!slot.available && slot.status === 'attended');
+              const chip = document.createElement(isLockedChip ? 'div' : 'button');
+              if (!isLockedChip) chip.type = 'button';
               const shortTime = slot.time.replace(/\s*PM$/i, '').split('–')[0];
 
               if (slot.available) {
@@ -1579,12 +1582,12 @@
                   }));
                 }
               } else {
-                chip.className = isPastDay
+                chip.className = isLockedChip
                   ? 'w-full text-left px-1.5 py-1 rounded bg-white border border-[#E9DECE] text-[10px] text-[#152548] leading-tight'
                   : 'w-full text-left px-1.5 py-1 rounded bg-white hover:bg-[#152548] hover:text-white border border-[#E9DECE] text-[10px] text-[#152548] transition cursor-pointer leading-tight';
                 chip.innerHTML = `<span class="font-mono opacity-75">${escapeHtml(shortTime)}</span> <strong class="font-semibold">${highlightMatch(slot.household, q)}</strong>`;
                 chip.title = `${slot.time} — ${slot.household} (${slot.members})`;
-                if (!isPastDay) {
+                if (!isLockedChip) {
                   chip.addEventListener('click', () => openChangeModal({
                     sundayTitle: sundayData.title,
                     sundayTab: sundayData.tabName,
@@ -1630,6 +1633,7 @@
             household: slot.household,
             members: slot.members,
             time: slot.time,
+            status: slot.status || 'scheduled',
             sundayTitle: sunday.title,
             sundayTab: sunday.tabName,
             date: sunday.date
@@ -1647,21 +1651,22 @@
 
       allHouseholds.forEach(item => {
         const isPastItem = isPastScheduleDate(item.date);
+        const isLockedItem = isPastItem || item.status === 'attended';
         const tr = document.createElement('tr');
-        tr.className = isPastItem ? 'transition' : 'hover:bg-[#FAF6EF] transition cursor-pointer';
+        tr.className = isLockedItem ? 'transition' : 'hover:bg-[#FAF6EF] transition cursor-pointer';
         tr.innerHTML = `
           <td class="px-5 py-3 font-bold text-[#152548] text-sm">${highlightMatch(item.household, q)}</td>
           <td class="px-5 py-3 text-slate-600">${highlightMatch(item.members, q)}</td>
           <td class="px-5 py-3 font-semibold text-[#152548] whitespace-nowrap">${escapeHtml(item.sundayTitle)}</td>
           <td class="px-5 py-3 font-mono text-slate-700 whitespace-nowrap">${escapeHtml(item.time)}</td>
           <td class="px-5 py-3 text-right whitespace-nowrap">
-            ${isPastItem ? '' : `
+            ${isLockedItem ? '' : `
             <button type="button" class="px-3 py-1.5 rounded-lg bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold text-xs transition cursor-pointer">
               Request Change
             </button>`}
           </td>
         `;
-        if (!isPastItem) {
+        if (!isLockedItem) {
           tr.addEventListener('click', () => openChangeModal({
             sundayTitle: item.sundayTitle,
             sundayTab: item.sundayTab,
