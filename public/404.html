@@ -1,2 +1,261 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Page not found — Blackstone Ward</title><link rel="stylesheet" href="/assets/styles.css"><link rel="stylesheet" href="/assets/site.css"></head><body><main class="contact-section wrap"><h1>Let’s get you home.</h1><p>We couldn’t find that page.</p><p><a class="button primary" href="/">Blackstone Ward home →</a></p></main></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Blackstone Ward Error Page — 404 Page Not Found.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#FAF6EF">
+  <title>Blackstone Ward Error Page — 404 Error</title>
+  <link rel="icon" href="/assets/ward-logo.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/seasons.css?v=1.1.27">
+  <style>
+    :root {
+      --cream: #faf6ef;
+      --navy: #152548;
+      --teal: #007b91;
+      --muted: #536484;
+      --copper: #a74319;
+      --border: #e9dece;
+      --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--cream);
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--cream);
+      color: var(--navy);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-serif {
+      font-family: var(--serif);
+    }
+
+    #error-gate-screen {
+      isolation: isolate;
+      perspective: 1000px;
+      overflow: clip;
+    }
+
+    #error-gate-screen .td-parallax-bg {
+      position: absolute;
+      inset: -160px -100px;
+      z-index: 0;
+      background-image: url('/assets/autumn-landscape.png');
+      background-position: center 54%;
+      background-size: cover;
+      background-repeat: no-repeat;
+      will-change: transform;
+      transform: translate3d(0, 0, 0) scale(1.1);
+      transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body[data-season="winter"] #error-gate-screen .td-parallax-bg {
+      background-image: url('/assets/winter-landscape.png');
+    }
+
+    body[data-season="spring"] #error-gate-screen .td-parallax-bg {
+      background-image: url('/assets/spring-landscape.png');
+    }
+
+    body[data-season="summer"] #error-gate-screen .td-parallax-bg {
+      background-image: url('/assets/summer-landscape.png');
+    }
+
+    #error-gate-screen .scene-wash {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: radial-gradient(
+        circle at 50% 42%,
+        rgba(var(--page-rgb, 250, 246, 239), 0.12) 0%,
+        rgba(var(--page-rgb, 250, 246, 239), 0.34) 65%,
+        rgba(var(--page-rgb, 250, 246, 239), 0.56) 100%
+      );
+    }
+
+    #error-gate-card {
+      will-change: transform;
+      transition: transform 0.1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  </style>
+</head>
+<body data-season="fall" class="min-h-screen flex flex-col bg-[#FAF6EF]">
+
+  <div id="error-gate-wrapper" class="flex-1 flex flex-col">
+    <!-- Top Header Bar -->
+    <header class="bg-white border-b border-[#E9DECE] sticky top-0 z-30 shadow-2xs">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <a href="https://blackstoneward.org/" class="flex items-center gap-3 shrink-0" aria-label="Blackstone Ward Home">
+          <img src="/assets/ward-logo-horizontal-v1.0.6.png" alt="Blackstone Ward" class="h-10 w-auto object-contain">
+        </a>
+        <nav class="flex items-center gap-3 sm:gap-5 text-xs font-semibold overflow-x-auto py-1" aria-label="Site Navigation">
+          <a href="https://blackstoneward.org/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Home</a>
+          <a href="https://blackstoneward.org/calendar/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Calendar</a>
+          <a href="https://youth.blackstoneward.org/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Youth Hub</a>
+          <a href="https://blackstoneward.org/td/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Tithing Declaration</a>
+          <a href="https://bish.blackstoneward.org/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Bishopric Hub</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Seasonal Parallax Scene & 404 Error Message Card -->
+    <main id="error-gate-screen" class="parallax flex-1 flex flex-col items-center justify-start px-4 pt-10 sm:pt-16 pb-44 min-h-[120vh] relative overflow-hidden">
+      <div class="td-parallax-bg" id="error-gate-scene-image" aria-hidden="true"></div>
+      <div class="scene-wash" aria-hidden="true"></div>
+
+      <article id="error-gate-card" class="relative z-10 w-full max-w-xl bg-white/92 backdrop-blur-md border border-[#E9DECE] rounded-3xl p-8 sm:p-11 shadow-2xl text-center space-y-6">
+        <div class="flex justify-center">
+          <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-[#A74319] bg-[#A74319]/10">
+            <span class="w-2 h-2 rounded-full bg-[#A74319]"></span>
+            <span>Blackstone Ward Error Page</span>
+          </span>
+        </div>
+
+        <h1 class="text-3xl sm:text-5xl font-serif font-bold text-[#152548] tracking-tight leading-tight">
+          404 ERROR
+        </h1>
+
+        <div class="space-y-2 text-sm sm:text-base text-[#152548] font-medium leading-relaxed max-w-md mx-auto">
+          <p>Sorry, the web address you tried to reach does not exist.</p>
+          <p>Please correct the web address you typed and try again.</p>
+        </div>
+
+        <div class="pt-3 border-t border-[#E9DECE] text-sm sm:text-base text-[#536484] font-medium leading-relaxed">
+          <p>Take care,</p>
+          <p class="font-serif font-bold text-[#152548] text-base sm:text-lg mt-0.5">Blackstone Ward Web System</p>
+        </div>
+
+        <div class="pt-2 flex flex-wrap items-center justify-center gap-3">
+          <button
+            type="button"
+            id="btn-error-back"
+            class="px-5 py-2.5 rounded-xl border border-[#E9DECE] bg-[#FAF6EF] hover:bg-[#EFE6D5] text-[#152548] font-bold text-xs sm:text-sm transition cursor-pointer"
+          >
+            &larr; Go Back
+          </button>
+          <a
+            href="/"
+            class="px-5 py-2.5 rounded-xl bg-[#152548] hover:bg-[#0E1A34] text-white font-bold text-xs sm:text-sm transition shadow-sm"
+          >
+            Return to Home &rarr;
+          </a>
+        </div>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      function resolveCurrentSeason(date) {
+        try {
+          var month = Number(
+            new Intl.DateTimeFormat('en-US', {
+              month: 'numeric',
+              timeZone: 'America/New_York'
+            }).format(date || new Date())
+          );
+          return month === 12 || month <= 2
+            ? 'winter'
+            : month <= 5
+            ? 'spring'
+            : month <= 8
+            ? 'summer'
+            : 'fall';
+        } catch (_) {
+          return 'fall';
+        }
+      }
+
+      var seasonColors = {
+        fall: '#FAF6EF',
+        winter: '#EEF5FC',
+        spring: '#F1F7EC',
+        summer: '#FFF9E7'
+      };
+      var params = new URLSearchParams(window.location.search);
+      var paramSeason = params.get('season');
+      var activeSeason = ['fall', 'winter', 'spring', 'summer'].indexOf(paramSeason) !== -1
+        ? paramSeason
+        : resolveCurrentSeason(new Date());
+
+      document.body.setAttribute('data-season', activeSeason);
+      var themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta && seasonColors[activeSeason]) {
+        themeMeta.setAttribute('content', seasonColors[activeSeason]);
+      }
+
+      var sceneLayer = document.getElementById('error-gate-scene-image');
+      var gateCard = document.getElementById('error-gate-card');
+      var pointerX = 0;
+      var pointerY = 0;
+      var wheelOffset = 0;
+      var framePending = false;
+
+      function updateParallax() {
+        framePending = false;
+        var scrollY = window.scrollY || window.pageYOffset || 0;
+        if (sceneLayer) {
+          var bgScrollY = Math.max(-130, Math.min(130, scrollY * 0.48 + wheelOffset * 0.55));
+          var bgShiftX = (pointerX * 42).toFixed(2);
+          var bgShiftY = (bgScrollY + pointerY * 30).toFixed(2);
+          sceneLayer.style.transform = 'translate3d(' + bgShiftX + 'px, ' + bgShiftY + 'px, 0) scale(1.1)';
+        }
+        if (gateCard) {
+          var cardScrollY = Math.max(-36, Math.min(36, -scrollY * 0.14 - wheelOffset * 0.18));
+          var cardShiftX = (pointerX * -12).toFixed(2);
+          var cardShiftY = (cardScrollY + pointerY * -10).toFixed(2);
+          gateCard.style.transform = 'translate3d(' + cardShiftX + 'px, ' + cardShiftY + 'px, 0)';
+        }
+      }
+
+      function queueParallax() {
+        if (!framePending) {
+          framePending = true;
+          requestAnimationFrame(updateParallax);
+        }
+      }
+
+      window.addEventListener('scroll', queueParallax, { passive: true });
+      window.addEventListener('resize', queueParallax, { passive: true });
+      window.addEventListener('wheel', function (e) {
+        wheelOffset = Math.max(-110, Math.min(110, wheelOffset + e.deltaY * 0.32));
+        queueParallax();
+      }, { passive: true });
+      window.addEventListener('pointermove', function (e) {
+        var w = window.innerWidth || 1;
+        var h = window.innerHeight || 1;
+        pointerX = (e.clientX / w - 0.5) * 2;
+        pointerY = (e.clientY / h - 0.5) * 2;
+        queueParallax();
+      }, { passive: true });
+
+      var backBtn = document.getElementById('btn-error-back');
+      if (backBtn) {
+        backBtn.addEventListener('click', function () {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            window.location.href = '/';
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
