@@ -1,5 +1,13 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.39 — November 3, 2026
+
+- **Tithing Declaration (`/td`) Dynamic Added & Removed Date Sync (`public/td/index.html`)**:
+  - Added `getActiveSundays()` to filter out any 0-slot dates and sort active interview dates chronologically across the Overview Strip, Interview Schedule cards, Month Calendar view, A–Z Family List, and Request a Schedule Change modal.
+  - Updated `#btn-strip-show-all` to display `"Show All <#> Dates"` dynamically and automatically reset `activeSundayFilter` to `'all'` if a selected date is removed.
+  - Updated `renderMonthCalendarView()` to dynamically expand December 2026 or include additional months if new interview dates are added outside Nov 1 – Dec 12, 2026.
+- Synchronized package, content, HTML, and asset version references to v1.2.39.
+
 ## 1.2.38 — November 2, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.38 and `/td`.

@@ -1165,18 +1165,28 @@
       }
     }
 
+    function getActiveSundays() {
+      if (!scheduleData || !Array.isArray(scheduleData.sundays)) return [];
+      return scheduleData.sundays
+        .filter(s => Array.isArray(s.slots) && s.slots.length > 0)
+        .slice()
+        .sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
+    }
+
     function renderOverviewStrip() {
       const strip = document.getElementById('sunday-overview-strip');
       const showAllBtn = document.getElementById('btn-strip-show-all');
       if (!strip || !scheduleData) return;
 
+      const activeSundays = getActiveSundays();
       if (showAllBtn) {
+        showAllBtn.textContent = `Show All ${activeSundays.length} Date${activeSundays.length === 1 ? '' : 's'}`;
         showAllBtn.classList.toggle('hidden', activeSundayFilter === 'all');
       }
 
       strip.innerHTML = '';
 
-      (scheduleData.sundays || []).forEach(s => {
+      activeSundays.forEach(s => {
         const isSelected = activeSundayFilter === s.date;
         const dowShort = (s.dayOfWeek || (s.title.toLowerCase().startsWith('wed') ? 'Wednesday' : 'Sunday')).slice(0, 3).toUpperCase();
         const shortLabel = s.shortDate || s.tabName.replace(/,\s*\d{4}$/, '');
@@ -1257,7 +1267,7 @@
       container.innerHTML = '';
 
       const q = searchQuery.trim().toLowerCase();
-      const sundaysToRender = (scheduleData.sundays || []).filter(s =>
+      const sundaysToRender = getActiveSundays().filter(s =>
         activeSundayFilter === 'all' || s.date === activeSundayFilter
       );
 
@@ -1428,13 +1438,42 @@
       container.innerHTML = '';
 
       const q = searchQuery.trim().toLowerCase();
+      const activeSundays = getActiveSundays();
       const sundayByDate = new Map();
-      (scheduleData.sundays || []).forEach(s => sundayByDate.set(s.date, s));
+      activeSundays.forEach(s => sundayByDate.set(s.date, s));
 
-      const months = [
-        { year: 2026, monthIndex: 10, name: 'November 2026', daysInMonth: 30, startDow: 0 }, // Nov 1, 2026 is Sunday (0)
-        { year: 2026, monthIndex: 11, name: 'December 2026 (Early December)', daysInMonth: 12, startDow: 2 } // Dec 1, 2026 is Tuesday (2); show first 2 weeks
+      const monthNamesFull = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
       ];
+      const monthKeysSet = new Set(['2026-11', '2026-12']);
+      activeSundays.forEach(s => {
+        if (s.date && /^\d{4}-\d{2}-\d{2}$/.test(s.date)) {
+          monthKeysSet.add(s.date.slice(0, 7));
+        }
+      });
+
+      const months = [...monthKeysSet].sort().map(ym => {
+        const [y, mNum] = ym.split('-').map(Number);
+        const mIdx = (mNum || 1) - 1;
+        const fullDays = new Date(y, mIdx + 1, 0).getDate();
+        const startDow = new Date(y, mIdx, 1).getDay();
+        let maxScheduledDay = 0;
+        activeSundays.forEach(s => {
+          if (s.date && s.date.startsWith(ym + '-')) {
+            const dNum = Number(s.date.slice(8, 10));
+            if (dNum > maxScheduledDay) maxScheduledDay = dNum;
+          }
+        });
+        const isEarlyDec = ym === '2026-12' && maxScheduledDay <= 12;
+        return {
+          year: y,
+          monthIndex: mIdx,
+          name: isEarlyDec ? 'December 2026 (Early December)' : `${monthNamesFull[mIdx]} ${y}`,
+          daysInMonth: isEarlyDec ? 12 : fullDays,
+          startDow
+        };
+      });
 
       months.forEach(m => {
         const card = document.createElement('div');
@@ -1582,7 +1621,7 @@
       const q = searchQuery.trim().toLowerCase();
       const allHouseholds = [];
 
-      (scheduleData.sundays || []).forEach(sunday => {
+      getActiveSundays().forEach(sunday => {
         if (activeSundayFilter !== 'all' && sunday.date !== activeSundayFilter) return;
         sunday.slots.forEach(slot => {
           if (slot.available) return;
@@ -1688,12 +1727,13 @@
 
     function populateModalOptions() {
       if (!scheduleData || !Array.isArray(scheduleData.sundays)) return;
+      const activeSundays = getActiveSundays();
       const prefDateSelect = document.getElementById('td-form-pref-date');
       const prefTimeSelect = document.getElementById('td-form-pref-time');
 
       if (prefDateSelect) {
         prefDateSelect.innerHTML = '';
-        scheduleData.sundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
+        activeSundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
           const opt = document.createElement('option');
           const openSuffix = s.openCount > 0 ? ` (${s.openCount} open slot${s.openCount === 1 ? '' : 's'})` : '';
           opt.value = `${s.title}${openSuffix}`;
@@ -1711,7 +1751,7 @@
         prefTimeSelect.innerHTML = '';
         const openGroup = document.createElement('optgroup');
         openGroup.label = 'Available Open Slots';
-        scheduleData.sundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
+        activeSundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
           const shortD = s.shortDate || s.tabName.replace(/,\s*\d{4}$/, '');
           s.slots.filter(sl => sl.available).forEach(sl => {
             const opt = document.createElement('option');
@@ -1746,9 +1786,13 @@
 
     function renderAll() {
       if (!scheduleData) return;
+      const activeSundays = getActiveSundays();
+      if (activeSundayFilter !== 'all' && !activeSundays.some(s => s.date === activeSundayFilter)) {
+        activeSundayFilter = 'all';
+      }
       const sCount = document.getElementById('stat-sundays-count');
       const hCount = document.getElementById('stat-households-count');
-      if (sCount) sCount.textContent = `${scheduleData.sundays.length} Dates`;
+      if (sCount) sCount.textContent = `${activeSundays.length} Dates`;
       if (hCount) hCount.textContent = `${scheduleData.totalScheduled} Households`;
 
       populateModalOptions();

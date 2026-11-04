@@ -1,14 +1,19 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.38
-**Date:** November 2, 2026
+**Version:** 1.2.39
+**Date:** November 3, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.38 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Updated `/td` hero subtitle, replaced the two quick-stat cards with a `"Contact Us"` card/button spawning a question/request submission modal (`#td-contact-dialog`), highlighted the family search bar with a heavier outline and darker magnifying glass icon, and converted the 3 view buttons into a standard tabbed interface (`role="tablist"`).
+**State:** Version 1.2.39 prepared for deployment. Updated `/td` (`public/td/index.html`) so added and removed interview dates in the Bishopric Hub Tithing Declaration Manager dynamically sync across the Overview Strip, Interview Schedule cards, Month Calendar grid (including dates beyond Dec 12 or in additional months), A–Z Family List, and Schedule Change Request modal.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Tithing Declaration (`/td`) Dynamic Added/Removed Date Synchronization (v1.2.39):
+  - **Active Non-Empty Date Filtering & Chronological Sorting (`getActiveSundays`)**: Filters `scheduleData.sundays` to dates with `slots.length > 0` sorted chronologically by `date`, and automatically resets `activeSundayFilter` to `'all'` if the currently filtered date is deleted.
+  - **Dynamic Date Counter (`#btn-strip-show-all`)**: Updates the `"Show All <#> Dates"` reset button text dynamically whenever dates are added or removed.
+  - **Dynamic Month Calendar Expansion (`renderMonthCalendarView`)**: Dynamically expands December 2026 (if a date after Dec 12 is added) and includes any additional months present in `scheduleData.sundays` so newly added dates always appear on the Month Calendar tab.
 
 - Tithing Declaration (`/td`) Hero Subtitle, Contact Us Modal, Highlighted Search & Standard Tabbed Interface (v1.2.38):
   - **Hero Subtitle Update**: Updated the subtitle under `"Blackstone Ward Tithing Declaration"` to `"Interviews with the Bishop are held on Sundays and Wednesdays at the Franklin Stake Center."`
