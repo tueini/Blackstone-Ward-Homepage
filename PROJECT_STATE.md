@@ -1,14 +1,21 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.42
+**Version:** 1.2.43
 **Date:** November 5, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.42 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Fixed the corrupted template literal on line 2303 of `public/td/index.html` (`SyntaxError: Unterminated template literal`) that prevented the `/td` last-name login gate and schedule loader from initializing, and added automated inline `<script>` and `<script type="application/json">` syntax validation across all HTML pages in `scripts/check-site.js`.
+**State:** Version 1.2.43 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Simplified the "Request a Schedule Change" modal (`#td-change-dialog`) on `blackstoneward.org/td/` (`public/td/index.html`) with updated subtitle, Current Appointment display without `"Members: "` prefix, prepopulated household email from Firestore (`home_content/tithing_declaration_2026`), direct self-service open-slot reschedule (`#td-form-open-slot` + `#td-move-open-slot-btn`), updated `"Request Alternate Slot"` field and `"Send Email with Alternate Request"` button, and streamlined email body format.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Tithing Declaration (`/td`) Simplified Schedule Change Modal & Self-Service Open-Slot Move (v1.2.43):
+  - **Modal Subtitle (`#td-change-dialog`)**: Updated subtitle under `"Request a Schedule Change"` to `"Select an open TD slot or Email alternate change request to Executive Secretary, Brian McDonald"`.
+  - **Current Appointment Card (`#td-current-slot-banner`)**: Removed the `"Members: "` prefix from `#td-modal-members-display`.
+  - **Prepopulated Household Email (`#td-form-contact`)**: Changed label to `"Household Email"` and automatically prepopulates the household's email from `home_content/tithing_declaration_2026` in Firestore (matching the Household List tab in `bish.blackstoneward.org`).
+  - **Self-Service Move to Open Slot (`#td-form-open-slot` & `#td-move-open-slot-btn`)**: Removed `"What change would you like to propose? *"`, `"Preferred New Date *"`, and `"Preferred Time Window / Slot *"`, and replaced them with `"Select another slot that is open"` (`#td-form-open-slot`) and `"Move to Selected Open Slot"` (`#td-move-open-slot-btn`). Submitting clears the household's current slot, assigns the household to the selected open slot in Firestore (`home_content/tithing_declaration_2026`), alerts the user, closes the modal, and displays the newly selected day/slot.
+  - **Alternate Request Email Area & Payload (`#td-form-notes`, `#td-submit-email-btn`, `buildChangeEmailPayload()`)**: Renamed the notes field to `"Request Alternate Slot"` with the new placeholder text, renamed the submit button to `"Send Email with Alternate Request"`, and updated the email body to the streamlined format (`• Household: <Household>, <members>`, `• Current Scheduled Slot: <Date> (<Time>)`, and `PROPOSED CHANGE:` with the alternate request text).
 
 - Tithing Declaration (`/td`) Last-Name Login Gate Syntax Fix & Automated Inline Script Check (v1.2.42):
   - **Root Cause Fixed (`SyntaxError` on Line 2303 of `public/td/index.html`)**: Fixed the corrupted template literal in the `#td-copy-request-btn` click handler (`const fullClip = \`To: ${TO_EMAIL}\\nCC: ${CC_EMAIL}\\nSubject: ${subject}\\n\\n${body}\`;`) that caused the browser to abort parsing the inline `<script type="module">` block on `/td`, preventing `loadScheduleData()` and the `#td-gate-form` last-name verification listener from running.

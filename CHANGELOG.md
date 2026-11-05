@@ -1,5 +1,16 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.43 — November 5, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.43 and `/td`.
+- **Simplified Tithing Declaration (`/td`) Schedule Change Modal & Added Self-Service Open-Slot Move (`public/td/index.html`)**:
+  - Updated the modal subtitle under `"Request a Schedule Change"` to `"Select an open TD slot or Email alternate change request to Executive Secretary, Brian McDonald"`.
+  - Removed the `"Members: "` prefix from the household members line in the Current Appointment card (`#td-modal-members-display`).
+  - Changed `"Your Phone or Email *"` to `"Household Email"` (`#td-form-contact`) and prepopulated it from the household email stored in Firestore (`home_content/tithing_declaration_2026`).
+  - Removed `"What change would you like to propose? *"`, `"Preferred New Date *"`, and `"Preferred Time Window / Slot *"`, and added `"Select another slot that is open"` (`#td-form-open-slot`) with a `"Move to Selected Open Slot"` submit button (`#td-move-open-slot-btn`) that clears the current slot, assigns the household to the selected open slot in Firestore, alerts the user, closes the modal, and displays the newly selected date/slot.
+  - Updated `"Additional Details or Notes (Optional)"` to `"Request Alternate Slot"` with the new placeholder text, changed the email button label to `"Send Email with Alternate Request"`, and updated `buildChangeEmailPayload()` to the streamlined email body format.
+- Synchronized package, content, HTML, and asset version references to v1.2.43. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.42 — November 5, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.42 and `/td`.

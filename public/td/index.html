@@ -353,9 +353,7 @@
       </div>
       <h2 id="td-dialog-title" class="text-2xl font-serif font-bold text-[#152548]">Request a Schedule Change</h2>
       <p class="text-xs text-[#536484] mt-0.5">
-        Send your proposed change directly to Executive Secretary Brian McDonald (<code
-          class="font-mono text-[11px] text-[#152548]">mcdonaldlds830@gmail.com</code>) with a copy to <code
-          class="font-mono text-[11px] text-[#152548]">duanepharris@gmail.com</code>.
+        Select an open TD slot or Email alternate change request to Executive Secretary, Brian McDonald
       </p>
 
       <!-- Current Appointment Summary Card -->
@@ -384,69 +382,32 @@
               class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
           </div>
           <div>
-            <label for="td-form-contact" class="block text-xs font-semibold text-[#536484] mb-1">Your Phone or Email
-              *</label>
-            <input type="text" id="td-form-contact" required placeholder="e.g. (508) 555-0123"
+            <label for="td-form-contact" class="block text-xs font-semibold text-[#536484] mb-1">Household Email</label>
+            <input type="text" id="td-form-contact" placeholder="Household email on file"
               class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
           </div>
         </div>
 
-        <div>
-          <label for="td-form-request-type" class="block text-xs font-semibold text-[#536484] mb-1">What change would
-            you like to propose? *</label>
-          <select id="td-form-request-type"
-            class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white font-medium text-[#152548]">
-            <option value="Move to another Sunday or Wednesday time slot">Move to another Sunday or Wednesday time slot
-            </option>
-            <option value="Claim an open interview slot">Claim an open interview slot</option>
-            <option value="Swap appointment time with another family">Swap appointment time with another family</option>
-            <option value="Request a Zoom / remote interview">Request a Zoom / remote interview</option>
-            <option value="Unable to attend scheduled time — please contact us">Unable to attend scheduled time — please
-              contact us</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div class="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-2.5">
           <div>
-            <label for="td-form-pref-date" class="block text-xs font-semibold text-[#536484] mb-1">Preferred New Date
-              *</label>
-            <select id="td-form-pref-date"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white">
-              <option value="Wednesday, November 4, 2026 (3 open slots)">Wednesday, November 4, 2026 (3 open slots)
-              </option>
-              <option value="Wednesday, November 11, 2026 (3 open slots)">Wednesday, November 11, 2026 (3 open slots)
-              </option>
-              <option value="Sunday, December 6, 2026 (4 open slots)">Sunday, December 6, 2026 (4 open slots)</option>
-              <option value="Sunday, November 1, 2026">Sunday, November 1, 2026</option>
-              <option value="Sunday, November 8, 2026">Sunday, November 8, 2026</option>
-              <option value="Sunday, November 22, 2026">Sunday, November 22, 2026</option>
-              <option value="Sunday, November 29, 2026">Sunday, November 29, 2026</option>
-              <option value="Any available date (Flexible)">Any available date (Flexible)</option>
+            <label for="td-form-open-slot" class="block text-xs font-bold text-[#152548] mb-1">Select another slot that
+              is open</label>
+            <select id="td-form-open-slot"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white font-medium text-[#152548]">
+              <option value="">— Select an open slot —</option>
             </select>
           </div>
-          <div>
-            <label for="td-form-pref-time" class="block text-xs font-semibold text-[#536484] mb-1">Preferred Time Window
-              / Slot *</label>
-            <select id="td-form-pref-time"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white">
-              <optgroup label="General Time Windows">
-                <option value="Wednesday Evening (6:00 PM – 6:45 PM)">Wednesday Evening (6:00 PM – 6:45 PM)</option>
-                <option value="Sunday Afternoon — Any time (2:05 PM – 4:05 PM)">Sunday Afternoon — Any time (2:05 PM –
-                  4:05 PM)</option>
-                <option value="Sunday Early window (2:05 PM – 2:45 PM)">Sunday Early window (2:05 PM – 2:45 PM)</option>
-                <option value="Sunday Middle window (2:45 PM – 3:25 PM)">Sunday Middle window (2:45 PM – 3:25 PM)
-                </option>
-                <option value="Sunday Late window (3:25 PM – 4:05 PM)">Sunday Late window (3:25 PM – 4:05 PM)</option>
-              </optgroup>
-            </select>
-          </div>
+          <button type="button" id="td-move-open-slot-btn"
+            class="w-full py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer">
+            <span>Move to Selected Open Slot</span>
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
 
         <div>
-          <label for="td-form-notes" class="block text-xs font-semibold text-[#536484] mb-1">Additional Details or Notes
-            (Optional)</label>
-          <textarea id="td-form-notes" rows="2"
-            placeholder="Let us know any dates you are unavailable, or if swapping with another family..."
+          <label for="td-form-notes" class="block text-xs font-bold text-[#152548] mb-1">Request Alternate Slot</label>
+          <textarea id="td-form-notes" rows="3"
+            placeholder="If you are not available on any of the open slots, enter suggested alternate date/time, or suggest family to swap slots with."
             class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none"></textarea>
         </div>
 
@@ -458,7 +419,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            <span>Send Change Request via Email</span>
+            <span>Send Email with Alternate Request</span>
           </button>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -556,7 +517,7 @@
         <span>•</span>
         <a href="/calendar/" class="hover:underline">Calendar</a>
         <span>•</span>
-        <span id="footer-version">v1.2.42</span>
+        <span id="footer-version">v1.2.43</span>
       </div>
     </div>
   </footer>
@@ -1134,7 +1095,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDrWB07WNqObtjiZb_NntJQZ0dhHyLRBas",
@@ -1159,6 +1120,8 @@
     let activeSundayFilter = 'all'; // 'all' or ISO date e.g. '2026-11-01'
     let activeViewMode = 'cards';   // 'cards' | 'month' | 'az'
     let searchQuery = '';
+    let loggedInHousehold = '';
+    let activeSlotContext = null;
 
     function escapeHtml(str) {
       return String(str || '')
@@ -1212,6 +1175,15 @@
               if (live && Array.isArray(live.sundays)) {
                 scheduleData = live;
                 renderAll();
+                const hInput = document.getElementById('td-form-household');
+                const cInput = document.getElementById('td-form-contact');
+                if (hInput && hInput.value && cInput && !cInput.value) {
+                  const rec = findHouseholdRecord(hInput.value);
+                  if (rec && rec.email) {
+                    cInput.value = rec.email;
+                    syncDialogLinks();
+                  }
+                }
               }
             }
           });
@@ -1410,11 +1382,15 @@
             `;
             if (!isPastCard) {
               row.addEventListener('click', () => openChangeModal({
+                date: sunday.date,
+                slotIndex: slot.slotIndex,
                 sundayTitle: sunday.title,
                 sundayTab: sunday.tabName,
                 time: slot.time,
                 household: '',
+                householdId: '',
                 members: '',
+                email: '',
                 isAvailableSlot: true
               }));
             }
@@ -1443,11 +1419,15 @@
             `;
             if (!isLockedSlot) {
               row.addEventListener('click', () => openChangeModal({
+                date: sunday.date,
+                slotIndex: slot.slotIndex,
                 sundayTitle: sunday.title,
                 sundayTab: sunday.tabName,
                 time: slot.time,
                 household: slot.household,
+                householdId: slot.householdId || '',
                 members: slot.members,
+                email: slot.email || '',
                 isAvailableSlot: false
               }));
             }
@@ -1627,11 +1607,15 @@
                 chip.textContent = `${shortTime} • Open Slot`;
                 if (!isPastDay) {
                   chip.addEventListener('click', () => openChangeModal({
+                    date: sundayData.date,
+                    slotIndex: slot.slotIndex,
                     sundayTitle: sundayData.title,
                     sundayTab: sundayData.tabName,
                     time: slot.time,
                     household: '',
+                    householdId: '',
                     members: '',
+                    email: '',
                     isAvailableSlot: true
                   }));
                 }
@@ -1643,11 +1627,15 @@
                 chip.title = `${slot.time} — ${slot.household} (${slot.members})`;
                 if (!isLockedChip) {
                   chip.addEventListener('click', () => openChangeModal({
+                    date: sundayData.date,
+                    slotIndex: slot.slotIndex,
                     sundayTitle: sundayData.title,
                     sundayTab: sundayData.tabName,
                     time: slot.time,
                     household: slot.household,
+                    householdId: slot.householdId || '',
                     members: slot.members,
+                    email: slot.email || '',
                     isAvailableSlot: false
                   }));
                 }
@@ -1685,7 +1673,10 @@
           if (q && !slotMatchesSearch(slot, sunday.title, q)) return;
           allHouseholds.push({
             household: slot.household,
+            householdId: slot.householdId || '',
             members: slot.members,
+            email: slot.email || '',
+            slotIndex: slot.slotIndex,
             time: slot.time,
             status: slot.status || 'scheduled',
             sundayTitle: sunday.title,
@@ -1722,11 +1713,15 @@
         `;
         if (!isLockedItem) {
           tr.addEventListener('click', () => openChangeModal({
+            date: item.date,
+            slotIndex: item.slotIndex,
             sundayTitle: item.sundayTitle,
             sundayTab: item.sundayTab,
             time: item.time,
             household: item.household,
+            householdId: item.householdId || '',
             members: item.members,
+            email: item.email || '',
             isAvailableSlot: false
           }));
         }
@@ -1787,60 +1782,74 @@
     function populateModalOptions() {
       if (!scheduleData || !Array.isArray(scheduleData.sundays)) return;
       const activeSundays = getActiveSundays();
-      const prefDateSelect = document.getElementById('td-form-pref-date');
-      const prefTimeSelect = document.getElementById('td-form-pref-time');
+      const openSlotSelect = document.getElementById('td-form-open-slot');
+      if (!openSlotSelect) return;
 
-      if (prefDateSelect) {
-        prefDateSelect.innerHTML = '';
-        activeSundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
+      const currentVal = openSlotSelect.value;
+      openSlotSelect.innerHTML = '<option value="">— Select an open slot —</option>';
+
+      activeSundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
+        (s.slots || []).filter(sl => sl.available).forEach(sl => {
           const opt = document.createElement('option');
-          const openSuffix = s.openCount > 0 ? ` (${s.openCount} open slot${s.openCount === 1 ? '' : 's'})` : '';
-          opt.value = `${s.title}${openSuffix}`;
+          opt.value = `${s.date}||${sl.time}||${sl.slotIndex ?? ''}`;
+          opt.dataset.date = s.date;
+          opt.dataset.time = sl.time;
+          opt.dataset.tab = s.tabName;
           opt.dataset.title = s.title;
-          opt.textContent = `${s.title}${openSuffix}`;
-          prefDateSelect.appendChild(opt);
+          opt.textContent = `${s.title} • ${sl.time}`;
+          openSlotSelect.appendChild(opt);
         });
-        const flexOpt = document.createElement('option');
-        flexOpt.value = 'Any available date (Flexible)';
-        flexOpt.textContent = 'Any available date (Flexible)';
-        prefDateSelect.appendChild(flexOpt);
-      }
+      });
 
-      if (prefTimeSelect) {
-        prefTimeSelect.innerHTML = '';
-        const openGroup = document.createElement('optgroup');
-        openGroup.label = 'Available Open Slots';
-        activeSundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
-          const shortD = s.shortDate || s.tabName.replace(/,\s*\d{4}$/, '');
-          s.slots.filter(sl => sl.available).forEach(sl => {
-            const opt = document.createElement('option');
-            opt.value = `${sl.time} (Open on ${shortD})`;
-            opt.dataset.time = sl.time;
-            opt.dataset.tab = s.tabName;
-            opt.textContent = `${shortD} • ${sl.time} (Open)`;
-            openGroup.appendChild(opt);
-          });
-        });
-        if (openGroup.children.length > 0) {
-          prefTimeSelect.appendChild(openGroup);
+      if (currentVal && [...openSlotSelect.options].some(o => o.value === currentVal)) {
+        openSlotSelect.value = currentVal;
+      }
+    }
+
+    function findHouseholdRecord(rawName) {
+      if (!rawName || !scheduleData) return null;
+      const matchedName = findMatchingParticipantHousehold(rawName) || String(rawName || '').trim();
+      const targetNorm = normalizeSurname(matchedName);
+      const targetCompact = compactSurname(matchedName);
+      if (!targetNorm) return null;
+
+      for (const s of (scheduleData.sundays || [])) {
+        for (const sl of (s.slots || [])) {
+          if (sl.available || !sl.household) continue;
+          if (normalizeSurname(sl.household) === targetNorm || compactSurname(sl.household) === targetCompact) {
+            return {
+              household: sl.household,
+              householdId: sl.householdId || '',
+              members: sl.members || '',
+              email: sl.email || '',
+              date: s.date,
+              sundayTitle: s.title,
+              sundayTab: s.tabName,
+              time: sl.time,
+              slotIndex: sl.slotIndex
+            };
+          }
         }
-
-        const genGroup = document.createElement('optgroup');
-        genGroup.label = 'General Time Windows';
-        [
-          'Wednesday Evening (6:00 PM – 6:45 PM)',
-          'Sunday Afternoon — Any time (2:05 PM – 4:05 PM)',
-          'Sunday Early window (2:05 PM – 2:45 PM)',
-          'Sunday Middle window (2:45 PM – 3:25 PM)',
-          'Sunday Late window (3:25 PM – 4:05 PM)'
-        ].forEach(label => {
-          const opt = document.createElement('option');
-          opt.value = label;
-          opt.textContent = label;
-          genGroup.appendChild(opt);
-        });
-        prefTimeSelect.appendChild(genGroup);
       }
+
+      for (const u of (scheduleData.unassigned || [])) {
+        if (!u.household) continue;
+        if (normalizeSurname(u.household) === targetNorm || compactSurname(u.household) === targetCompact) {
+          return {
+            household: u.household,
+            householdId: u.householdId || '',
+            members: u.members || '',
+            email: u.email || '',
+            date: '',
+            sundayTitle: 'Unscheduled',
+            sundayTab: '',
+            time: '—',
+            slotIndex: null
+          };
+        }
+      }
+
+      return null;
     }
 
     function renderAll() {
@@ -1924,14 +1933,14 @@
 
     function buildChangeEmailPayload() {
       const household = (document.getElementById('td-form-household')?.value || '').trim() || 'Ward Family';
-      const contact = (document.getElementById('td-form-contact')?.value || '').trim() || 'Not provided';
-      const origDate = document.getElementById('td-form-orig-date')?.value || 'Unscheduled / Open Slot Request';
+      const origDate = document.getElementById('td-form-orig-date')?.value || 'Unscheduled';
       const origTime = document.getElementById('td-form-orig-time')?.value || '—';
-      const origMembers = document.getElementById('td-form-orig-members')?.value || '—';
-      const reqType = document.getElementById('td-form-request-type')?.value || 'Move to another Sunday or Wednesday time slot';
-      const prefDate = document.getElementById('td-form-pref-date')?.value || '';
-      const prefTime = document.getElementById('td-form-pref-time')?.value || '';
+      const origMembers = (document.getElementById('td-form-orig-members')?.value || '').trim();
       const notes = (document.getElementById('td-form-notes')?.value || '').trim();
+
+      const householdWithMembers = origMembers && origMembers !== '—'
+        ? `${household}, ${origMembers}`
+        : household;
 
       const subject = `Tithing Declaration Schedule Change Request — ${household} Household`;
       const lines = [
@@ -1939,19 +1948,14 @@
         ``,
         `The ${household} household would like to request a change to our 2026 Tithing Declaration appointment:`,
         ``,
-        `• Household: ${household}`,
-        `• Household Members: ${origMembers}`,
-        `• Contact (Phone / Email): ${contact}`,
+        `• Household: ${householdWithMembers}`,
         `• Current Scheduled Slot: ${origDate} (${origTime})`,
         ``,
         `PROPOSED CHANGE:`,
-        `• Request Type: ${reqType}`,
-        `• Preferred Date: ${prefDate}`,
-        `• Preferred Time Window / Slot: ${prefTime}`,
-        notes ? `• Additional Notes: ${notes}` : null,
+        notes || '(No alternate request entered)',
         ``,
         `Submitted via https://blackstoneward.org/td`
-      ].filter(line => line !== null);
+      ];
 
       const body = lines.join('\r\n');
       const mailtoUrl = `mailto:${encodeURIComponent(TO_EMAIL)}?cc=${encodeURIComponent(CC_EMAIL)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -1969,6 +1973,9 @@
     function openChangeModal(slotContext) {
       if (!dialog) return;
 
+      activeSlotContext = slotContext || null;
+      populateModalOptions();
+
       const feedback = document.getElementById('td-submit-feedback');
       if (feedback) feedback.classList.add('hidden');
 
@@ -1978,69 +1985,249 @@
       const badgeEl = document.getElementById('td-modal-current-badge');
 
       const householdInput = document.getElementById('td-form-household');
+      const contactInput = document.getElementById('td-form-contact');
       const origDateInput = document.getElementById('td-form-orig-date');
       const origTimeInput = document.getElementById('td-form-orig-time');
       const origMembersInput = document.getElementById('td-form-orig-members');
-      const reqTypeSelect = document.getElementById('td-form-request-type');
-      const prefDateSelect = document.getElementById('td-form-pref-date');
-      const prefTimeSelect = document.getElementById('td-form-pref-time');
+      const openSlotSelect = document.getElementById('td-form-open-slot');
+      const notesInput = document.getElementById('td-form-notes');
+
+      if (notesInput) notesInput.value = '';
+      if (openSlotSelect) openSlotSelect.value = '';
 
       if (slotContext && slotContext.isAvailableSlot) {
-        if (badgeEl) {
-          badgeEl.textContent = 'Open Slot Selected';
-          badgeEl.className = 'px-2 py-0.5 rounded-md bg-emerald-700 text-white font-semibold text-[11px]';
-        }
-        if (householdDisplay) householdDisplay.textContent = `Claim Open Slot: ${slotContext.sundayTitle}`;
-        if (membersDisplay) membersDisplay.textContent = 'Enter your household name below to request this open interview slot.';
-        if (datetimeDisplay) datetimeDisplay.textContent = `${slotContext.sundayTitle} • ${slotContext.time}`;
+        const record = loggedInHousehold ? findHouseholdRecord(loggedInHousehold) : null;
+        if (record && record.date) {
+          if (badgeEl) {
+            badgeEl.textContent = 'Currently Scheduled';
+            badgeEl.className = 'px-2 py-0.5 rounded-md bg-[#152548] text-white font-semibold text-[11px]';
+          }
+          if (householdDisplay) householdDisplay.textContent = `${record.household} Household`;
+          if (membersDisplay) membersDisplay.textContent = record.members || '';
+          if (datetimeDisplay) datetimeDisplay.textContent = `${record.sundayTitle} • ${record.time}`;
 
-        if (householdInput) householdInput.value = '';
-        if (origDateInput) origDateInput.value = 'Requesting Open Slot';
-        if (origTimeInput) origTimeInput.value = `${slotContext.sundayTab} @ ${slotContext.time}`;
-        if (origMembersInput) origMembersInput.value = '—';
-        if (reqTypeSelect) reqTypeSelect.value = 'Claim an open interview slot';
-        if (prefDateSelect) {
-          const matchDateOpt = [...prefDateSelect.options].find(o => o.dataset.title === slotContext.sundayTitle || o.value.startsWith(slotContext.sundayTitle));
-          if (matchDateOpt) prefDateSelect.value = matchDateOpt.value;
+          if (householdInput) householdInput.value = record.household;
+          if (contactInput) contactInput.value = record.email || '';
+          if (origDateInput) origDateInput.value = record.sundayTitle;
+          if (origTimeInput) origTimeInput.value = record.time;
+          if (origMembersInput) origMembersInput.value = record.members || '—';
+        } else {
+          if (badgeEl) {
+            badgeEl.textContent = 'Open Slot Selected';
+            badgeEl.className = 'px-2 py-0.5 rounded-md bg-emerald-700 text-white font-semibold text-[11px]';
+          }
+          if (householdDisplay) householdDisplay.textContent = `Claim Open Slot: ${slotContext.sundayTitle}`;
+          if (membersDisplay) membersDisplay.textContent = 'Enter your household name below to move to this open interview slot.';
+          if (datetimeDisplay) datetimeDisplay.textContent = `${slotContext.sundayTitle} • ${slotContext.time}`;
+
+          if (householdInput) householdInput.value = record ? record.household : '';
+          if (contactInput) contactInput.value = record ? (record.email || '') : '';
+          if (origDateInput) origDateInput.value = 'Unscheduled';
+          if (origTimeInput) origTimeInput.value = '—';
+          if (origMembersInput) origMembersInput.value = record && record.members ? record.members : '—';
         }
-        if (prefTimeSelect) {
-          const matchOpt = [...prefTimeSelect.options].find(o =>
-            (o.dataset.time === slotContext.time && o.dataset.tab === slotContext.sundayTab) ||
-            o.value.startsWith(slotContext.time)
+
+        if (openSlotSelect) {
+          const matchOpt = [...openSlotSelect.options].find(o =>
+            (o.dataset.date === slotContext.date && o.dataset.time === slotContext.time) ||
+            (o.dataset.time === slotContext.time && o.dataset.tab === slotContext.sundayTab)
           );
-          if (matchOpt) prefTimeSelect.value = matchOpt.value;
+          if (matchOpt) openSlotSelect.value = matchOpt.value;
         }
       } else if (slotContext && slotContext.household) {
+        const record = findHouseholdRecord(slotContext.household);
+        const resolvedEmail = slotContext.email || (record && record.email) || '';
+
         if (badgeEl) {
           badgeEl.textContent = 'Currently Scheduled';
           badgeEl.className = 'px-2 py-0.5 rounded-md bg-[#152548] text-white font-semibold text-[11px]';
         }
         if (householdDisplay) householdDisplay.textContent = `${slotContext.household} Household`;
-        if (membersDisplay) membersDisplay.textContent = `Members: ${slotContext.members}`;
+        if (membersDisplay) membersDisplay.textContent = slotContext.members || '';
         if (datetimeDisplay) datetimeDisplay.textContent = `${slotContext.sundayTitle} • ${slotContext.time}`;
 
         if (householdInput) householdInput.value = slotContext.household;
+        if (contactInput) contactInput.value = resolvedEmail;
         if (origDateInput) origDateInput.value = slotContext.sundayTitle;
         if (origTimeInput) origTimeInput.value = slotContext.time;
-        if (origMembersInput) origMembersInput.value = slotContext.members;
-        if (reqTypeSelect) reqTypeSelect.value = 'Move to another Sunday or Wednesday time slot';
+        if (origMembersInput) origMembersInput.value = slotContext.members || '—';
       } else {
-        if (badgeEl) {
-          badgeEl.textContent = 'General Request';
-          badgeEl.className = 'px-2 py-0.5 rounded-md bg-slate-700 text-white font-semibold text-[11px]';
-        }
-        if (householdDisplay) householdDisplay.textContent = 'Propose Tithing Declaration Time';
-        if (membersDisplay) membersDisplay.textContent = 'Enter your family name and preferred interview date below.';
-        if (datetimeDisplay) datetimeDisplay.textContent = 'Nov 1 – Dec 6, 2026 • Sundays (2:05–4:05 PM) & Wednesdays (6:00–6:45 PM)';
+        const record = loggedInHousehold ? findHouseholdRecord(loggedInHousehold) : null;
+        if (record && record.date) {
+          if (badgeEl) {
+            badgeEl.textContent = 'Currently Scheduled';
+            badgeEl.className = 'px-2 py-0.5 rounded-md bg-[#152548] text-white font-semibold text-[11px]';
+          }
+          if (householdDisplay) householdDisplay.textContent = `${record.household} Household`;
+          if (membersDisplay) membersDisplay.textContent = record.members || '';
+          if (datetimeDisplay) datetimeDisplay.textContent = `${record.sundayTitle} • ${record.time}`;
 
-        if (householdInput) householdInput.value = '';
-        if (origDateInput) origDateInput.value = 'General Schedule Request';
-        if (origTimeInput) origTimeInput.value = '—';
-        if (origMembersInput) origMembersInput.value = '—';
+          if (householdInput) householdInput.value = record.household;
+          if (contactInput) contactInput.value = record.email || '';
+          if (origDateInput) origDateInput.value = record.sundayTitle;
+          if (origTimeInput) origTimeInput.value = record.time;
+          if (origMembersInput) origMembersInput.value = record.members || '—';
+        } else {
+          if (badgeEl) {
+            badgeEl.textContent = 'General Request';
+            badgeEl.className = 'px-2 py-0.5 rounded-md bg-slate-700 text-white font-semibold text-[11px]';
+          }
+          if (householdDisplay) householdDisplay.textContent = 'Propose Tithing Declaration Time';
+          if (membersDisplay) membersDisplay.textContent = 'Enter your family name below.';
+          if (datetimeDisplay) datetimeDisplay.textContent = 'Nov 1 – Dec 6, 2026 • Sundays (2:05–4:05 PM) & Wednesdays (6:00–6:45 PM)';
+
+          if (householdInput) householdInput.value = record ? record.household : '';
+          if (contactInput) contactInput.value = record ? (record.email || '') : '';
+          if (origDateInput) origDateInput.value = 'Unscheduled';
+          if (origTimeInput) origTimeInput.value = '—';
+          if (origMembersInput) origMembersInput.value = record && record.members ? record.members : '—';
+        }
       }
 
       syncDialogLinks();
       dialog.showModal();
+    }
+
+    async function handleMoveToOpenSlot() {
+      if (!scheduleData || !Array.isArray(scheduleData.sundays)) return;
+
+      const householdInput = document.getElementById('td-form-household');
+      const contactInput = document.getElementById('td-form-contact');
+      const openSlotSelect = document.getElementById('td-form-open-slot');
+      const moveBtn = document.getElementById('td-move-open-slot-btn');
+
+      const rawHousehold = (householdInput?.value || '').trim();
+      if (!rawHousehold) {
+        alert('Please enter your Household / Family Name.');
+        householdInput?.focus();
+        return;
+      }
+
+      const selectedVal = openSlotSelect?.value || '';
+      if (!selectedVal) {
+        alert('Please select an open slot from the dropdown list.');
+        openSlotSelect?.focus();
+        return;
+      }
+
+      const [targetDate, targetTime] = selectedVal.split('||');
+      const targetSunday = scheduleData.sundays.find(s => s.date === targetDate);
+      const targetSlot = targetSunday && Array.isArray(targetSunday.slots)
+        ? targetSunday.slots.find(sl => sl.available && sl.time === targetTime)
+        : null;
+
+      if (!targetSunday || !targetSlot) {
+        alert('That slot is no longer open. Please choose another open slot.');
+        populateModalOptions();
+        return;
+      }
+
+      const record = findHouseholdRecord(rawHousehold);
+      const householdName = (record && record.household) || (activeSlotContext && activeSlotContext.household) || rawHousehold;
+      const householdId = (record && record.householdId) || (activeSlotContext && activeSlotContext.householdId) || '';
+      const origMembersVal = (document.getElementById('td-form-orig-members')?.value || '').trim();
+      const members = (record && record.members)
+        || (activeSlotContext && activeSlotContext.members)
+        || (origMembersVal !== '—' ? origMembersVal : '');
+      const email = (contactInput?.value || '').trim()
+        || (record && record.email)
+        || (activeSlotContext && activeSlotContext.email)
+        || '';
+
+      // Locate and clear the household's current scheduled slot
+      let clearedCurrentSlot = false;
+      if (activeSlotContext && !activeSlotContext.isAvailableSlot && activeSlotContext.date && activeSlotContext.time) {
+        const srcSunday = scheduleData.sundays.find(s => s.date === activeSlotContext.date);
+        const srcSlot = srcSunday && Array.isArray(srcSunday.slots)
+          ? srcSunday.slots.find(sl => !sl.available && sl.time === activeSlotContext.time && normalizeSurname(sl.household) === normalizeSurname(householdName))
+          : null;
+        if (srcSlot) {
+          srcSlot.available = true;
+          srcSlot.status = 'open';
+          srcSlot.household = '';
+          srcSlot.householdId = '';
+          srcSlot.members = '';
+          srcSlot.email = '';
+          delete srcSlot.missedDate;
+          delete srcSlot.missedTime;
+          clearedCurrentSlot = true;
+        }
+      }
+
+      if (!clearedCurrentSlot) {
+        for (const s of scheduleData.sundays) {
+          for (const sl of (s.slots || [])) {
+            if (!sl.available && sl.household && normalizeSurname(sl.household) === normalizeSurname(householdName)) {
+              sl.available = true;
+              sl.status = 'open';
+              sl.household = '';
+              sl.householdId = '';
+              sl.members = '';
+              sl.email = '';
+              delete sl.missedDate;
+              delete sl.missedTime;
+              clearedCurrentSlot = true;
+              break;
+            }
+          }
+          if (clearedCurrentSlot) break;
+        }
+      }
+
+      if (Array.isArray(scheduleData.unassigned)) {
+        scheduleData.unassigned = scheduleData.unassigned.filter(
+          u => normalizeSurname(u.household) !== normalizeSurname(householdName)
+        );
+      }
+
+      // Assign household to the selected open slot
+      targetSlot.available = false;
+      targetSlot.status = 'scheduled';
+      targetSlot.household = householdName;
+      targetSlot.householdId = householdId;
+      targetSlot.members = members;
+      targetSlot.email = email;
+
+      // Recalculate open and scheduled counts
+      let totalScheduled = 0;
+      let totalOpen = 0;
+      scheduleData.sundays.forEach(s => {
+        const slots = Array.isArray(s.slots) ? s.slots : [];
+        const openCount = slots.filter(sl => sl.available).length;
+        const scheduledCount = slots.length - openCount;
+        s.openCount = openCount;
+        s.scheduledCount = scheduledCount;
+        s.totalSlots = slots.length;
+        totalScheduled += scheduledCount;
+        totalOpen += openCount;
+      });
+      scheduleData.totalScheduled = totalScheduled;
+      scheduleData.totalOpenSlots = totalOpen;
+
+      if (moveBtn) moveBtn.disabled = true;
+      try {
+        if (db) {
+          await setDoc(doc(db, 'home_content', 'tithing_declaration_2026'), {
+            ...scheduleData,
+            updatedBy: `td-member-reschedule:${householdName}`,
+            updatedAtIso: new Date().toISOString()
+          });
+        }
+      } catch (err) {
+        console.error('Error saving schedule update:', err);
+      } finally {
+        if (moveBtn) moveBtn.disabled = false;
+      }
+
+      alert(`Your Tithing Declaration appointment for the ${householdName} Household has been moved to ${targetSunday.title} at ${targetSlot.time}.`);
+      dialog?.close();
+
+      activeSundayFilter = targetSunday.date;
+      if (activeViewMode === 'month') {
+        setViewMode('cards');
+      } else {
+        renderAll();
+      }
     }
 
     // ======================== SEASONAL PARALLAX & PARTICIPANT LAST NAME GATE ========================
@@ -2209,6 +2396,7 @@
           const val = gateInput ? gateInput.value : '';
           const matchedHousehold = findMatchingParticipantHousehold(val);
           if (matchedHousehold) {
+            loggedInHousehold = matchedHousehold;
             gateError?.classList.add('hidden');
             unlockSchedulePage();
           } else {
@@ -2257,6 +2445,28 @@
       // Modal close buttons
       document.getElementById('td-dialog-close')?.addEventListener('click', () => dialog?.close());
       document.getElementById('td-contact-close')?.addEventListener('click', () => contactDialog?.close());
+
+      // Move to Open Slot button
+      document.getElementById('td-move-open-slot-btn')?.addEventListener('click', () => handleMoveToOpenSlot());
+
+      // Auto-populate household email & current appointment when typing household name
+      const householdFormInput = document.getElementById('td-form-household');
+      if (householdFormInput) {
+        householdFormInput.addEventListener('input', () => {
+          const rec = findHouseholdRecord(householdFormInput.value);
+          if (rec) {
+            const contactInput = document.getElementById('td-form-contact');
+            if (contactInput && rec.email) contactInput.value = rec.email;
+            const origDateInput = document.getElementById('td-form-orig-date');
+            const origTimeInput = document.getElementById('td-form-orig-time');
+            const origMembersInput = document.getElementById('td-form-orig-members');
+            if (origDateInput && rec.sundayTitle) origDateInput.value = rec.sundayTitle;
+            if (origTimeInput && rec.time) origTimeInput.value = rec.time;
+            if (origMembersInput && rec.members) origMembersInput.value = rec.members;
+          }
+          syncDialogLinks();
+        });
+      }
 
       // Contact Us form listeners
       const contactForm = document.getElementById('td-contact-form');
