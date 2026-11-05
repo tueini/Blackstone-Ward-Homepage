@@ -1,15 +1,19 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="2026 Tithing Declaration interview schedule and change request form for the Blackstone Ward in Franklin, Massachusetts.">
+  <meta name="description"
+    content="2026 Tithing Declaration interview schedule and change request form for the Blackstone Ward in Franklin, Massachusetts.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#FAF6EF">
   <title>Tithing Declaration Schedule — Blackstone Ward</title>
   <link rel="icon" href="/assets/ward-logo.png" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="/assets/seasons.css">
   <link rel="stylesheet" href="/assets/styles.css">
   <link rel="stylesheet" href="/assets/site.css">
@@ -19,9 +23,11 @@
       background-color: #FAF6EF;
       color: #152548;
     }
+
     .font-serif {
       font-family: 'Newsreader', Georgia, Cambria, serif;
     }
+
     dialog#td-change-dialog,
     dialog#td-contact-dialog {
       margin: auto;
@@ -31,16 +37,19 @@
       max-width: 36rem;
       width: calc(100% - 1.5rem);
     }
+
     dialog#td-change-dialog::backdrop,
     dialog#td-contact-dialog::backdrop {
       background-color: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(3px);
     }
+
     .slot-card:hover .slot-action-pill {
       background-color: #152548;
       color: #ffffff;
       border-color: #152548;
     }
+
     mark.td-highlight {
       background-color: #FEF08A;
       color: #152548;
@@ -48,10 +57,12 @@
       padding: 0 0.15rem;
       font-weight: 700;
     }
+
     #td-gate-screen {
       isolation: isolate;
       perspective: 1000px;
     }
+
     #td-gate-screen .td-parallax-bg {
       position: absolute;
       inset: -160px -100px;
@@ -64,32 +75,36 @@
       transform: translate3d(0, 0, 0) scale(1.1);
       transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1);
     }
+
     body[data-season="winter"] #td-gate-screen .td-parallax-bg {
       background-image: url('/assets/winter-landscape.png');
     }
+
     body[data-season="spring"] #td-gate-screen .td-parallax-bg {
       background-image: url('/assets/spring-landscape.png');
     }
+
     body[data-season="summer"] #td-gate-screen .td-parallax-bg {
       background-image: url('/assets/summer-landscape.png');
     }
+
     #td-gate-screen .scene-wash {
       position: absolute;
       inset: 0;
       z-index: 1;
-      background: radial-gradient(
-        circle at 50% 42%,
-        rgba(var(--page-rgb, 250, 246, 239), 0.12) 0%,
-        rgba(var(--page-rgb, 250, 246, 239), 0.34) 65%,
-        rgba(var(--page-rgb, 250, 246, 239), 0.56) 100%
-      );
+      background: radial-gradient(circle at 50% 42%,
+          rgba(var(--page-rgb, 250, 246, 239), 0.12) 0%,
+          rgba(var(--page-rgb, 250, 246, 239), 0.34) 65%,
+          rgba(var(--page-rgb, 250, 246, 239), 0.56) 100%);
     }
+
     #td-gate-card {
       will-change: transform;
       transition: transform 0.1s cubic-bezier(0.22, 1, 0.36, 1);
     }
   </style>
 </head>
+
 <body data-season="fall" class="min-h-screen flex flex-col bg-[#FAF6EF]">
 
   <!-- Header -->
@@ -102,20 +117,24 @@
         <a href="/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Home</a>
         <a href="/calendar/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Calendar</a>
         <a href="/spotlights/" class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Spotlights</a>
-        <a href="/td/" class="text-[#152548] font-bold border-b-2 border-[#152548] pb-1 whitespace-nowrap" aria-current="page">Tithing Declaration</a>
+        <a href="/td/" class="text-[#152548] font-bold border-b-2 border-[#152548] pb-1 whitespace-nowrap"
+          aria-current="page">Tithing Declaration</a>
         <a href="/admin/" class="text-[#A74319] hover:underline transition whitespace-nowrap">Admin</a>
       </nav>
     </div>
   </header>
 
   <!-- ======================== PARTICIPANT LAST NAME PROMPT GATE ======================== -->
-  <section id="td-gate-screen" class="parallax flex-1 flex flex-col items-center justify-start px-4 pt-10 sm:pt-16 pb-48 min-h-[135vh] relative overflow-hidden">
+  <section id="td-gate-screen"
+    class="parallax flex-1 flex flex-col items-center justify-start px-4 pt-10 sm:pt-16 pb-48 min-h-[135vh] relative overflow-hidden">
     <div class="td-parallax-bg" id="td-gate-scene-image" aria-hidden="true"></div>
     <div class="scene-wash" aria-hidden="true"></div>
 
-    <div id="td-gate-card" class="relative z-10 w-full max-w-xl bg-white/90 backdrop-blur-md border border-[#E9DECE] rounded-3xl p-7 sm:p-10 shadow-2xl text-center space-y-6">
+    <div id="td-gate-card"
+      class="relative z-10 w-full max-w-xl bg-white/90 backdrop-blur-md border border-[#E9DECE] rounded-3xl p-7 sm:p-10 shadow-2xl text-center space-y-6">
       <div class="flex justify-center">
-        <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest text-[#A74319] bg-[#A74319]/10">
+        <span
+          class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest text-[#A74319] bg-[#A74319]/10">
           <span class="w-2 h-2 rounded-full bg-[#A74319]"></span>
           <span>Blackstone Ward • Bishopric</span>
         </span>
@@ -125,9 +144,12 @@
         2026 Blackstone Ward Tithing Declaration Schedule
       </h1>
 
-      <blockquote class="bg-[#FAF6EF]/90 border border-[#E9DECE] rounded-2xl p-4 sm:p-5 text-sm sm:text-base font-serif italic text-[#152548] leading-relaxed shadow-2xs">
+      <blockquote
+        class="bg-[#FAF6EF]/90 border border-[#E9DECE] rounded-2xl p-4 sm:p-5 text-sm sm:text-base font-serif italic text-[#152548] leading-relaxed shadow-2xs">
         <p class="text-[#152548]">
-          &ldquo;Bring ye all the tithes into the storehouse, that there may be meat in mine house, and prove me now herewith, saith the LORD of hosts, if I will not open you the windows of heaven, and pour you out a blessing, that there shall not be room enough to receive it.
+          &ldquo;Bring ye all the tithes into the storehouse, that there may be meat in mine house, and prove me now
+          herewith, saith the LORD of hosts, if I will not open you the windows of heaven, and pour you out a blessing,
+          that there shall not be room enough to receive it.
         </p>
         <footer class="mt-2 not-italic font-sans text-xs font-bold uppercase tracking-wider text-[#A74319]">
           - Malachi 3:10&rdquo;
@@ -135,30 +157,25 @@
       </blockquote>
 
       <p class="text-sm sm:text-base text-[#152548] font-medium leading-relaxed max-w-lg mx-auto">
-        You have been invited to meet with Bishop Harris to declare your tithing. Please enter your last name to see the schedule.
+        You have been invited to meet with Bishop Harris to declare your tithing. Please enter your last name to see the
+        schedule.
       </p>
 
       <form id="td-gate-form" class="space-y-3 max-w-md mx-auto pt-1" novalidate>
         <div class="flex flex-col sm:flex-row items-stretch gap-2.5">
           <label for="td-gate-lastname" class="sr-only">Enter your family last name</label>
-          <input
-            type="text"
-            id="td-gate-lastname"
-            name="lastname"
-            autocomplete="family-name"
-            required
+          <input type="text" id="td-gate-lastname" name="lastname" autocomplete="family-name" required
             placeholder="Enter your last name..."
-            class="flex-1 px-4 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/15 outline-none text-sm sm:text-base text-[#152548] font-medium bg-white text-center sm:text-left transition"
-          >
-          <button
-            type="submit"
-            class="px-6 py-3 rounded-xl bg-[#152548] hover:bg-[#0E1A34] text-white font-bold text-sm transition shadow-md active:scale-[0.99] cursor-pointer whitespace-nowrap"
-          >
+            class="flex-1 px-4 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/15 outline-none text-sm sm:text-base text-[#152548] font-medium bg-white text-center sm:text-left transition">
+          <button type="submit"
+            class="px-6 py-3 rounded-xl bg-[#152548] hover:bg-[#0E1A34] text-white font-bold text-sm transition shadow-md active:scale-[0.99] cursor-pointer whitespace-nowrap">
             View Schedule &rarr;
           </button>
         </div>
-        <p id="td-gate-error" role="alert" class="hidden text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
-          We couldn&rsquo;t match that last name to the 2026 participant list. Please enter your family last name as listed on ward records.
+        <p id="td-gate-error" role="alert"
+          class="hidden text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
+          We couldn&rsquo;t match that last name to the 2026 participant list. Please enter your family last name as
+          listed on ward records.
         </p>
       </form>
     </div>
@@ -167,152 +184,166 @@
   <!-- ======================== PROTECTED SCHEDULE CONTENT (Shown Upon Valid Last Name Entry) ======================== -->
   <div id="td-schedule-app" class="hidden flex-1 flex flex-col">
 
-  <!-- Hero Banner -->
-  <section class="bg-gradient-to-b from-white to-[#FAF6EF] border-b border-[#E9DECE] py-8 sm:py-10 px-4">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div class="space-y-2.5 max-w-3xl">
-          <h1 class="text-3xl sm:text-4xl font-serif font-bold text-[#152548] tracking-tight">
-            Blackstone Ward Tithing Declaration
-          </h1>
-          <p class="text-sm text-[#536484] leading-relaxed">
-            Interviews with the Bishop are held on Sundays and Wednesdays at the Franklin Stake Center.
-          </p>
-        </div>
+    <!-- Hero Banner -->
+    <section class="bg-gradient-to-b from-white to-[#FAF6EF] border-b border-[#E9DECE] py-8 sm:py-10 px-4">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div class="space-y-2.5 max-w-3xl">
+            <h1 class="text-3xl sm:text-4xl font-serif font-bold text-[#152548] tracking-tight">
+              Blackstone Ward Tithing Declaration
+            </h1>
+            <p class="text-sm text-[#536484] leading-relaxed">
+              Interviews with the Bishop are held on Sundays and Wednesdays at the Franklin Stake Center.
+            </p>
+          </div>
 
-        <!-- Contact Us Card / Button -->
-        <div class="flex items-center shrink-0">
-          <button type="button" id="btn-hero-contact-us"
-            class="bg-white hover:bg-[#152548] text-[#152548] hover:text-white border-2 border-[#152548] rounded-2xl px-5 py-3 shadow-sm hover:shadow-md transition flex items-center gap-3 cursor-pointer group active:scale-95">
-            <span class="w-9 h-9 rounded-xl bg-[#152548]/10 group-hover:bg-white/15 flex items-center justify-center transition">
-              <svg class="w-5 h-5 text-[#152548] group-hover:text-amber-300 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          <!-- Contact Us Card / Button -->
+          <div class="flex items-center shrink-0">
+            <button type="button" id="btn-hero-contact-us"
+              class="bg-white hover:bg-[#152548] text-[#152548] hover:text-white border-2 border-[#152548] rounded-2xl px-5 py-3 shadow-sm hover:shadow-md transition flex items-center gap-3 cursor-pointer group active:scale-95">
+              <span
+                class="w-9 h-9 rounded-xl bg-[#152548]/10 group-hover:bg-white/15 flex items-center justify-center transition">
+                <svg class="w-5 h-5 text-[#152548] group-hover:text-amber-300 transition" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </span>
+              <span class="text-left">
+                <span class="block text-sm font-bold leading-tight">Contact Us</span>
+                <span class="block text-[11px] text-[#536484] group-hover:text-slate-200 transition">Submit a Question
+                  or Request</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:py-8 flex-1 w-full space-y-6">
+
+      <!-- Interview Dates Overview Strip (NOV - DEC 2026) -->
+      <section aria-label="Interview dates in November and December 2026"
+        class="bg-white border border-[#E9DECE] rounded-3xl p-4 sm:p-5 shadow-2xs">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#007B91]"></span>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-[#152548]">Interview Dates (NOV - DEC 2026)</h2>
+          </div>
+          <div class="flex items-center gap-3">
+            <button type="button" id="btn-strip-show-all"
+              class="hidden text-xs font-bold text-[#007B91] hover:underline cursor-pointer">
+              Show All 7 Dates
+            </button>
+            <span class="text-[11px] text-[#536484]">Click any date to filter • Scroll right for more dates →</span>
+          </div>
+        </div>
+        <div id="sunday-overview-strip" class="flex items-stretch gap-3 overflow-x-auto pb-2 snap-x scroll-smooth">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- Search & Standard Tabbed Navigation -->
+      <section class="bg-white border border-[#E9DECE] rounded-2xl pt-4 px-4 pb-0 shadow-2xs space-y-4">
+        <!-- Search Bar Row -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="relative flex-1 min-w-[260px] max-w-xl">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#152548]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </span>
-            <span class="text-left">
-              <span class="block text-sm font-bold leading-tight">Contact Us</span>
-              <span class="block text-[11px] text-[#536484] group-hover:text-slate-200 transition">Submit a Question or Request</span>
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 py-6 sm:py-8 flex-1 w-full space-y-6">
-
-    <!-- Interview Dates Overview Strip (NOV - DEC 2026) -->
-    <section aria-label="Interview dates in November and December 2026" class="bg-white border border-[#E9DECE] rounded-3xl p-4 sm:p-5 shadow-2xs">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-[#007B91]"></span>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-[#152548]">Interview Dates (NOV - DEC 2026)</h2>
-        </div>
-        <div class="flex items-center gap-3">
-          <button type="button" id="btn-strip-show-all" class="hidden text-xs font-bold text-[#007B91] hover:underline cursor-pointer">
-            Show All 7 Dates
-          </button>
-          <span class="text-[11px] text-[#536484]">Click any date to filter • Scroll right for more dates →</span>
-        </div>
-      </div>
-      <div id="sunday-overview-strip" class="flex items-stretch gap-3 overflow-x-auto pb-2 snap-x scroll-smooth">
-        <!-- Populated dynamically -->
-      </div>
-    </section>
-
-    <!-- Search & Standard Tabbed Navigation -->
-    <section class="bg-white border border-[#E9DECE] rounded-2xl pt-4 px-4 pb-0 shadow-2xs space-y-4">
-      <!-- Search Bar Row -->
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div class="relative flex-1 min-w-[260px] max-w-xl">
-          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#152548]">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-          </span>
-          <input type="search" id="td-family-search" placeholder="Search by family last name or member first name (e.g. Bourne, Fairbank, Wild)..."
-            autocomplete="off"
-            class="w-full pl-11 pr-24 py-2.5 rounded-xl border-2 border-[#152548] bg-white focus:border-[#007B91] focus:ring-4 focus:ring-[#152548]/15 outline-none text-xs sm:text-sm font-medium text-[#152548] placeholder:text-slate-500 shadow-2xs transition">
-          <button type="button" id="td-search-clear"
-            class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:text-[#152548] bg-slate-100 hover:bg-slate-200 rounded-lg transition cursor-pointer">
-            Clear
-          </button>
-        </div>
-        <span id="td-search-status" class="text-xs font-bold text-[#007B91] hidden"></span>
-      </div>
-
-      <!-- Standard Tabbed Interface -->
-      <div class="border-b-2 border-[#152548] flex items-end gap-1.5 sm:gap-2 pt-1 overflow-x-auto" role="tablist" aria-label="Schedule display mode">
-        <button type="button" id="btn-mode-cards" role="tab" aria-selected="true"
-          class="px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold bg-[#152548] text-white border-2 border-b-0 border-[#152548] transition cursor-pointer whitespace-nowrap">
-          Interview Schedule
-        </button>
-        <button type="button" id="btn-mode-month" role="tab" aria-selected="false"
-          class="px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-semibold bg-[#FAF6EF] hover:bg-slate-100 text-[#536484] hover:text-[#152548] border border-b-0 border-[#E9DECE] transition cursor-pointer whitespace-nowrap">
-          Month Calendar
-        </button>
-        <button type="button" id="btn-mode-az" role="tab" aria-selected="false"
-          class="px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-semibold bg-[#FAF6EF] hover:bg-slate-100 text-[#536484] hover:text-[#152548] border border-b-0 border-[#E9DECE] transition cursor-pointer whitespace-nowrap">
-          A–Z Family List
-        </button>
-      </div>
-    </section>
-
-    <!-- VIEW 1: INTERVIEW SCHEDULE CARDS (Default) -->
-    <section id="view-sunday-cards" class="space-y-6">
-      <div id="sunday-cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <!-- Interview date cards injected dynamically -->
-      </div>
-    </section>
-
-    <!-- VIEW 2: MONTH CALENDAR GRID (Nov & Dec 2026) -->
-    <section id="view-month-calendar" class="hidden space-y-8">
-      <div id="month-calendars-container" class="space-y-8">
-        <!-- November & December 2026 month grids injected dynamically -->
-      </div>
-    </section>
-
-    <!-- VIEW 3: ALPHABETICAL A-Z FAMILY DIRECTORY -->
-    <section id="view-az-directory" class="hidden">
-      <div class="bg-white border border-[#E9DECE] rounded-3xl overflow-hidden shadow-sm">
-        <div class="px-6 py-4 border-b border-[#E9DECE] bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 class="text-lg font-serif font-bold text-[#152548]">Alphabetical Household Directory (A–Z)</h2>
-            <p class="text-xs text-[#536484]">Click any family row to propose a schedule change.</p>
+            <input type="search" id="td-family-search"
+              placeholder="Search by family last name or member first name (e.g. Bourne, Fairbank, Wild)..."
+              autocomplete="off"
+              class="w-full pl-11 pr-24 py-2.5 rounded-xl border-2 border-[#152548] bg-white focus:border-[#007B91] focus:ring-4 focus:ring-[#152548]/15 outline-none text-xs sm:text-sm font-medium text-[#152548] placeholder:text-slate-500 shadow-2xs transition">
+            <button type="button" id="td-search-clear"
+              class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-semibold text-slate-600 hover:text-[#152548] bg-slate-100 hover:bg-slate-200 rounded-lg transition cursor-pointer">
+              Clear
+            </button>
           </div>
-          <span id="az-count-badge" class="text-xs font-bold text-[#007B91] bg-[#007B91]/10 px-3 py-1 rounded-full self-start sm:self-auto">56 Households</span>
+          <span id="td-search-status" class="text-xs font-bold text-[#007B91] hidden"></span>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 border-b border-[#E9DECE] text-[#536484] uppercase tracking-wider font-semibold">
-              <tr>
-                <th class="px-5 py-3">Household</th>
-                <th class="px-5 py-3">Members Included</th>
-                <th class="px-5 py-3">Interview Date</th>
-                <th class="px-5 py-3">Time Slot</th>
-                <th class="px-5 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="az-table-body" class="divide-y divide-[#E9DECE]">
-              <!-- Populated dynamically -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
 
-  </main>
+        <!-- Standard Tabbed Interface -->
+        <div class="border-b-2 border-[#152548] flex items-end gap-1.5 sm:gap-2 pt-1 overflow-x-auto" role="tablist"
+          aria-label="Schedule display mode">
+          <button type="button" id="btn-mode-cards" role="tab" aria-selected="true"
+            class="px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold bg-[#152548] text-white border-2 border-b-0 border-[#152548] transition cursor-pointer whitespace-nowrap">
+            Interview Schedule
+          </button>
+          <button type="button" id="btn-mode-month" role="tab" aria-selected="false"
+            class="px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-semibold bg-[#FAF6EF] hover:bg-slate-100 text-[#536484] hover:text-[#152548] border border-b-0 border-[#E9DECE] transition cursor-pointer whitespace-nowrap">
+            Month Calendar
+          </button>
+          <button type="button" id="btn-mode-az" role="tab" aria-selected="false"
+            class="px-4 sm:px-5 py-2.5 rounded-t-xl text-xs sm:text-sm font-semibold bg-[#FAF6EF] hover:bg-slate-100 text-[#536484] hover:text-[#152548] border border-b-0 border-[#E9DECE] transition cursor-pointer whitespace-nowrap">
+            A–Z Family List
+          </button>
+        </div>
+      </section>
+
+      <!-- VIEW 1: INTERVIEW SCHEDULE CARDS (Default) -->
+      <section id="view-sunday-cards" class="space-y-6">
+        <div id="sunday-cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <!-- Interview date cards injected dynamically -->
+        </div>
+      </section>
+
+      <!-- VIEW 2: MONTH CALENDAR GRID (Nov & Dec 2026) -->
+      <section id="view-month-calendar" class="hidden space-y-8">
+        <div id="month-calendars-container" class="space-y-8">
+          <!-- November & December 2026 month grids injected dynamically -->
+        </div>
+      </section>
+
+      <!-- VIEW 3: ALPHABETICAL A-Z FAMILY DIRECTORY -->
+      <section id="view-az-directory" class="hidden">
+        <div class="bg-white border border-[#E9DECE] rounded-3xl overflow-hidden shadow-sm">
+          <div
+            class="px-6 py-4 border-b border-[#E9DECE] bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 class="text-lg font-serif font-bold text-[#152548]">Alphabetical Household Directory (A–Z)</h2>
+              <p class="text-xs text-[#536484]">Click any family row to propose a schedule change.</p>
+            </div>
+            <span id="az-count-badge"
+              class="text-xs font-bold text-[#007B91] bg-[#007B91]/10 px-3 py-1 rounded-full self-start sm:self-auto">56
+              Households</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead
+                class="bg-slate-50 border-b border-[#E9DECE] text-[#536484] uppercase tracking-wider font-semibold">
+                <tr>
+                  <th class="px-5 py-3">Household</th>
+                  <th class="px-5 py-3">Members Included</th>
+                  <th class="px-5 py-3">Interview Date</th>
+                  <th class="px-5 py-3">Time Slot</th>
+                  <th class="px-5 py-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="az-table-body" class="divide-y divide-[#E9DECE]">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
   </div>
 
   <!-- ======================== REQUEST A CHANGE MODAL (<dialog closedby="any">) ======================== -->
   <dialog id="td-change-dialog" closedby="any" aria-labelledby="td-dialog-title">
-    <div class="bg-white border border-[#E9DECE] rounded-3xl p-6 sm:p-8 shadow-2xl relative text-[#152548] max-h-[92vh] overflow-y-auto">
+    <div
+      class="bg-white border border-[#E9DECE] rounded-3xl p-6 sm:p-8 shadow-2xl relative text-[#152548] max-h-[92vh] overflow-y-auto">
       <button type="button" id="td-dialog-close"
         class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
         aria-label="Close dialog">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
@@ -322,14 +353,17 @@
       </div>
       <h2 id="td-dialog-title" class="text-2xl font-serif font-bold text-[#152548]">Request a Schedule Change</h2>
       <p class="text-xs text-[#536484] mt-0.5">
-        Send your proposed change directly to Executive Secretary Brian McDonald (<code class="font-mono text-[11px] text-[#152548]">mcdonaldlds830@gmail.com</code>) with a copy to <code class="font-mono text-[11px] text-[#152548]">duanepharris@gmail.com</code>.
+        Send your proposed change directly to Executive Secretary Brian McDonald (<code
+          class="font-mono text-[11px] text-[#152548]">mcdonaldlds830@gmail.com</code>) with a copy to <code
+          class="font-mono text-[11px] text-[#152548]">duanepharris@gmail.com</code>.
       </p>
 
       <!-- Current Appointment Summary Card -->
       <div id="td-current-slot-banner" class="mt-4 p-4 rounded-2xl bg-[#FAF6EF] border border-[#E9DECE] space-y-1.5">
         <div class="flex items-center justify-between text-xs">
           <span class="font-semibold text-[#536484] uppercase tracking-wider text-[10px]">Current Appointment</span>
-          <span id="td-modal-current-badge" class="px-2 py-0.5 rounded-md bg-[#152548] text-white font-semibold text-[11px]">Scheduled</span>
+          <span id="td-modal-current-badge"
+            class="px-2 py-0.5 rounded-md bg-[#152548] text-white font-semibold text-[11px]">Scheduled</span>
         </div>
         <div class="text-base font-bold text-[#152548]" id="td-modal-household-display">Select Household</div>
         <div class="text-xs text-[#536484]" id="td-modal-members-display"></div>
@@ -344,36 +378,44 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label for="td-form-household" class="block text-xs font-semibold text-[#536484] mb-1">Household / Family Name *</label>
+            <label for="td-form-household" class="block text-xs font-semibold text-[#536484] mb-1">Household / Family
+              Name *</label>
             <input type="text" id="td-form-household" required placeholder="e.g. Bourne"
               class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
           </div>
           <div>
-            <label for="td-form-contact" class="block text-xs font-semibold text-[#536484] mb-1">Your Phone or Email *</label>
+            <label for="td-form-contact" class="block text-xs font-semibold text-[#536484] mb-1">Your Phone or Email
+              *</label>
             <input type="text" id="td-form-contact" required placeholder="e.g. (508) 555-0123"
               class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
           </div>
         </div>
 
         <div>
-          <label for="td-form-request-type" class="block text-xs font-semibold text-[#536484] mb-1">What change would you like to propose? *</label>
+          <label for="td-form-request-type" class="block text-xs font-semibold text-[#536484] mb-1">What change would
+            you like to propose? *</label>
           <select id="td-form-request-type"
             class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white font-medium text-[#152548]">
-            <option value="Move to another Sunday or Wednesday time slot">Move to another Sunday or Wednesday time slot</option>
+            <option value="Move to another Sunday or Wednesday time slot">Move to another Sunday or Wednesday time slot
+            </option>
             <option value="Claim an open interview slot">Claim an open interview slot</option>
             <option value="Swap appointment time with another family">Swap appointment time with another family</option>
             <option value="Request a Zoom / remote interview">Request a Zoom / remote interview</option>
-            <option value="Unable to attend scheduled time — please contact us">Unable to attend scheduled time — please contact us</option>
+            <option value="Unable to attend scheduled time — please contact us">Unable to attend scheduled time — please
+              contact us</option>
           </select>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label for="td-form-pref-date" class="block text-xs font-semibold text-[#536484] mb-1">Preferred New Date *</label>
+            <label for="td-form-pref-date" class="block text-xs font-semibold text-[#536484] mb-1">Preferred New Date
+              *</label>
             <select id="td-form-pref-date"
               class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white">
-              <option value="Wednesday, November 4, 2026 (3 open slots)">Wednesday, November 4, 2026 (3 open slots)</option>
-              <option value="Wednesday, November 11, 2026 (3 open slots)">Wednesday, November 11, 2026 (3 open slots)</option>
+              <option value="Wednesday, November 4, 2026 (3 open slots)">Wednesday, November 4, 2026 (3 open slots)
+              </option>
+              <option value="Wednesday, November 11, 2026 (3 open slots)">Wednesday, November 11, 2026 (3 open slots)
+              </option>
               <option value="Sunday, December 6, 2026 (4 open slots)">Sunday, December 6, 2026 (4 open slots)</option>
               <option value="Sunday, November 1, 2026">Sunday, November 1, 2026</option>
               <option value="Sunday, November 8, 2026">Sunday, November 8, 2026</option>
@@ -383,14 +425,17 @@
             </select>
           </div>
           <div>
-            <label for="td-form-pref-time" class="block text-xs font-semibold text-[#536484] mb-1">Preferred Time Window / Slot *</label>
+            <label for="td-form-pref-time" class="block text-xs font-semibold text-[#536484] mb-1">Preferred Time Window
+              / Slot *</label>
             <select id="td-form-pref-time"
               class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white">
               <optgroup label="General Time Windows">
                 <option value="Wednesday Evening (6:00 PM – 6:45 PM)">Wednesday Evening (6:00 PM – 6:45 PM)</option>
-                <option value="Sunday Afternoon — Any time (2:05 PM – 4:05 PM)">Sunday Afternoon — Any time (2:05 PM – 4:05 PM)</option>
+                <option value="Sunday Afternoon — Any time (2:05 PM – 4:05 PM)">Sunday Afternoon — Any time (2:05 PM –
+                  4:05 PM)</option>
                 <option value="Sunday Early window (2:05 PM – 2:45 PM)">Sunday Early window (2:05 PM – 2:45 PM)</option>
-                <option value="Sunday Middle window (2:45 PM – 3:25 PM)">Sunday Middle window (2:45 PM – 3:25 PM)</option>
+                <option value="Sunday Middle window (2:45 PM – 3:25 PM)">Sunday Middle window (2:45 PM – 3:25 PM)
+                </option>
                 <option value="Sunday Late window (3:25 PM – 4:05 PM)">Sunday Late window (3:25 PM – 4:05 PM)</option>
               </optgroup>
             </select>
@@ -398,8 +443,10 @@
         </div>
 
         <div>
-          <label for="td-form-notes" class="block text-xs font-semibold text-[#536484] mb-1">Additional Details or Notes (Optional)</label>
-          <textarea id="td-form-notes" rows="2" placeholder="Let us know any dates you are unavailable, or if swapping with another family..."
+          <label for="td-form-notes" class="block text-xs font-semibold text-[#536484] mb-1">Additional Details or Notes
+            (Optional)</label>
+          <textarea id="td-form-notes" rows="2"
+            placeholder="Let us know any dates you are unavailable, or if swapping with another family..."
             class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none"></textarea>
         </div>
 
@@ -408,7 +455,8 @@
           <button type="submit" id="td-submit-email-btn"
             class="w-full py-3 bg-[#152548] hover:bg-[#0E1A34] text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-[0.99] cursor-pointer">
             <svg class="w-4 h-4 text-emerald-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
             <span>Send Change Request via Email</span>
           </button>
@@ -424,7 +472,9 @@
               <span id="td-copy-request-label">Copy Request &amp; Emails</span>
             </button>
           </div>
-          <p id="td-submit-feedback" class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center font-medium"></p>
+          <p id="td-submit-feedback"
+            class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center font-medium">
+          </p>
         </div>
       </form>
     </div>
@@ -432,12 +482,13 @@
 
   <!-- ======================== CONTACT US MODAL (<dialog closedby="any">) ======================== -->
   <dialog id="td-contact-dialog" closedby="any" aria-labelledby="td-contact-title">
-    <div class="bg-white border border-[#E9DECE] rounded-3xl p-6 sm:p-8 shadow-2xl relative text-[#152548] max-h-[92vh] overflow-y-auto">
+    <div
+      class="bg-white border border-[#E9DECE] rounded-3xl p-6 sm:p-8 shadow-2xl relative text-[#152548] max-h-[92vh] overflow-y-auto">
       <button type="button" id="td-contact-close"
         class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
         aria-label="Close dialog">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
@@ -453,23 +504,23 @@
       <form id="td-contact-form" class="mt-4 space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label for="td-contact-household" class="block text-xs font-semibold text-[#152548] mb-1">Household/Family Name <span class="text-[#A74319]">*</span></label>
-            <input type="text" id="td-contact-household" required
-              placeholder="e.g. Bourne"
+            <label for="td-contact-household" class="block text-xs font-semibold text-[#152548] mb-1">Household/Family
+              Name <span class="text-[#A74319]">*</span></label>
+            <input type="text" id="td-contact-household" required placeholder="e.g. Bourne"
               class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] bg-slate-50/70 focus:bg-white focus:border-[#152548] outline-none text-xs font-medium text-[#152548]">
           </div>
           <div>
-            <label for="td-contact-info" class="block text-xs font-semibold text-[#152548] mb-1">Your Phone/Email</label>
-            <input type="text" id="td-contact-info"
-              placeholder="Phone or email for confirmation"
+            <label for="td-contact-info" class="block text-xs font-semibold text-[#152548] mb-1">Your
+              Phone/Email</label>
+            <input type="text" id="td-contact-info" placeholder="Phone or email for confirmation"
               class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] bg-slate-50/70 focus:bg-white focus:border-[#152548] outline-none text-xs font-medium text-[#152548]">
           </div>
         </div>
 
         <div>
-          <label for="td-contact-message" class="block text-xs font-semibold text-[#152548] mb-1">Your Question or Request</label>
-          <textarea id="td-contact-message" rows="4" required
-            placeholder="Type your question or request here..."
+          <label for="td-contact-message" class="block text-xs font-semibold text-[#152548] mb-1">Your Question or
+            Request</label>
+          <textarea id="td-contact-message" rows="4" required placeholder="Type your question or request here..."
             class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] bg-slate-50/70 focus:bg-white focus:border-[#152548] outline-none text-xs font-medium text-[#152548]"></textarea>
         </div>
 
@@ -477,7 +528,8 @@
           <button type="submit" id="td-contact-submit-btn"
             class="w-full py-3 px-4 bg-[#152548] hover:bg-[#1e3463] text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer">
             <svg class="w-4 h-4 text-emerald-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
             <span>Submit via Email</span>
           </button>
@@ -487,7 +539,9 @@
             <span>Open in Gmail (Web)</span>
             <span aria-hidden="true">↗</span>
           </a>
-          <p id="td-contact-feedback" class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center font-medium"></p>
+          <p id="td-contact-feedback"
+            class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center font-medium">
+          </p>
         </div>
       </form>
     </div>
@@ -502,7 +556,7 @@
         <span>•</span>
         <a href="/calendar/" class="hover:underline">Calendar</a>
         <span>•</span>
-        <span id="footer-version">v1.2.38</span>
+        <span id="footer-version">v1.2.41</span>
       </div>
     </div>
   </footer>
@@ -1096,7 +1150,7 @@
     try {
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
-    } catch (_) {}
+    } catch (_) { }
 
     const TO_EMAIL = 'mcdonaldlds830@gmail.com';
     const CC_EMAIL = 'duanepharris@gmail.com';
@@ -1132,7 +1186,7 @@
             scheduleData = parsed;
           }
         }
-      } catch (_) {}
+      } catch (_) { }
 
       // 2. Also fetch fresh /data/tithing-declaration.json in case it was updated
       try {
@@ -1143,7 +1197,7 @@
             scheduleData = fresh;
           }
         }
-      } catch (_) {}
+      } catch (_) { }
 
       if (scheduleData) {
         renderAll();
@@ -1161,7 +1215,7 @@
               }
             }
           });
-        } catch (_) {}
+        } catch (_) { }
       }
     }
 
@@ -1251,7 +1305,7 @@
         const m = parts.find(p => p.type === 'month')?.value;
         const d = parts.find(p => p.type === 'day')?.value;
         if (y && m && d) return `${y}-${m}-${d}`;
-      } catch (_) {}
+      } catch (_) { }
       const now = new Date();
       return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
@@ -2246,8 +2300,7 @@
       if (copyBtn) {
         copyBtn.addEventListener('click', async () => {
           const { subject, body } = buildChangeEmailPayload();
-          const fullClip = `To: ${TO_EMAIL}\nCC: ${CC_EMAIL}\nSubject: ${subject}\n\n${body}`;
-          try {
+          const fullClip = `To: ${TO_EMAIL}\nCC: ${CC_EMAIL}\nSubject: ${subject}\n\{bo         try {
             await navigator.clipboard.writeText(fullClip);
             if (copyLabel) copyLabel.textContent = '✓ Copied to Clipboard!';
             setTimeout(() => {
@@ -2261,4 +2314,5 @@
     });
   </script>
 </body>
+
 </html>

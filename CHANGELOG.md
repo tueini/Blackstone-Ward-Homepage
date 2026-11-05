@@ -1,5 +1,23 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.41 — November 5, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.41.
+- **Real Start/End Time Inputs for Calendar Events & Homepage Time-Range Rendering (`public/admin/index.html`, `public/admin/admin-app.js`, `public/js/home.js`, `public/js/content.js`)**:
+  - Replaced the free-text time input in the Admin Event Modal with native `<input type="time">` fields for **Start Time** (`#event-time`) and **End Time** (`#event-end-time`), and updated `openEventModal()` and `saveEvent()` to read and write structured `startTime`, `endTime`, `time`, `startAt`, and `endAt` fields.
+  - Added `parseEventTimes()` in `public/js/home.js` and `public/admin/admin-app.js` to parse both `startTime`/`endTime` and range strings (such as `"4:00 - 5:30PM"`, `"7:00PM - 8:45PM"`, and `"10:00AM - 12:00PM"`) instead of falling back to `00:00:00` (`12:00 AM`).
+  - Updated `formatEvent()` in `public/js/content.js` and `renderEvents()` in `public/js/home.js` so events with start and end times render the full time range on the Ward Homepage (e.g., `Sat, Nov 7, 2026, 4:00 PM – 5:30 PM EST`).
+- Synchronized package, content, HTML, and asset version references to v1.2.41. All syntax checks, unit tests, and site integrity verifications passed.
+
+## 1.2.40 — November 5, 2026
+
+- After explicit approval, deployed to beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`).
+- **Fixed Ward Homepage "Coming Up" Calendar Date Sync with Ward Calendar (`public/js/home.js` & `public/admin/admin-app.js`)**:
+  - Replaced the hardcoded `-04:00` (EDT) timezone offset with `getEasternOffset(dateStr)`, which dynamically resolves `-05:00` (EST) or `-04:00` (EDT) for `America/New_York` on the event's date.
+  - Updated `updateFirestoreEvents()` in `public/js/home.js` to reconstruct `startAt` and `endAt` directly from `d.date` and `d.time` with the true Eastern offset (and set `allDay: true` when no time is specified), fixing existing Nov 7 events that previously rendered as Nov 6 on the Ward Homepage.
+  - Updated `saveEvent()` and `importSelectedYouthEvents()` in `public/admin/admin-app.js` to store `startAt` and `endAt` with the true `America/New_York` offset.
+- Synchronized package, content, HTML, and asset version references to v1.2.40. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.39 — November 3, 2026
 
 - **Tithing Declaration (`/td`) Dynamic Added & Removed Date Sync (`public/td/index.html`)**:

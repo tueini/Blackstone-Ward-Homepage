@@ -80,13 +80,21 @@ export function youthURL(youth = {}, currentAddress = '') {
   return destination;
 }
 
-export function formatEvent(value, includeTime = true) {
+export function formatEvent(value, includeTime = true, endValue = null) {
   const time = dateValue(value);
   if (time === null) return null;
   const date = new Date(time);
+  const endTime = includeTime && endValue && !String(endValue).includes('T23:59:59') ? dateValue(endValue) : null;
+  let full = new Intl.DateTimeFormat('en-US', { timeZone: TIME_ZONE, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', ...(includeTime ? { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' } : {}) }).format(date);
+  if (includeTime && endTime !== null && endTime > time) {
+    const datePart = new Intl.DateTimeFormat('en-US', { timeZone: TIME_ZONE, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+    const startClock = new Intl.DateTimeFormat('en-US', { timeZone: TIME_ZONE, hour: 'numeric', minute: '2-digit' }).format(date);
+    const endClockTz = new Intl.DateTimeFormat('en-US', { timeZone: TIME_ZONE, hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(new Date(endTime));
+    full = `${datePart}, ${startClock} – ${endClockTz}`;
+  }
   return {
     month: new Intl.DateTimeFormat('en-US', { timeZone: TIME_ZONE, month: 'short' }).format(date),
     day: new Intl.DateTimeFormat('en-US', { timeZone: TIME_ZONE, day: 'numeric' }).format(date),
-    full: new Intl.DateTimeFormat('en-US', { timeZone: TIME_ZONE, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', ...(includeTime ? { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' } : {}) }).format(date)
+    full
   };
 }

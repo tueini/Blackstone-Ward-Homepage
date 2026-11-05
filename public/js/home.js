@@ -1,4 +1,4 @@
-import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.39';
+import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.41';
 document.body.classList.add('js-ready');
 
 const seasonNames = { fall: 'Fall · Light beige', winter: 'Winter · Light blue', spring: 'Spring · Light green', summer: 'Summer · Light yellow' };
@@ -159,7 +159,7 @@ function renderEvents(events) {
     holder.append(empty);
   }
   for (const item of events.slice(0, expandedEvents ? undefined : 3)) {
-    const date = formatEvent(item.startAt, item.allDay !== true);
+    const date = formatEvent(item.startAt, item.allDay !== true, item.endAt);
     const row = element('article', 'event-entry');
     const dateBadge = element('div', 'date-badge');
     dateBadge.setAttribute('aria-hidden', 'true');
@@ -208,30 +208,78 @@ function renderContent() {
 document.getElementById('events-more').addEventListener('click', () => { expandedEvents = !expandedEvents; renderContent(); });
 document.getElementById('announcements-more').addEventListener('click', () => { expandedAnnouncements = !expandedAnnouncements; renderContent(); });
 
-function formatTimeTo24(timeStr) {
-  if (!timeStr) return '00:00:00';
-  const match = timeStr.trim().toLowerCase().match(/^(\d{1,2}):(\d{2})(?:\s*(am|pm))?$/);
-  if (!match) return '00:00:00';
-  let [, h, m, meridiem] = match;
-  let hour = parseInt(h, 10);
-  if (meridiem === 'pm' && hour < 12) hour += 12;
-  if (meridiem === 'am' && hour === 12) hour = 0;
-  return `${String(hour).padStart(2, '0')}:${m}:00`;
+function parseSingleTimeToken(token, fallbackMeridiem = '') {
+  if (!token || typeof token !== 'string') return null;
+  const match = token.trim().toLowerCase().match(/^(\d{1,2})(?::(\d{2}))?(?::\d{2})?\s*(am|pm)?$/);
+  if (!match) return null;
+  let [, hStr, mStr = '00', meridiem] = match;
+  let hour = parseInt(hStr, 10);
+  const minute = parseInt(mStr, 10);
+  if (hour > 23 || minute > 59) return null;
+  const mer = meridiem || fallbackMeridiem;
+  if (mer === 'pm' && hour < 12) hour += 12;
+  if (mer === 'am' && hour === 12) hour = 0;
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+}
+
+function parseEventTimes(rawTime = '', startTimeField = '', endTimeField = '') {
+  let start24 = parseSingleTimeToken(startTimeField);
+  let end24 = parseSingleTimeToken(endTimeField);
+  if (start24) return { start24, end24 };
+  if (!rawTime || typeof rawTime !== 'string') return { start24: null, end24: null };
+  const cleaned = rawTime.trim();
+  const parts = cleaned.split(/\s*(?:[-–—]|\bto\b)\s*/i).filter(Boolean);
+  if (parts.length >= 2) {
+    const endMatch = parts[1].trim().toLowerCase().match(/(am|pm)$/);
+    const fallbackMeridiem = endMatch ? endMatch[1] : '';
+    start24 = parseSingleTimeToken(parts[0], fallbackMeridiem);
+    end24 = parseSingleTimeToken(parts[1]);
+    if (start24 && end24 && start24 > end24 && !/(am|pm)$/i.test(parts[0].trim()) && fallbackMeridiem === 'pm') {
+      start24 = parseSingleTimeToken(parts[0], 'am');
+    }
+    return { start24, end24 };
+  }
+  start24 = parseSingleTimeToken(cleaned);
+  return { start24, end24: null };
+}
+
+function getEasternOffset(dateStr) {
+  try {
+    const probe = new Date(`${dateStr}T12:00:00Z`);
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', timeZoneName: 'longOffset' }).formatToParts(probe);
+    const tz = parts.find(p => p.type === 'timeZoneName')?.value || '';
+    const match = tz.match(/GMT([+-]\d{2}:\d{2})/);
+    if (match) return match[1];
+  } catch { /* fallback below */ }
+  return '-05:00';
 }
 
 function updateFirestoreEvents(docs) {
   if (!config) return;
-  const list = docs.map(d => ({
-    title: (d.title || d.name || '').trim(),
-    published: d.published !== false,
-    startAt: d.startAt || (d.date ? `${d.date}T${d.time ? formatTimeTo24(d.time) : '00:00:00'}-04:00` : null),
-    endAt: d.endAt || null,
-    location: (d.location || '').trim(),
-    details: (d.details || d.body || '').trim(),
-    url: d.url || null,
-    linkLabel: d.linkLabel || null,
-    allDay: d.allDay === true
-  })).filter(e => e.title && e.startAt);
+  const list = docs.map(d => {
+    const dateStr = typeof d.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d.date.trim())
+      ? d.date.trim()
+      : (typeof d.startAt === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d.startAt) ? d.startAt.slice(0, 10) : '');
+    const { start24: parsedStart, end24: parsedEnd } = parseEventTimes(d.time, d.startTime, d.endTime);
+    const startAtTime = typeof d.startAt === 'string' && d.startAt.length >= 19 ? d.startAt.slice(11, 19) : '';
+    const fallbackStart = d.allDay !== true && startAtTime && startAtTime !== '00:00:00' ? startAtTime : null;
+    const start24 = parsedStart || fallbackStart;
+    const isAllDay = d.allDay === true || !start24;
+    const offset = dateStr ? getEasternOffset(dateStr) : '-05:00';
+    const startAt = dateStr ? `${dateStr}T${isAllDay ? '00:00:00' : start24}${offset}` : (d.startAt || null);
+    const endAt = dateStr ? `${dateStr}T${!isAllDay && parsedEnd ? parsedEnd : '23:59:59'}${offset}` : (d.endAt || null);
+    return {
+      title: (d.title || d.name || '').trim(),
+      published: d.published !== false,
+      startAt,
+      endAt,
+      location: (d.location || '').trim(),
+      details: (d.details || d.body || '').trim(),
+      url: d.url || null,
+      linkLabel: d.linkLabel || null,
+      allDay: isAllDay
+    };
+  }).filter(e => e.title && e.startAt);
   if (list.length > 0) {
     config.events = list;
     renderContent();

@@ -1,14 +1,23 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.39
-**Date:** November 3, 2026
+**Version:** 1.2.41
+**Date:** November 5, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.39 prepared for deployment. Updated `/td` (`public/td/index.html`) so added and removed interview dates in the Bishopric Hub Tithing Declaration Manager dynamically sync across the Overview Strip, Interview Schedule cards, Month Calendar grid (including dates beyond Dec 12 or in additional months), A–Z Family List, and Schedule Change Request modal.
+**State:** Version 1.2.41 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Added native `<input type="time">` Start Time and End Time fields to the Admin Event Modal (`public/admin/index.html` & `public/admin/admin-app.js`), added `parseEventTimes()` to parse both structured `startTime`/`endTime` fields and legacy time-range strings (e.g., `"4:00 - 5:30PM"`, `"7:00PM - 8:45PM"`, `"10:00AM - 12:00PM"`), and updated `formatEvent()` (`public/js/content.js`) and `renderEvents()` (`public/js/home.js`) so the Ward Homepage "Coming Up" section displays the real start and end times instead of `12:00 AM`.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Calendar Event Native Start/End Time Fields & Homepage Time-Range Display (v1.2.41):
+  - **Root Cause Fixed (`12:00 AM` on Events with Time Ranges)**: Events in `Ward_events` with time ranges in `d.time` (such as `"4:00 - 5:30PM"`, `"7:00PM - 8:45PM"`, and `"10:00AM - 12:00PM"`) previously failed the single-time regex in `formatTimeTo24()`, falling back to `'00:00:00'` (`12:00 AM`).
+  - **Native Start & End Time Inputs in Admin Event Modal (`public/admin/index.html` & `public/admin/admin-app.js`)**: Replaced the free-text time input with native `<input type="time">` fields for **Start Time** (`#event-time`) and **End Time** (`#event-end-time`), pre-populating them from existing `startTime`/`endTime` or `time` range strings in `openEventModal()` and saving structured `startTime`, `endTime`, `time`, `startAt`, and `endAt` in `saveEvent()`.
+  - **Homepage Start & End Time Formatting (`public/js/home.js` & `public/js/content.js`)**: Added `parseEventTimes()` in `public/js/home.js` to extract both `start24` and `end24` from structured fields or range strings and updated `formatEvent()` in `public/js/content.js` to format both start and end times (e.g., `Sat, Nov 7, 2026, 4:00 PM – 5:30 PM EST` and `Sat, Nov 7, 2026, 7:00 PM – 8:45 PM EST`).
+
+- Ward Homepage "Coming Up" Calendar DST/EST Date Sync Fix (v1.2.40):
+  - **Root Cause Fixed (Hardcoded `-04:00` Offset Shifting EST Midnight Events to Previous Day)**: Previously, `saveEvent()`, `importSelectedYouthEvents()`, and `updateFirestoreEvents()` appended a hardcoded `-04:00` (EDT) offset when building `startAt`. For events in EST (`-05:00`, Nov–Mar) with midnight (`00:00:00`) or no start time (e.g. `2026-11-07T00:00:00-04:00`), `formatEvent()` in `America/New_York` (`-05:00`) shifted the timestamp back 1 hour to `2026-11-06T23:00:00-05:00`, displaying **Nov 6** on the homepage while the Ward Calendar displayed **Nov 7**.
+  - **Dynamic `getEasternOffset(dateStr)` & `d.date` Normalization**: Added `getEasternOffset(dateStr)` in `public/js/home.js` and `public/admin/admin-app.js` to resolve the exact `America/New_York` offset (`-05:00` in EST, `-04:00` in EDT) for each event date, normalized `startAt` and `endAt` from `d.date` + `d.time` in `updateFirestoreEvents()` so existing Firestore `Ward_events` documents immediately display the correct date and time, and marked events without an explicit time as `allDay: true` with `endAt` set to `23:59:59` Eastern.
 
 - Tithing Declaration (`/td`) Dynamic Added/Removed Date Synchronization (v1.2.39):
   - **Active Non-Empty Date Filtering & Chronological Sorting (`getActiveSundays`)**: Filters `scheduleData.sundays` to dates with `slots.length > 0` sorted chronologically by `date`, and automatically resets `activeSundayFilter` to `'all'` if the currently filtered date is deleted.

@@ -60,16 +60,65 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
+function parseSingleTimeToken(token, fallbackMeridiem = '') {
+  if (!token || typeof token !== 'string') return null;
+  const match = token.trim().toLowerCase().match(/^(\d{1,2})(?::(\d{2}))?(?::\d{2})?\s*(am|pm)?$/);
+  if (!match) return null;
+  let [, hStr, mStr = '00', meridiem] = match;
+  let hour = parseInt(hStr, 10);
+  const minute = parseInt(mStr, 10);
+  if (hour > 23 || minute > 59) return null;
+  const mer = meridiem || fallbackMeridiem;
+  if (mer === 'pm' && hour < 12) hour += 12;
+  if (mer === 'am' && hour === 12) hour = 0;
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+}
+
+function parseEventTimes(rawTime = '', startTimeField = '', endTimeField = '') {
+  let start24 = parseSingleTimeToken(startTimeField);
+  let end24 = parseSingleTimeToken(endTimeField);
+  if (start24) return { start24, end24 };
+  if (!rawTime || typeof rawTime !== 'string') return { start24: null, end24: null };
+  const cleaned = rawTime.trim();
+  const parts = cleaned.split(/\s*(?:[-–—]|\bto\b)\s*/i).filter(Boolean);
+  if (parts.length >= 2) {
+    const endMatch = parts[1].trim().toLowerCase().match(/(am|pm)$/);
+    const fallbackMeridiem = endMatch ? endMatch[1] : '';
+    start24 = parseSingleTimeToken(parts[0], fallbackMeridiem);
+    end24 = parseSingleTimeToken(parts[1]);
+    if (start24 && end24 && start24 > end24 && !/(am|pm)$/i.test(parts[0].trim()) && fallbackMeridiem === 'pm') {
+      start24 = parseSingleTimeToken(parts[0], 'am');
+    }
+    return { start24, end24 };
+  }
+  start24 = parseSingleTimeToken(cleaned);
+  return { start24, end24: null };
+}
+
+function format24To12(time24) {
+  if (!time24) return '';
+  const [hStr, mStr = '00'] = time24.split(':');
+  const h = parseInt(hStr, 10);
+  if (Number.isNaN(h)) return '';
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hr12 = h % 12 || 12;
+  return `${hr12}:${mStr.padStart(2, '0')} ${ampm}`;
+}
+
 function formatTimeTo24(timeStr) {
-  if (!timeStr) return "00:00:00";
-  const trimmed = timeStr.trim().toLowerCase();
-  const match = trimmed.match(/^(\d{1,2}):(\d{2})(?:\s*(am|pm))?$/);
-  if (!match) return "00:00:00";
-  let [, h, m, meridiem] = match;
-  let hour = parseInt(h, 10);
-  if (meridiem === 'pm' && hour < 12) hour += 12;
-  if (meridiem === 'am' && hour === 12) hour = 0;
-  return `${String(hour).padStart(2, '0')}:${m}:00`;
+  const { start24 } = parseEventTimes(timeStr);
+  return start24 || "00:00:00";
+}
+
+function getEasternOffset(dateStr) {
+  try {
+    const probe = new Date(`${dateStr}T12:00:00Z`);
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', timeZoneName: 'longOffset' }).formatToParts(probe);
+    const tz = parts.find(p => p.type === 'timeZoneName')?.value || '';
+    const match = tz.match(/GMT([+-]\d{2}:\d{2})/);
+    if (match) return match[1];
+  } catch (_) { }
+  return '-05:00';
 }
 
 function getCategoryColor(cat) {
@@ -2011,16 +2060,25 @@ async function importSelectedYouthEvents() {
     const evDetails = cb.dataset.details;
 
     const newId = `ward_youth_${youthId || Date.now()}_${addedCount}`;
-    const time24 = formatTimeTo24(evTime);
-    const startAt = evDate ? `${evDate}T${time24}-04:00` : null;
+    const { start24, end24 } = parseEventTimes(evTime);
+    const isAllDay = !start24;
+    const offset = evDate ? getEasternOffset(evDate) : '-05:00';
+    const startAt = evDate ? `${evDate}T${isAllDay ? '00:00:00' : start24}${offset}` : null;
+    const endAt = evDate ? `${evDate}T${!isAllDay && end24 ? end24 : '23:59:59'}${offset}` : null;
+    const formattedTime = isAllDay
+      ? ''
+      : (end24 ? `${format24To12(start24)} – ${format24To12(end24)}` : format24To12(start24));
 
     const wardEvent = {
       id: newId,
       title: evTitle,
       date: evDate,
-      time: evTime,
+      time: formattedTime || evTime,
+      startTime: isAllDay ? '' : start24.slice(0, 5),
+      endTime: !isAllDay && end24 ? end24.slice(0, 5) : '',
       startAt: startAt,
-      allDay: !evTime,
+      endAt: endAt,
+      allDay: isAllDay,
       location: evLoc,
       category: 'Youth',
       details: evDetails,
@@ -2100,12 +2158,27 @@ function openEventModal(eventData = {}) {
   const modal = document.getElementById('event-modal');
   const title = document.getElementById('event-modal-title');
   const delBtn = document.getElementById('event-delete-btn');
+  const startTimeInput = document.getElementById('event-time');
+  const endTimeInput = document.getElementById('event-end-time');
+  const allDayCheckbox = document.getElementById('event-allday');
+
+  const { start24, end24 } = parseEventTimes(eventData.time || '', eventData.startTime || '', eventData.endTime || '');
 
   document.getElementById('event-id').value = eventData.id || '';
   document.getElementById('event-title').value = eventData.title || eventData.name || '';
   document.getElementById('event-date').value = eventData.date || '';
-  document.getElementById('event-time').value = eventData.time || '';
-  document.getElementById('event-allday').checked = eventData.allDay === true;
+  if (startTimeInput) startTimeInput.value = start24 ? start24.slice(0, 5) : '';
+  if (endTimeInput) endTimeInput.value = end24 ? end24.slice(0, 5) : '';
+  if (allDayCheckbox) {
+    allDayCheckbox.checked = eventData.allDay === true;
+    const syncAllDayState = () => {
+      const disabled = allDayCheckbox.checked;
+      if (startTimeInput) startTimeInput.disabled = disabled;
+      if (endTimeInput) endTimeInput.disabled = disabled;
+    };
+    syncAllDayState();
+    allDayCheckbox.onchange = syncAllDayState;
+  }
   document.getElementById('event-location').value = eventData.location || '';
   document.getElementById('event-category').value = eventData.category || eventData.cat || 'Ward';
   document.getElementById('event-details').value = eventData.details || eventData.body || '';
@@ -2130,7 +2203,8 @@ async function saveEvent() {
   const idInput = document.getElementById('event-id').value;
   const title = document.getElementById('event-title').value.trim();
   const date = document.getElementById('event-date').value;
-  const time = document.getElementById('event-time').value.trim();
+  const startTimeRaw = document.getElementById('event-time').value.trim();
+  const endTimeRaw = (document.getElementById('event-end-time')?.value || '').trim();
   const allDay = document.getElementById('event-allday').checked;
   const location = document.getElementById('event-location').value.trim();
   const category = document.getElementById('event-category').value;
@@ -2145,16 +2219,25 @@ async function saveEvent() {
   }
 
   const id = idInput || `event_${date}_${Date.now()}`;
-  const time24 = formatTimeTo24(time);
-  const startAt = `${date}T${allDay ? '00:00:00' : time24}-04:00`;
+  const { start24, end24 } = parseEventTimes(startTimeRaw, startTimeRaw, endTimeRaw);
+  const isAllDay = allDay || !start24;
+  const offset = getEasternOffset(date);
+  const startAt = `${date}T${isAllDay ? '00:00:00' : start24}${offset}`;
+  const endAt = `${date}T${!isAllDay && end24 ? end24 : '23:59:59'}${offset}`;
+  const time = isAllDay
+    ? ''
+    : (end24 ? `${format24To12(start24)} – ${format24To12(end24)}` : format24To12(start24));
 
   const payload = {
     title,
     name: title,
     date,
     time,
-    allDay,
+    startTime: isAllDay ? '' : start24.slice(0, 5),
+    endTime: !isAllDay && end24 ? end24.slice(0, 5) : '',
+    allDay: isAllDay,
     startAt,
+    endAt,
     location,
     category,
     cat: category,
