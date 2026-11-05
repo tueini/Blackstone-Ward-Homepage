@@ -556,7 +556,7 @@
         <span>•</span>
         <a href="/calendar/" class="hover:underline">Calendar</a>
         <span>•</span>
-        <span id="footer-version">v1.2.41</span>
+        <span id="footer-version">v1.2.42</span>
       </div>
     </div>
   </footer>
@@ -2300,7 +2300,8 @@
       if (copyBtn) {
         copyBtn.addEventListener('click', async () => {
           const { subject, body } = buildChangeEmailPayload();
-          const fullClip = `To: ${TO_EMAIL}\nCC: ${CC_EMAIL}\nSubject: ${subject}\n\{bo         try {
+          const fullClip = `To: ${TO_EMAIL}\nCC: ${CC_EMAIL}\nSubject: ${subject}\n\n${body}`;
+          try {
             await navigator.clipboard.writeText(fullClip);
             if (copyLabel) copyLabel.textContent = '✓ Copied to Clipboard!';
             setTimeout(() => {

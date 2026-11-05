@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { safeURL, dateValue } from '../public/js/content.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -45,4 +46,19 @@ const hosting = JSON.parse(fs.readFileSync(path.join(root, 'firebase.json'), 'ut
 const hostingConfigs = Array.isArray(hosting.hosting) ? hosting.hosting : [hosting.hosting];
 assert.ok(hostingConfigs.length > 0 && hostingConfigs.every(h => ['staging', 'blackstoneward'].includes(h?.target)), 'Hosting target must be staging or blackstoneward');
 assert.ok(!hosting.firestore && !hosting.functions, 'Homepage deployment must not include rules or functions');
+for (const relHtml of ['index.html', 'td/index.html', 'calendar/index.html', 'spotlights/index.html', 'admin/index.html']) {
+  const fullPath = path.join(publicDir, relHtml);
+  if (!fs.existsSync(fullPath)) continue;
+  const pageHtml = fs.readFileSync(fullPath, 'utf8');
+  for (const match of pageHtml.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+    const attrs = match[1] || '';
+    const body = match[2] || '';
+    if (/\bsrc\s*=/i.test(attrs) || !body.trim()) continue;
+    if (/type\s*=\s*["']application\/json["']/i.test(attrs)) {
+      JSON.parse(body);
+    } else {
+      execFileSync(process.execPath, ['--check', '--input-type=module'], { input: body });
+    }
+  }
+}
 console.log('Site integrity, public content, asset links, and hosting scope verified.');

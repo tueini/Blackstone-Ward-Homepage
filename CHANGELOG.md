@@ -1,5 +1,13 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.42 — November 5, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.42 and `/td`.
+- **Fixed Tithing Declaration (`/td`) Login Gate Script Syntax Error & Added Inline Script Validation (`public/td/index.html`, `scripts/check-site.js`)**:
+  - Fixed the corrupted template literal on line 2303 of `public/td/index.html` (`const fullClip = ...`) that threw a `SyntaxError` and prevented the `/td` inline `<script type="module">` block (`loadScheduleData()` and `#td-gate-form` surname verification) from executing.
+  - Added automated syntax verification in `scripts/check-site.js` for all inline `<script>` and `<script type="application/json">` blocks across all HTML pages in `public/`.
+- Synchronized package, content, HTML, and asset version references to v1.2.42. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.41 — November 5, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.41.

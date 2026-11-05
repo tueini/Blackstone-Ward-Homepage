@@ -1,14 +1,18 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.41
+**Version:** 1.2.42
 **Date:** November 5, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.41 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Added native `<input type="time">` Start Time and End Time fields to the Admin Event Modal (`public/admin/index.html` & `public/admin/admin-app.js`), added `parseEventTimes()` to parse both structured `startTime`/`endTime` fields and legacy time-range strings (e.g., `"4:00 - 5:30PM"`, `"7:00PM - 8:45PM"`, `"10:00AM - 12:00PM"`), and updated `formatEvent()` (`public/js/content.js`) and `renderEvents()` (`public/js/home.js`) so the Ward Homepage "Coming Up" section displays the real start and end times instead of `12:00 AM`.
+**State:** Version 1.2.42 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Fixed the corrupted template literal on line 2303 of `public/td/index.html` (`SyntaxError: Unterminated template literal`) that prevented the `/td` last-name login gate and schedule loader from initializing, and added automated inline `<script>` and `<script type="application/json">` syntax validation across all HTML pages in `scripts/check-site.js`.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Tithing Declaration (`/td`) Last-Name Login Gate Syntax Fix & Automated Inline Script Check (v1.2.42):
+  - **Root Cause Fixed (`SyntaxError` on Line 2303 of `public/td/index.html`)**: Fixed the corrupted template literal in the `#td-copy-request-btn` click handler (`const fullClip = \`To: ${TO_EMAIL}\\nCC: ${CC_EMAIL}\\nSubject: ${subject}\\n\\n${body}\`;`) that caused the browser to abort parsing the inline `<script type="module">` block on `/td`, preventing `loadScheduleData()` and the `#td-gate-form` last-name verification listener from running.
+  - **Automated Inline `<script>` & JSON Validation (`scripts/check-site.js`)**: Added validation in `scripts/check-site.js` that parses every inline `<script>` and `<script type="application/json">` block in `public/index.html`, `public/td/index.html`, `public/calendar/index.html`, `public/spotlights/index.html`, and `public/admin/index.html` during `npm run check`.
 
 - Calendar Event Native Start/End Time Fields & Homepage Time-Range Display (v1.2.41):
   - **Root Cause Fixed (`12:00 AM` on Events with Time Ranges)**: Events in `Ward_events` with time ranges in `d.time` (such as `"4:00 - 5:30PM"`, `"7:00PM - 8:45PM"`, and `"10:00AM - 12:00PM"`) previously failed the single-time regex in `formatTimeTo24()`, falling back to `'00:00:00'` (`12:00 AM`).
