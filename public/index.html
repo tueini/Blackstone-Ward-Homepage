@@ -10,11 +10,11 @@
   <meta name="theme-color" content="#FAF6EF">
   <title>Blackstone Ward — Welcome home</title>
   <link rel="icon" href="assets/ward-logo.png" type="image/png">
-  <link rel="stylesheet" href="assets/tailwind.css?v=1.2.43">
-  <link rel="stylesheet" href="assets/styles.css?v=1.2.43">
-  <link rel="stylesheet" href="assets/seasons.css?v=1.2.43">
-  <link rel="stylesheet" href="assets/site.css?v=1.2.43">
-  <script type="module" src="js/home.js?v=1.2.43"></script>
+  <link rel="stylesheet" href="assets/tailwind.css?v=1.2.44">
+  <link rel="stylesheet" href="assets/styles.css?v=1.2.44">
+  <link rel="stylesheet" href="assets/seasons.css?v=1.2.44">
+  <link rel="stylesheet" href="assets/site.css?v=1.2.44">
+  <script type="module" src="js/home.js?v=1.2.44"></script>
 </head>
 
 <body data-season="fall">
@@ -79,12 +79,14 @@
               <p>Youth &amp; Primary</p><span aria-hidden="true">→</span>
             </div>
           </a>
-          <a class="organization-card" data-org="bishopric" aria-disabled="true" role="link">
+          <a class="organization-card" data-org="bishopric" href="https://bish.blackstoneward.org/">
             <div class="card-top"><svg viewBox="0 0 40 40" aria-hidden="true">
                 <path d="M5 34h30M9 34V22l11-7 11 7v12M16 18V9l4-8 4 8v9M18 34v-9h4v9" />
-              </svg><span class="badge soon">Coming soon</span></div>
+              </svg><span class="badge open">Bishopric Hub</span></div>
             <h3>Bishopric</h3>
-            <p>Ward leadership</p>
+            <div class="card-bottom">
+              <p>Ward leadership</p><span aria-hidden="true">→</span>
+            </div>
           </a>
           <a class="organization-card" data-org="elders" aria-disabled="true" role="link">
             <div class="card-top"><svg class="handshake-icon" viewBox="0 0 24 24"
@@ -196,12 +198,35 @@
         <a class="button outline" id="contact-action" hidden>Contact ward leaders <span aria-hidden="true">→</span></a>
       </div>
     </section>
+    <dialog id="bishopric-lock-dialog" closedby="any" aria-labelledby="bishopric-lock-title">
+      <button type="button" class="dialog-close" id="bishopric-lock-close" aria-label="Close">×</button>
+      <span class="eyebrow copper">Blackstone Ward • Restricted Area</span>
+      <h2 id="bishopric-lock-title">Bishopric Hub</h2>
+      <p class="bishopric-lock-intro">Restricted to members of the Blackstone Ward Bishopric. Verify your credentials to continue to bish.blackstoneward.org.</p>
+      <div class="bishopric-lock-body">
+        <button type="button" class="button bishopric-passkey-btn" id="bishopric-passkey-btn">Sign In with Touch ID / Face ID</button>
+        <p class="bishopric-lock-hint" id="bishopric-passkey-hint" hidden></p>
+        <form id="bishopric-lock-form" class="bishopric-lock-form">
+          <div class="bishopric-field">
+            <label for="bishopric-member-name">Bishopric Member Name</label>
+            <input type="text" id="bishopric-member-name" placeholder="First and last name (e.g. Duane Harris)" autocomplete="username webauthn" required>
+            <p class="bishopric-member-match" id="bishopric-member-match" hidden></p>
+          </div>
+          <div class="bishopric-field">
+            <label for="bishopric-password">Personal or Master Password</label>
+            <input type="password" id="bishopric-password" placeholder="Enter your password" autocomplete="current-password" required>
+          </div>
+          <p class="bishopric-lock-error" id="bishopric-lock-error" role="alert" hidden></p>
+          <button type="submit" class="button primary bishopric-submit-btn" id="bishopric-unlock-submit">Verify &amp; Enter Bishopric Hub →</button>
+        </form>
+      </div>
+    </dialog>
   </main>
   <footer class="foreground">
     <div class="wrap footer-content">
       <p id="footer-identity">Blackstone Ward • Blackstone Valley Massachusetts Stake</p>
       <div class="footer-release"><span id="footer-season">Fall</span><span id="footer-version"
-          aria-label="Website version">v1.2.43</span></div>
+          aria-label="Website version">v1.2.44</span></div>
     </div>
   </footer>
   <noscript>

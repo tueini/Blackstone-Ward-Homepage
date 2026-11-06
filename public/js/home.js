@@ -1,4 +1,4 @@
-import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.43';
+import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.44';
 document.body.classList.add('js-ready');
 
 const seasonNames = { fall: 'Fall · Light beige', winter: 'Winter · Light blue', spring: 'Spring · Light green', summer: 'Summer · Light yellow' };
@@ -103,7 +103,8 @@ function configureSite(data) {
     if (destination) {
       link.href = destination;
       link.removeAttribute('aria-disabled');
-      badge.textContent = 'Visit page'; badge.className = 'badge open';
+      badge.textContent = link.dataset.org === 'bishopric' ? 'Bishopric Hub' : 'Visit page';
+      badge.className = 'badge open';
     } else {
       link.removeAttribute('href'); link.setAttribute('aria-disabled', 'true');
       badge.textContent = 'Coming soon'; badge.className = 'badge soon';
@@ -347,10 +348,228 @@ async function initLiveContent() {
       snapshot.forEach(docSnap => items.push(docSnap.data()));
       if (items.length > 0) updateFirestoreAnnouncements(items);
     }, () => { });
+
+    onSnapshot(collection(db, 'ward_leaders'), snapshot => {
+      const leaders = [];
+      snapshot.forEach(docSnap => leaders.push({ id: docSnap.id, ...docSnap.data() }));
+      wardLeadersPool = leaders;
+    }, () => { });
   } catch {
     // If offline or modular import fails, static ward.json is already loaded.
   }
 }
+
+const BISHOPRIC_ROSTER = [
+  { id: 'duane_harris', name: 'Duane Harris', shortName: 'Bishop Harris', lastName: 'Harris', role: 'Bishop', email: 'tueini@gmail.com' },
+  { id: 'john_truscott', name: 'John Truscott', shortName: 'John Truscott', lastName: 'Truscott', role: '1st Counselor', email: '' },
+  { id: 'garrett_bourne', name: 'Garrett Bourne', shortName: 'Garrett Bourne', lastName: 'Bourne', role: '2nd Counselor', email: '' },
+  { id: 'cole_houston', name: 'Cole Houston', shortName: 'Cole Houston', lastName: 'Houston', role: 'Ward Clerk', email: '' },
+  { id: 'brian_mcdonald', name: 'Brian McDonald', shortName: 'Brian McDonald', lastName: 'McDonald', role: 'Executive Secretary', email: 'mcdonaldlds830@gmail.com' }
+];
+const MASTER_APPROVED_HASHES = new Set([
+  '103a9f4c69d7331576e1a7b7f96ce781e3336f7b304424373aea1f263c581a3d',
+  '7ca8ae40ffb835bcc16f1de3fc4f27e3e6b3c709bc5d300f932cd019f86e488b',
+  '4b465598d5fd124a3856acff035f025315f798faf08049ee57409e3045c72e37',
+  '7f39e9e47d673293ede2907b955e989ab9188e35c39684c95eff536bb5b3e542'
+]);
+let wardLeadersPool = [];
+let pendingBishopricDestination = 'https://bish.blackstoneward.org/';
+
+function findBishopricMember(rawInput) {
+  const cleaned = String(rawInput || '').trim().toLowerCase();
+  if (!cleaned || cleaned.length < 2) return null;
+  for (const member of BISHOPRIC_ROSTER) {
+    if (
+      member.name.toLowerCase() === cleaned ||
+      member.lastName.toLowerCase() === cleaned ||
+      member.shortName.toLowerCase() === cleaned ||
+      cleaned.includes(member.lastName.toLowerCase())
+    ) {
+      return member;
+    }
+  }
+  return null;
+}
+
+function readBishopricSSOCookie() {
+  try {
+    const match = document.cookie.match(/(?:^|;\s*)ward_auth_session=([^;]*)/);
+    if (!match) return null;
+    const parsed = JSON.parse(decodeURIComponent(match[1]));
+    return findBishopricMember(parsed?.displayName || parsed?.name || '');
+  } catch {
+    return null;
+  }
+}
+
+function writeBishopricSSOCookie(memberObj) {
+  try {
+    const payload = encodeURIComponent(JSON.stringify({
+      displayName: memberObj.name,
+      name: memberObj.name,
+      role: memberObj.role,
+      email: memberObj.email || '',
+      ts: Date.now()
+    }));
+    const isBwDomain = location.hostname.endsWith('blackstoneward.org');
+    const domainPart = isBwDomain ? '; domain=.blackstoneward.org' : '';
+    const securePart = location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `ward_auth_session=${payload}; path=/; max-age=43200; SameSite=Lax${domainPart}${securePart}`;
+  } catch { /* ignore cookie write errors */ }
+}
+
+async function computeSha256(text) {
+  const data = new TextEncoder().encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function initBishopricLockGate() {
+  const bishLink = document.querySelector('[data-org="bishopric"]');
+  const dialog = document.getElementById('bishopric-lock-dialog');
+  if (!bishLink || !dialog) return;
+
+  const closeBtn = document.getElementById('bishopric-lock-close');
+  const form = document.getElementById('bishopric-lock-form');
+  const nameInput = document.getElementById('bishopric-member-name');
+  const pwInput = document.getElementById('bishopric-password');
+  const matchEl = document.getElementById('bishopric-member-match');
+  const errorEl = document.getElementById('bishopric-lock-error');
+  const submitBtn = document.getElementById('bishopric-unlock-submit');
+  const passkeyBtn = document.getElementById('bishopric-passkey-btn');
+  const passkeyHint = document.getElementById('bishopric-passkey-hint');
+
+  bishLink.addEventListener('click', event => {
+    const dest = safeURL(bishLink.getAttribute('href')) || 'https://bish.blackstoneward.org/';
+    const activeMember = readBishopricSSOCookie();
+    if (activeMember) {
+      return;
+    }
+    event.preventDefault();
+    pendingBishopricDestination = dest;
+    if (errorEl) errorEl.hidden = true;
+    if (passkeyHint) passkeyHint.hidden = true;
+    if (pwInput) pwInput.value = '';
+    dialog.showModal();
+  });
+
+  if (closeBtn) closeBtn.addEventListener('click', () => dialog.close());
+
+  if (nameInput) {
+    nameInput.addEventListener('input', () => {
+      if (errorEl) errorEl.hidden = true;
+      const matched = findBishopricMember(nameInput.value);
+      if (matchEl) {
+        if (matched) {
+          matchEl.textContent = `Verified Bishopric Member: ${matched.name} (${matched.role})`;
+          matchEl.hidden = false;
+        } else {
+          matchEl.hidden = true;
+        }
+      }
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (errorEl) errorEl.hidden = true;
+      const matched = findBishopricMember(nameInput?.value);
+      if (!matched) {
+        if (errorEl) {
+          errorEl.textContent = 'Access is restricted to members of the Blackstone Ward Bishopric. Please enter your first and last name.';
+          errorEl.hidden = false;
+        }
+        nameInput?.focus();
+        return;
+      }
+      const rawPw = (pwInput?.value || '').trim();
+      if (!rawPw) {
+        if (errorEl) {
+          errorEl.textContent = 'Please enter your personal or master password.';
+          errorEl.hidden = false;
+        }
+        pwInput?.focus();
+        return;
+      }
+      if (submitBtn) submitBtn.textContent = 'Verifying...';
+      try {
+        const rawHash = await computeSha256(rawPw);
+        const lowerHash = await computeSha256(rawPw.toLowerCase());
+        const leaderDoc = wardLeadersPool.find(l => {
+          const dn = String(l.displayName || '').toLowerCase();
+          return dn === matched.name.toLowerCase() || dn.includes(matched.lastName.toLowerCase());
+        });
+        const validMaster = MASTER_APPROVED_HASHES.has(rawHash) || MASTER_APPROVED_HASHES.has(lowerHash);
+        const validPersonal = leaderDoc?.passwordHash && (leaderDoc.passwordHash === rawHash || leaderDoc.passwordHash === lowerHash);
+        if (validMaster || validPersonal) {
+          writeBishopricSSOCookie(matched);
+          dialog.close();
+          location.href = pendingBishopricDestination;
+          return;
+        }
+        if (errorEl) {
+          errorEl.textContent = 'Incorrect password. Please enter your personal leader password or the ward master password.';
+          errorEl.hidden = false;
+        }
+      } catch {
+        if (errorEl) {
+          errorEl.textContent = 'Could not verify credentials. Please try again.';
+          errorEl.hidden = false;
+        }
+      } finally {
+        if (submitBtn) submitBtn.textContent = 'Verify & Enter Bishopric Hub →';
+      }
+    });
+  }
+
+  if (passkeyBtn) {
+    passkeyBtn.addEventListener('click', async () => {
+      if (passkeyHint) passkeyHint.hidden = true;
+      if (!window.PublicKeyCredential) {
+        if (passkeyHint) {
+          passkeyHint.textContent = 'Touch ID / Face ID is not supported in this browser. Please enter your name and password below.';
+          passkeyHint.hidden = false;
+        }
+        return;
+      }
+      const typedMember = findBishopricMember(nameInput?.value);
+      let savedCred = null;
+      try {
+        const raw = localStorage.getItem('wardPasskeyRegistered');
+        if (raw) savedCred = JSON.parse(raw);
+      } catch { /* ignore */ }
+      if (!savedCred) {
+        try {
+          const match = document.cookie.match(/(?:^|;\s*)ward_passkey_cred=([^;]*)/);
+          if (match) savedCred = JSON.parse(decodeURIComponent(match[1]));
+        } catch { /* ignore */ }
+      }
+      const targetMember = typedMember || findBishopricMember(savedCred?.profile?.displayName || '') || BISHOPRIC_ROSTER[0];
+      const rpId = location.hostname.endsWith('blackstoneward.org') ? 'blackstoneward.org' : location.hostname;
+      try {
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        const publicKey = { challenge, timeout: 60000, userVerification: 'required', rpId };
+        if (savedCred?.rawId && Array.isArray(savedCred.rawId)) {
+          publicKey.allowCredentials = [{ id: new Uint8Array(savedCred.rawId), type: 'public-key', transports: ['internal', 'hybrid'] }];
+        }
+        const assertion = await navigator.credentials.get({ publicKey });
+        if (assertion) {
+          writeBishopricSSOCookie(targetMember);
+          dialog.close();
+          location.href = pendingBishopricDestination;
+        }
+      } catch (err) {
+        if (err?.name !== 'AbortError' && passkeyHint) {
+          passkeyHint.textContent = 'No passkey found on this device yet. Please enter your Bishopric name and password below.';
+          passkeyHint.hidden = false;
+        }
+      }
+    });
+  }
+}
+initBishopricLockGate();
 
 async function loadContent() {
   try {

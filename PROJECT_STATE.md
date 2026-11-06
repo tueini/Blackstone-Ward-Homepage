@@ -1,14 +1,19 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.43
-**Date:** November 5, 2026
+**Version:** 1.2.44
+**Date:** November 6, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.43 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Simplified the "Request a Schedule Change" modal (`#td-change-dialog`) on `blackstoneward.org/td/` (`public/td/index.html`) with updated subtitle, Current Appointment display without `"Members: "` prefix, prepopulated household email from Firestore (`home_content/tithing_declaration_2026`), direct self-service open-slot reschedule (`#td-form-open-slot` + `#td-move-open-slot-btn`), updated `"Request Alternate Slot"` field and `"Send Email with Alternate Request"` button, and streamlined email body format.
+**State:** Version 1.2.44 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Activated the **Bishopric** organization card on the Ward Homepage (`public/index.html`, `public/data/ward.json`, `public/js/home.js`, `public/assets/site.css`) linking to `https://bish.blackstoneward.org/`, and enforced the Bishopric Access Lock both on the Ward Homepage (`#bishopric-lock-dialog` with `.blackstoneward.org` SSO cookie handoff) and on `bish.blackstoneward.org` itself so only authorized members of the Bishopric have access.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Active Bishopric Organization Card & Dual-Layer Bishopric Access Lock (v1.2.44):
+  - **Active Bishopric Card (`public/index.html`, `public/data/ward.json`, `public/js/home.js`, `public/assets/site.css`)**: Enabled `organizations.bishopric.ready: true` pointing to `https://bish.blackstoneward.org/`, updated the card badge to `Bishopric Hub` (`badge open`) with active teal card styling (`#e6f4f3` / `#badddf`), and added the directional arrow (`→`).
+  - **Homepage Bishopric Lock Modal & `.blackstoneward.org` SSO Bridge (`#bishopric-lock-dialog` in `public/index.html` & `initBishopricLockGate()` in `public/js/home.js`)**: Clicking the Bishopric card checks for an active `.blackstoneward.org` SSO session cookie (`ward_auth_session`) belonging to an authorized member of the Blackstone Ward Bishopric (`Duane Harris`, `John Truscott`, `Garrett Bourne`, `Cole Houston`, `Brian McDonald`). If not already signed in, it opens `#bishopric-lock-dialog` requiring Touch ID / Face ID or Bishopric Member Name + Password before setting `ward_auth_session` and navigating to `https://bish.blackstoneward.org/`.
+  - **Direct Subdomain Protection (`bish.blackstoneward.org`)**: Verified that `https://bish.blackstoneward.org/` has its locked-door login gate (`#bish-gate-wrapper`) active on the subdomain itself, blocking direct URL entry unless the user is one of the 5 authorized Bishopric members.
 
 - Tithing Declaration (`/td`) Simplified Schedule Change Modal & Self-Service Open-Slot Move (v1.2.43):
   - **Modal Subtitle (`#td-change-dialog`)**: Updated subtitle under `"Request a Schedule Change"` to `"Select an open TD slot or Email alternate change request to Executive Secretary, Brian McDonald"`.

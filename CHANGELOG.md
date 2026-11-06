@@ -1,5 +1,14 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.44 — November 6, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.44.
+- **Activated Bishopric Card on Ward Homepage & Enforced Bishopric Access Lock (`public/index.html`, `public/data/ward.json`, `public/js/home.js`, `public/assets/site.css`)**:
+  - Activated the **Bishopric** organization card on the Ward Homepage (`organizations.bishopric.ready = true`, linking to `https://bish.blackstoneward.org/`) with `Bishopric Hub` open badge and active card styling.
+  - Added `#bishopric-lock-dialog` and `initBishopricLockGate()` on the Ward Homepage so clicking the Bishopric card verifies that the user is an authorized member of the Blackstone Ward Bishopric (`Duane Harris`, `John Truscott`, `Garrett Bourne`, `Cole Houston`, or `Brian McDonald`) via Touch ID / Face ID, active `.blackstoneward.org` SSO session (`ward_auth_session`), or Name + Password before redirecting to `https://bish.blackstoneward.org/`.
+  - Confirmed that `https://bish.blackstoneward.org/` has its own `#bish-gate-wrapper` login gate active on the subdomain to protect against direct URL entry while recognizing the shared `.blackstoneward.org` SSO cookie.
+- Synchronized package, content, HTML, and asset version references to v1.2.44. All syntax checks, unit tests, and site integrity verifications passed.
+
 ## 1.2.43 — November 5, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.43 and `/td`.

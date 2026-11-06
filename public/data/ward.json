@@ -1,5 +1,5 @@
 {
-  "version": "1.2.43",
+  "version": "1.2.44",
   "season": "auto",
   "wardName": "Blackstone Ward",
   "stakeName": "Blackstone Valley Massachusetts Stake",
@@ -43,7 +43,7 @@
   },
   "organizations": {
     "bishopric": {
-      "ready": false,
+      "ready": true,
       "url": "https://bish.blackstoneward.org/"
     },
     "elders": {
