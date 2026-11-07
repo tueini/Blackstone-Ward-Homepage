@@ -1,5 +1,13 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.45 — November 6, 2026
+
+- **Added Gated Ward Music Coordinator Page (`/music`) on the Ward Home Site & `Music` Navigation Link (`public/index.html`, `public/music/index.html`, `public/js/music-coordinator.js`, `public/data/hymns-bank-seed.json`)**:
+  - Added `<a class="nav-link" href="music/">Music</a>` to the main header navigation (`#main-nav`) on `blackstoneward.org` so the Ward Music Coordinator (**Mio Cowden**) can access the music planner from the unrestricted Home site without needing access to the restricted Bishopric Hub (`bish.blackstoneward.org`).
+  - Added `public/music/index.html` and `public/js/music-coordinator.js` styled after the `/td` page with a seasonal parallax login gate restricted to the Ward Music Coordinator and the Blackstone Ward Bishopric, while keeping the Ward Music Coordinator's session (`musicPlannerAuth`) isolated from the Bishopric Hub SSO cookie (`ward_auth_session`).
+  - Displays the selected month's **Monthly Sacrament Theme** and a card for **each Sunday of the month** with pull-downs/fields for **Chorister**, **Accompanist**, **Opening Hymn**, **Sacrament Hymn**, **Intermediate Hymn / Special Musical Number** (Hymn pull-down or text field), and **Closing Hymn**, syncing in real time with `bish.blackstoneward.org` via Firestore (`home_content/bishopric_sacrament_v1`).
+- Synchronized package, content, HTML, and asset version references to v1.2.45.
+
 ## 1.2.44 — November 6, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.44.

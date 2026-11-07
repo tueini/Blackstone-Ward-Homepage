@@ -1,14 +1,20 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.44
+**Version:** 1.2.45
 **Date:** November 6, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.44 deployed to live production (`blackstoneward.org` / `blackstoneward.web.app`) and staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`). Activated the **Bishopric** organization card on the Ward Homepage (`public/index.html`, `public/data/ward.json`, `public/js/home.js`, `public/assets/site.css`) linking to `https://bish.blackstoneward.org/`, and enforced the Bishopric Access Lock both on the Ward Homepage (`#bishopric-lock-dialog` with `.blackstoneward.org` SSO cookie handoff) and on `bish.blackstoneward.org` itself so only authorized members of the Bishopric have access.
+**State:** Version 1.2.45 ready for deployment to staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`) and live production (`blackstoneward.org` / `blackstoneward.web.app`). Added the gated **Ward Music Coordinator (`/music`)** page (`public/music/index.html`, `public/js/music-coordinator.js`, `public/data/hymns-bank-seed.json`) and a **`Music`** navigation link (`public/index.html`) on the unrestricted Ward Home site so the Ward Music Coordinator (**Mio Cowden**) can access `blackstoneward.org/music` directly without having access to the Bishopric Hub (`bish.blackstoneward.org`), while syncing all music assignments in real time with `bish.blackstoneward.org` via Firestore (`home_content/bishopric_sacrament_v1`).
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Gated Ward Music Coordinator Page (`/music`) on the Ward Home Site & Navigation Link (v1.2.45):
+  - **Home Site Navigation (`public/index.html`)**: Added `<a class="nav-link" href="music/">Music</a>` to `#main-nav` so the Ward Music Coordinator can navigate directly to `/music` from the unrestricted Ward Homepage (`blackstoneward.org`).
+  - **Gated Ward Music Coordinator Page (`public/music/index.html`, `public/js/music-coordinator.js`)**: Hosted `/music` on the Ward Home site (`blackstoneward.org/music` and `test.blackstoneward.org/music`) with a `/td`-style seasonal parallax login gate accessible to the **Ward Music Coordinator (WMC)** calling (**Mio Cowden**) and the **Blackstone Ward Bishopric**.
+  - **Isolated WMC Session**: Signing in as the Ward Music Coordinator unlocks `/music` (`musicPlannerAuth`) without setting the Bishopric cross-subdomain `ward_auth_session` cookie, so she does not gain access to `bish.blackstoneward.org`.
+  - **Real-Time Two-Way Sync with `bish.blackstoneward.org`**: Displays the **Monthly Sacrament Theme** and a card for **each Sunday of the month** with pull-downs/fields for **Chorister**, **Accompanist**, **Opening Hymn**, **Sacrament Hymn**, **Intermediate Hymn / Special Musical Number** (Hymn pull-down vs. text field), and **Closing Hymn**, syncing immediately with `home_content/bishopric_sacrament_v1` in Firestore.
 
 - Active Bishopric Organization Card & Dual-Layer Bishopric Access Lock (v1.2.44):
   - **Active Bishopric Card (`public/index.html`, `public/data/ward.json`, `public/js/home.js`, `public/assets/site.css`)**: Enabled `organizations.bishopric.ready: true` pointing to `https://bish.blackstoneward.org/`, updated the card badge to `Bishopric Hub` (`badge open`) with active teal card styling (`#e6f4f3` / `#badddf`), and added the directional arrow (`→`).

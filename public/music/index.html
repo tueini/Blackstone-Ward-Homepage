@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Blackstone Ward Sacrament Meeting Music Planner — Ward Music Coordinator & Bishopric.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#FAF6EF">
+  <title>Blackstone Ward — Sacrament Meeting Music Planner</title>
+  <link rel="icon" href="/assets/ward-logo.png" type="image/png">
+  <script src="/security-config.js?v=1.1.46"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/assets/seasons.css?v=1.1.46">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #FAF6EF;
+      color: #152548;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-serif {
+      font-family: 'Newsreader', Georgia, Cambria, serif;
+    }
+
+    .form-field-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-field-group label {
+      margin-bottom: 4px;
+    }
+
+    dialog.bish-dialog {
+      margin: auto;
+      border: none;
+      padding: 0;
+      background: transparent;
+      max-width: 48rem;
+      width: calc(100% - 1.5rem);
+    }
+
+    dialog:modal {
+      overscroll-behavior: contain;
+    }
+
+    dialog.bish-dialog::backdrop {
+      background-color: rgba(15, 23, 42, 0.62);
+      backdrop-filter: blur(3px);
+      overflow: hidden;
+      overscroll-behavior: contain;
+    }
+
+    #bish-gate-screen {
+      isolation: isolate;
+      perspective: 1000px;
+      overflow: clip;
+    }
+
+    #bish-gate-screen .td-parallax-bg {
+      position: absolute;
+      inset: -160px -100px;
+      z-index: 0;
+      background-image: url('/assets/autumn-landscape.png');
+      background-position: center 54%;
+      background-size: cover;
+      background-repeat: no-repeat;
+      will-change: transform;
+      transform: translate3d(0, 0, 0) scale(1.1);
+      transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body[data-season="winter"] #bish-gate-screen .td-parallax-bg {
+      background-image: url('/assets/winter-landscape.png');
+    }
+
+    body[data-season="spring"] #bish-gate-screen .td-parallax-bg {
+      background-image: url('/assets/spring-landscape.png');
+    }
+
+    body[data-season="summer"] #bish-gate-screen .td-parallax-bg {
+      background-image: url('/assets/summer-landscape.png');
+    }
+
+    #bish-gate-screen .scene-wash {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: radial-gradient(
+        circle at 50% 42%,
+        rgba(var(--page-rgb, 250, 246, 239), 0.12) 0%,
+        rgba(var(--page-rgb, 250, 246, 239), 0.34) 65%,
+        rgba(var(--page-rgb, 250, 246, 239), 0.56) 100%
+      );
+    }
+
+    #bish-gate-card {
+      will-change: transform;
+      transition: transform 0.1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .music-hero-banner {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .music-hero-bg {
+      position: absolute;
+      inset: -40px;
+      z-index: 0;
+      background-image: url('/assets/autumn-landscape.png');
+      background-position: center 48%;
+      background-size: cover;
+      background-repeat: no-repeat;
+      transform: scale(1.04);
+    }
+
+    body[data-season="winter"] .music-hero-bg {
+      background-image: url('/assets/winter-landscape.png');
+    }
+
+    body[data-season="spring"] .music-hero-bg {
+      background-image: url('/assets/spring-landscape.png');
+    }
+
+    body[data-season="summer"] .music-hero-bg {
+      background-image: url('/assets/summer-landscape.png');
+    }
+
+    .music-hero-wash {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        180deg,
+        rgba(250, 246, 239, 0.72) 0%,
+        rgba(250, 246, 239, 0.88) 65%,
+        rgba(250, 246, 239, 0.97) 100%
+      );
+    }
+  </style>
+</head>
+
+<body data-season="fall" class="bishopric-hub-body min-h-screen flex flex-col bg-[#FAF6EF] text-[#152548]">
+
+  <!-- ======================== TOP HEADER BAR (HOME SITE /td PAGE STYLE) ======================== -->
+  <header class="bg-white border-b border-[#E9DECE] sticky top-0 z-30 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-3 shrink-0" aria-label="Blackstone Ward Home">
+        <img src="/assets/ward-logo-horizontal-v1.0.6.png" alt="Blackstone Ward" class="h-10 w-auto object-contain">
+      </a>
+      <nav class="flex items-center gap-3 sm:gap-5 text-xs font-semibold overflow-x-auto py-1"
+        aria-label="Site Navigation">
+        <a href="https://blackstoneward.org/"
+          class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Home</a>
+        <a href="https://blackstoneward.org/calendar/"
+          class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Calendar</a>
+        <a href="https://blackstoneward.org/spotlights/"
+          class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Spotlights</a>
+        <a href="https://blackstoneward.org/td/"
+          class="text-[#536484] hover:text-[#152548] transition whitespace-nowrap">Tithing Declaration</a>
+        <span class="text-[#152548] font-bold border-b-2 border-[#152548] pb-1 whitespace-nowrap"
+          aria-current="page">Ward Music</span>
+
+        <!-- Active User Pill & Lock Button (Shown when unlocked) -->
+        <div id="music-header-user-bar" class="hidden items-center gap-2 pl-2 border-l border-[#E9DECE]">
+          <span
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF6EF] border border-[#E9DECE] text-xs font-bold text-[#152548] whitespace-nowrap">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span id="music-active-user-name">Mio Cowden</span>
+          </span>
+          <button type="button" id="btn-music-lock"
+            class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-[#152548] text-xs font-bold transition cursor-pointer whitespace-nowrap"
+            title="Lock Ward Music Planner">
+            🔒 Lock
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ======================== LOCKED GATE: TITHING DECLARATION (/td) STYLE SEASONAL PARALLAX LOGIN GATE ======================== -->
+  <div id="music-gate-wrapper" class="flex-1 flex flex-col">
+    <section id="bish-gate-screen"
+      class="parallax flex-1 flex flex-col items-center justify-start px-4 pt-8 sm:pt-14 pb-44 min-h-[125vh] relative overflow-hidden">
+      <div class="td-parallax-bg" id="bish-gate-scene-image" aria-hidden="true"></div>
+      <div class="scene-wash" aria-hidden="true"></div>
+
+      <div id="bish-gate-card"
+        class="relative z-10 w-full max-w-xl bg-white/92 backdrop-blur-md border border-[#E9DECE] rounded-3xl p-7 sm:p-10 shadow-2xl text-center space-y-5">
+        <div class="flex justify-center">
+          <span
+            class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest text-[#007B91] bg-[#007B91]/10">
+            <span class="w-2 h-2 rounded-full bg-[#007B91]"></span>
+            <span>Blackstone Ward • Sacrament Music</span>
+          </span>
+        </div>
+
+        <h1 class="text-2xl sm:text-4xl font-serif font-bold text-[#152548] tracking-tight leading-tight">
+          Sacrament Meeting Music Planner
+        </h1>
+
+        <p class="text-xs sm:text-sm text-[#536484] font-medium leading-relaxed max-w-lg mx-auto">
+          Accessible to the <strong>Ward Music Coordinator</strong> and the <strong>Blackstone Ward Bishopric</strong>.<br>
+          Verify your credentials below to assign hymns, choristers, and accompanists for Sacrament Meeting.
+        </p>
+
+        <!-- Active SSO Session Banner -->
+        <div id="music-gate-sso-banner"
+          class="hidden p-4 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-left space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span class="text-xs font-bold text-emerald-900">Active Session Detected</span>
+            </div>
+            <span id="music-gate-sso-role"
+              class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-200/70 text-emerald-900">Authorized</span>
+          </div>
+          <p class="text-xs text-emerald-800">Signed in as <strong id="music-gate-sso-name">Mio Cowden</strong>.</p>
+          <button type="button" id="btn-music-sso-continue"
+            class="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition shadow-sm cursor-pointer">
+            Continue to Music Planner &rarr;
+          </button>
+        </div>
+
+        <!-- Biometric Passkey / Touch ID Button -->
+        <div id="music-gate-passkey-box" class="space-y-2.5 max-w-md mx-auto">
+          <button type="button" id="btn-music-gate-passkey"
+            class="w-full py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm transition shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+            </svg>
+            <span>Sign In with Touch ID / Face ID</span>
+          </button>
+          <p id="music-gate-passkey-hint"
+            class="hidden text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-left"></p>
+        </div>
+
+        <!-- Auth Mode Switcher (Password vs Phone SMS) -->
+        <div class="max-w-md mx-auto pt-1">
+          <fieldset class="border border-[#E9DECE] rounded-xl p-1 bg-[#FAF6EF]/80 grid grid-cols-2 gap-1">
+            <legend class="sr-only">Choose credential verification method</legend>
+            <label class="cursor-pointer">
+              <input type="radio" name="music_gate_auth_mode" value="password" checked class="sr-only peer">
+              <span
+                class="block py-2 px-3 rounded-lg text-xs font-bold text-[#536484] peer-checked:bg-[#152548] peer-checked:text-white transition">
+                Password Sign-In
+              </span>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="music_gate_auth_mode" value="sms" class="sr-only peer">
+              <span
+                class="block py-2 px-3 rounded-lg text-xs font-bold text-[#536484] peer-checked:bg-[#152548] peer-checked:text-white transition">
+                Phone Text (SMS)
+              </span>
+            </label>
+          </fieldset>
+        </div>
+
+        <!-- PASSWORD CREDENTIAL FORM -->
+        <form id="music-gate-pw-form" action="#unlock" method="POST" class="space-y-4 max-w-md mx-auto text-left"
+          novalidate>
+          <div class="form-field-group">
+            <label for="music-gate-name" class="text-xs font-bold uppercase tracking-wider text-[#536484]">
+              Enter First &amp; Last Name *
+            </label>
+            <input type="text" id="music-gate-name" name="member_name" autocomplete="name webauthn" required
+              placeholder="e.g. Mio Cowden" aria-describedby="music-gate-match"
+              class="w-full px-4 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/15 outline-none text-sm text-[#152548] font-medium bg-white transition">
+            <div id="music-gate-match" aria-live="polite"
+              class="hidden mt-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center justify-between">
+              <span id="music-gate-match-text" class="font-semibold">Mio Cowden • Ward Music Coordinator</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">✓ Authorized</span>
+            </div>
+          </div>
+
+          <div class="form-field-group">
+            <label for="music-gate-password" class="text-xs font-bold uppercase tracking-wider text-[#536484]">
+              Password *
+            </label>
+            <div class="relative">
+              <input type="password" id="music-gate-password" name="password" autocomplete="current-password" required
+                placeholder="Enter your password..." aria-describedby="music-gate-pw-error"
+                class="w-full pl-4 pr-12 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/15 outline-none text-sm text-[#152548] font-medium bg-white transition">
+              <button type="button" id="btn-toggle-music-pw" aria-label="Show password" aria-pressed="false"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#152548] p-1 text-xs font-bold cursor-pointer">
+                Show
+              </button>
+            </div>
+          </div>
+
+          <p id="music-gate-pw-error" role="alert" aria-live="assertive"
+            class="hidden text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
+          </p>
+
+          <button type="submit" id="btn-music-pw-submit"
+            class="w-full py-3.5 px-6 rounded-xl bg-[#152548] hover:bg-[#0E1A34] text-white font-bold text-sm transition shadow-md active:scale-[0.99] cursor-pointer">
+            Verify &amp; Enter Music Planner &rarr;
+          </button>
+        </form>
+
+        <!-- PHONE SMS CREDENTIAL FORM -->
+        <form id="music-gate-sms-form" action="#unlock-sms" method="POST"
+          class="hidden space-y-4 max-w-md mx-auto text-left" novalidate>
+          <div id="music-sms-step-1" class="space-y-4">
+            <div class="form-field-group">
+              <label for="music-sms-name" class="text-xs font-bold uppercase tracking-wider text-[#536484]">
+                Enter First &amp; Last Name *
+              </label>
+              <input type="text" id="music-sms-name" name="sms_member_name" autocomplete="name" required
+                placeholder="e.g. Mio Cowden"
+                class="w-full px-4 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] outline-none text-sm text-[#152548] font-medium bg-white transition">
+            </div>
+
+            <div class="form-field-group">
+              <label for="music-sms-phone" class="text-xs font-bold uppercase tracking-wider text-[#536484]">
+                Mobile Phone Number *
+              </label>
+              <input type="tel" id="music-sms-phone" name="sms_phone" autocomplete="tel" required
+                placeholder="(555) 000-0000"
+                class="w-full px-4 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] outline-none text-sm text-[#152548] font-medium bg-white transition">
+            </div>
+
+            <button type="submit" id="btn-music-send-sms"
+              class="w-full py-3.5 px-6 rounded-xl bg-[#152548] hover:bg-[#0E1A34] text-white font-bold text-sm transition shadow-md cursor-pointer">
+              Send 6-Digit Verification Text &rarr;
+            </button>
+          </div>
+
+          <div id="music-sms-step-2" class="hidden space-y-4">
+            <div class="form-field-group">
+              <div class="flex items-center justify-between mb-1">
+                <label for="music-sms-code" class="text-xs font-bold uppercase tracking-wider text-[#536484]">
+                  6-Digit SMS Code *
+                </label>
+                <button type="button" id="btn-music-sms-back"
+                  class="text-xs font-semibold text-[#007B91] hover:underline cursor-pointer">
+                  Change phone
+                </button>
+              </div>
+              <p id="music-sms-sent-note" class="text-[11px] text-[#536484] mb-1.5">Code sent via text message.</p>
+              <input type="text" id="music-sms-code" name="sms_code" maxlength="6" pattern="\d{6}" inputmode="numeric"
+                autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false"
+                aria-describedby="music-sms-sent-note" placeholder="123456"
+                class="w-full px-4 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] outline-none text-center tracking-widest font-mono text-lg font-bold text-[#152548] bg-white">
+            </div>
+
+            <button type="button" id="btn-music-verify-sms"
+              class="w-full py-3.5 px-6 rounded-xl bg-[#152548] hover:bg-[#0E1A34] text-white font-bold text-sm transition shadow-md cursor-pointer">
+              Verify Code &amp; Unlock Music Planner &rarr;
+            </button>
+          </div>
+
+          <p id="music-sms-error" role="alert" aria-live="assertive"
+            class="hidden text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
+          </p>
+          <div id="music-recaptcha-container" class="flex justify-center"></div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======================== UNLOCKED WARD MUSIC COORDINATOR PLANNER (/td PAGE STYLE) ======================== -->
+  <div id="music-app-wrapper" class="hidden flex-1 flex flex-col">
+
+    <!-- Tithing Declaration Style Seasonal Hero Header -->
+    <section class="music-hero-banner border-b border-[#E9DECE]">
+      <div class="music-hero-bg" aria-hidden="true"></div>
+      <div class="music-hero-wash" aria-hidden="true"></div>
+
+      <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+          <div class="space-y-2">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 border border-[#E9DECE] text-[11px] font-extrabold uppercase tracking-wider text-[#007B91] shadow-2xs">
+              <span>🎵 Blackstone Ward • Ward Music Coordinator</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-serif font-bold text-[#152548] tracking-tight">
+              Sacrament Meeting Music Planner
+            </h1>
+            <p class="text-xs sm:text-sm text-[#536484] font-medium max-w-2xl">
+              Assign hymns, special musical numbers, choristers, and accompanists for each Sunday of the month based on the monthly theme. Saving automatically syncs with the Bishopric Hub.
+            </p>
+          </div>
+
+          <!-- Reference Table Buttons & Sync Status -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="btn-music-open-hymns"
+              class="px-3.5 py-2 rounded-xl bg-white hover:bg-[#EFE6D5] border border-[#E9DECE] text-[#152548] text-xs font-bold transition shadow-2xs cursor-pointer">
+              📖 Hymns Table
+            </button>
+            <button type="button" id="btn-music-open-choristers"
+              class="px-3.5 py-2 rounded-xl bg-white hover:bg-[#EFE6D5] border border-[#E9DECE] text-[#152548] text-xs font-bold transition shadow-2xs cursor-pointer">
+              Choristers
+            </button>
+            <button type="button" id="btn-music-open-accompanists"
+              class="px-3.5 py-2 rounded-xl bg-white hover:bg-[#EFE6D5] border border-[#E9DECE] text-[#152548] text-xs font-bold transition shadow-2xs cursor-pointer">
+              Accompanists
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Planner Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+
+      <!-- Year & Month Selector Card -->
+      <div class="bg-white border border-[#E9DECE] rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span id="music-year-eyebrow" class="text-[11px] font-extrabold uppercase tracking-wider text-[#007B91]">
+              2026 • Sacrament Meeting Music
+            </span>
+            <h2 class="text-xl sm:text-2xl font-serif font-bold text-[#152548]">
+              Select Month &amp; Review Monthly Theme
+            </h2>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="music-sync-status" role="status" aria-live="polite"
+              class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
+              ✓ Synced with Bishopric Hub
+            </span>
+            <div id="music-year-btn-group"
+              class="inline-flex flex-wrap items-center gap-1 p-1 bg-[#FAF6EF] border border-[#E9DECE] rounded-xl"
+              role="group" aria-label="Select Year">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Month Pills Strip -->
+        <div id="music-month-pills" class="flex items-center gap-1.5 overflow-x-auto pb-1" role="tablist"
+          aria-label="Select Month">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Requirement 2.b.i: Monthly Theme Display Banner -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-[#FAF6EF] border-2 border-[#E9DECE] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#007B91]">
+                <span id="music-selected-month-label">November 2026</span> • Monthly Sacrament Theme
+              </span>
+              <span id="music-start-time-badge"
+                class="px-2.5 py-0.5 rounded-full bg-[#152548]/10 text-[#152548] text-[11px] font-extrabold">
+                Sacrament Start Time: 12:00 PM
+              </span>
+            </div>
+            <div id="music-monthly-theme-display" class="text-lg sm:text-2xl font-serif font-bold text-[#152548]">
+              Loading monthly theme...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shared Datalists for Choristers, Accompanists, and Hymns -->
+      <datalist id="music-choristers-datalist"></datalist>
+      <datalist id="music-accompanists-datalist"></datalist>
+      <datalist id="music-hymns-datalist"></datalist>
+
+      <!-- Requirement 2.b.ii: Sundays of the Selected Month Form -->
+      <form id="music-month-form" action="#save-music" method="POST" class="space-y-5" novalidate>
+        <div class="text-center space-y-1">
+          <h3 id="music-sundays-heading" class="text-lg sm:text-2xl font-serif font-bold uppercase text-[#007B91]">
+            SUNDAYS IN NOVEMBER 2026
+          </h3>
+          <p class="text-xs text-[#536484]">
+            Changes auto-save or click <strong>Save Month Music</strong> to sync all Sundays to <code>bish.blackstoneward.org</code>.
+          </p>
+        </div>
+
+        <div id="music-sundays-container" class="space-y-5">
+          <!-- Populated dynamically with a card for each Sunday of the selected month -->
+        </div>
+
+        <div class="bg-white border border-[#E9DECE] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
+          <span id="music-bottom-save-status" role="status" aria-live="polite"
+            class="text-xs font-bold text-emerald-700">
+            ✓ All Sunday music assignments synced with Bishopric Hub
+          </span>
+          <button type="submit" id="btn-music-save-all-bottom"
+            class="px-6 py-3 rounded-xl bg-[#152548] hover:bg-[#0E1A34] text-white text-xs sm:text-sm font-bold transition shadow-md cursor-pointer">
+            Save Month Music &amp; Sync to Bishopric Hub &rarr;
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-[#E9DECE] bg-white py-5 px-4 text-center text-xs text-[#536484]">
+      <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span>Blackstone Ward Sacrament Meeting Music Planner • Synced with Bishopric Hub</span>
+        <span id="music-footer-version" class="font-semibold text-[#152548]">Version 1.1.46</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ======================== MODAL 1: HYMNS DATABASE TABLE ======================== -->
+  <dialog id="music-hymns-dialog" class="bish-dialog" style="max-width: 72rem; width: 95vw;" closedby="any"
+    aria-labelledby="music-hymns-title">
+    <div
+      class="bg-white border border-[#E9DECE] rounded-3xl p-5 sm:p-7 shadow-2xl relative text-[#152548] max-h-[92vh] flex flex-col gap-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#E9DECE] pb-3 shrink-0">
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#007B91]">Sacrament Meeting Music
+            Database</span>
+          <div class="flex flex-wrap items-center gap-2.5 mt-0.5">
+            <h2 id="music-hymns-title" class="text-xl sm:text-2xl font-serif font-bold text-[#152548]">
+              Hymns Table (English &amp; Portuguese)
+            </h2>
+            <span id="music-hymns-count-pill"
+              class="px-2.5 py-0.5 rounded-full bg-[#152548] text-white text-[11px] font-extrabold">0 Hymns</span>
+          </div>
+        </div>
+        <button type="button" id="btn-close-music-hymns"
+          class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold cursor-pointer"
+          aria-label="Close Hymns table">✕</button>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+        <div class="flex-1 min-w-[200px]">
+          <label for="music-hymns-search" class="sr-only">Search hymns by title or page number</label>
+          <input type="search" id="music-hymns-search" name="hymns_search" autocorrect="off" autocapitalize="off"
+            spellcheck="false" placeholder="Search English or Portuguese hymn name or page #..."
+            class="w-full px-3.5 py-2 rounded-xl border border-[#E9DECE] bg-[#FAF6EF]/60 focus:bg-white text-xs font-medium text-[#152548] outline-none focus:border-[#152548]">
+        </div>
+        <div class="flex items-center gap-1.5">
+          <label for="music-hymns-sort" class="text-[11px] font-bold text-[#536484]">Sort:</label>
+          <select id="music-hymns-sort" name="hymns_sort"
+            class="px-2.5 py-1.5 rounded-xl border border-[#E9DECE] bg-white text-xs font-bold text-[#152548] outline-none">
+            <option value="page_en_asc">Page # English (Low &rarr; High)</option>
+            <option value="name_en_asc">Hymn Name English (A &rarr; Z)</option>
+            <option value="page_pt_asc">Page # Portuguese (Low &rarr; High)</option>
+            <option value="name_pt_asc">Hymn Name Portuguese (A &rarr; Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <div tabindex="0" role="region" aria-labelledby="music-hymns-title"
+        class="overflow-auto border border-[#E9DECE] rounded-2xl flex-1 min-h-[300px] bg-white">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead
+            class="bg-[#FAF6EF] text-[#536484] uppercase tracking-wider text-[10px] font-extrabold sticky top-0 z-10 border-b border-[#E9DECE]">
+            <tr>
+              <th scope="col" class="py-3 px-3.5">Hymn Name (English)</th>
+              <th scope="col" class="py-3 px-2.5 text-center">Page # (EN)</th>
+              <th scope="col" class="py-3 px-3.5">Hymn Name (Portuguese)</th>
+              <th scope="col" class="py-3 px-2.5 text-center">Page # (PT)</th>
+            </tr>
+          </thead>
+          <tbody id="music-hymns-tbody" class="divide-y divide-[#E9DECE]/70 text-[#152548]">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ======================== MODAL 2: CHORISTERS TABLE ======================== -->
+  <dialog id="music-choristers-dialog" class="bish-dialog" style="max-width: 34rem; width: 95vw;" closedby="any"
+    aria-labelledby="music-choristers-title">
+    <div
+      class="bg-white border border-[#E9DECE] rounded-3xl p-5 sm:p-7 shadow-2xl relative text-[#152548] max-h-[90vh] flex flex-col gap-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#E9DECE] pb-3 shrink-0">
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#007B91]">Sacrament Meeting Music</span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <h2 id="music-choristers-title" class="text-xl sm:text-2xl font-serif font-bold text-[#152548]">
+              Choristers
+            </h2>
+            <span id="music-choristers-count-pill"
+              class="px-2.5 py-0.5 rounded-full bg-[#152548] text-white text-[11px] font-extrabold">0</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="btn-music-choristers-toggle-add"
+            class="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer">
+            + Add Chorister
+          </button>
+          <button type="button" id="btn-close-music-choristers"
+            class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold cursor-pointer"
+            aria-label="Close Choristers dialog">✕</button>
+        </div>
+      </div>
+
+      <form id="music-choristers-add-form" action="#add-chorister" method="POST"
+        class="hidden p-3.5 rounded-2xl bg-[#FAF6EF] border border-[#E9DECE] space-y-3 shrink-0">
+        <div class="form-field-group">
+          <label for="music-chorister-add-name" class="text-[11px] font-bold text-[#536484]">Chorister Name *</label>
+          <input type="text" id="music-chorister-add-name" name="chorister_name" required placeholder="Full Name"
+            class="w-full px-3 py-1.5 rounded-lg border border-[#E9DECE] bg-white text-xs font-semibold text-[#152548]">
+        </div>
+        <div class="flex items-center justify-end gap-2">
+          <button type="button" id="btn-music-choristers-cancel-add"
+            class="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit"
+            class="px-3.5 py-1.5 rounded-lg bg-[#152548] hover:bg-[#0E1A34] text-white text-xs font-bold cursor-pointer">
+            Save Chorister
+          </button>
+        </div>
+      </form>
+
+      <div tabindex="0" role="region" aria-labelledby="music-choristers-title"
+        class="overflow-auto border border-[#E9DECE] rounded-2xl bg-white">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead
+            class="bg-[#FAF6EF] text-[#536484] uppercase tracking-wider text-[10px] font-extrabold sticky top-0 z-10 border-b border-[#E9DECE]">
+            <tr>
+              <th scope="col" class="py-3 px-4">Chorister Name</th>
+              <th scope="col" class="py-3 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="music-choristers-tbody" class="divide-y divide-[#E9DECE]/70 text-[#152548]">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ======================== MODAL 3: ACCOMPANISTS TABLE ======================== -->
+  <dialog id="music-accompanists-dialog" class="bish-dialog" style="max-width: 34rem; width: 95vw;" closedby="any"
+    aria-labelledby="music-accompanists-title">
+    <div
+      class="bg-white border border-[#E9DECE] rounded-3xl p-5 sm:p-7 shadow-2xl relative text-[#152548] max-h-[90vh] flex flex-col gap-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#E9DECE] pb-3 shrink-0">
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#007B91]">Sacrament Meeting Music</span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <h2 id="music-accompanists-title" class="text-xl sm:text-2xl font-serif font-bold text-[#152548]">
+              Accompanists
+            </h2>
+            <span id="music-accompanists-count-pill"
+              class="px-2.5 py-0.5 rounded-full bg-[#152548] text-white text-[11px] font-extrabold">0</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="btn-music-accompanists-toggle-add"
+            class="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer">
+            + Add Accompanist
+          </button>
+          <button type="button" id="btn-close-music-accompanists"
+            class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold cursor-pointer"
+            aria-label="Close Accompanists dialog">✕</button>
+        </div>
+      </div>
+
+      <form id="music-accompanists-add-form" action="#add-accompanist" method="POST"
+        class="hidden p-3.5 rounded-2xl bg-[#FAF6EF] border border-[#E9DECE] space-y-3 shrink-0">
+        <div class="form-field-group">
+          <label for="music-accompanist-add-name" class="text-[11px] font-bold text-[#536484]">Accompanist Name *</label>
+          <input type="text" id="music-accompanist-add-name" name="accompanist_name" required placeholder="Full Name"
+            class="w-full px-3 py-1.5 rounded-lg border border-[#E9DECE] bg-white text-xs font-semibold text-[#152548]">
+        </div>
+        <div class="flex items-center justify-end gap-2">
+          <button type="button" id="btn-music-accompanists-cancel-add"
+            class="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit"
+            class="px-3.5 py-1.5 rounded-lg bg-[#152548] hover:bg-[#0E1A34] text-white text-xs font-bold cursor-pointer">
+            Save Accompanist
+          </button>
+        </div>
+      </form>
+
+      <div tabindex="0" role="region" aria-labelledby="music-accompanists-title"
+        class="overflow-auto border border-[#E9DECE] rounded-2xl bg-white">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead
+            class="bg-[#FAF6EF] text-[#536484] uppercase tracking-wider text-[10px] font-extrabold sticky top-0 z-10 border-b border-[#E9DECE]">
+            <tr>
+              <th scope="col" class="py-3 px-4">Accompanist Name</th>
+              <th scope="col" class="py-3 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="music-accompanists-tbody" class="divide-y divide-[#E9DECE]/70 text-[#152548]">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="/js/music-coordinator.js?v=1.1.46"></script>
+</body>
+
+</html>
+
