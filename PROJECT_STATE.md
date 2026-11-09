@@ -1,14 +1,18 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.45
-**Date:** November 6, 2026
+**Version:** 1.2.46
+**Date:** November 9, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.45 ready for deployment to staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`) and live production (`blackstoneward.org` / `blackstoneward.web.app`). Added the gated **Ward Music Coordinator (`/music`)** page (`public/music/index.html`, `public/js/music-coordinator.js`, `public/data/hymns-bank-seed.json`) and a **`Music`** navigation link (`public/index.html`) on the unrestricted Ward Home site so the Ward Music Coordinator (**Mio Cowden**) can access `blackstoneward.org/music` directly without having access to the Bishopric Hub (`bish.blackstoneward.org`), while syncing all music assignments in real time with `bish.blackstoneward.org` via Firestore (`home_content/bishopric_sacrament_v1`).
+**State:** Version 1.2.46 deployed to staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`) and live production (`blackstoneward.org` / `blackstoneward.web.app`). Updated Tithing Declaration (`/td/index.html`) to filter out non-TD scheduled interviews (`!slot.interviewTypes.includes('TD')` or `slot.isNonTdIndividual === true`) and non-TD open slots (`slot.tdOpen === false`) across the Overview Strip, Interview Schedule cards, Month Calendar, A–Z Family List, and self-service open-slot selector while preserving `interviewTypes` and `meetingNote` when a TD household moves their appointment.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Tithing Declaration (`/td`) Non-TD Interview & Private Open Slot Filtering (v1.2.46):
+  - **Public Visibility Helpers (`isSlotTdOpen`, `isSlotTdInterview`, `isPublicVisibleSlot`, `getPublicTdScheduledCount`, `getPublicTdOpenCount` in `public/td/index.html`)**: Filters out non-TD scheduled appointments (slots assigned to Non-TD Interviewees with `isNonTdIndividual: true` or slots where `interviewTypes` does not include `'TD'`) and private/reserved open slots (`tdOpen === false`) from all public `/td/` views (`renderOverviewStrip()`, `renderSundayCards()`, `renderMonthCalendarView()`, `renderAlphabeticalView()`).
+  - **Self-Service Move to Open Slot (`populateModalOptions()`, `handleMoveToOpenSlot()`)**: Only lists open slots where `isSlotTdOpen(slot)` is true in `#td-form-open-slot`, and preserves `interviewTypes` and `meetingNote` when moving a TD household to a new open slot while resetting `tdOpen: true` on the vacated slot.
 
 - Gated Ward Music Coordinator Page (`/music`) on the Ward Home Site & Navigation Link (v1.2.45):
   - **Home Site Navigation (`public/index.html`)**: Added `<a class="nav-link" href="music/">Music</a>` to `#main-nav` so the Ward Music Coordinator can navigate directly to `/music` from the unrestricted Ward Homepage (`blackstoneward.org`).

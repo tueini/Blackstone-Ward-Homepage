@@ -1191,10 +1191,39 @@
       }
     }
 
+    function isSlotTdOpen(slot) {
+      if (!slot || !slot.available) return false;
+      if (slot.tdOpen === false) return false;
+      if (Array.isArray(slot.interviewTypes) && slot.interviewTypes.length > 0 && !slot.interviewTypes.includes('TD')) {
+        return false;
+      }
+      return true;
+    }
+
+    function isSlotTdInterview(slot) {
+      if (!slot || slot.available) return false;
+      if (slot.isNonTdIndividual) return false;
+      if (!Array.isArray(slot.interviewTypes)) return true;
+      return slot.interviewTypes.includes('TD');
+    }
+
+    function isPublicVisibleSlot(slot) {
+      if (!slot) return false;
+      return isSlotTdOpen(slot) || isSlotTdInterview(slot);
+    }
+
+    function getPublicTdScheduledCount(sunday) {
+      return (sunday?.slots || []).filter(sl => isSlotTdInterview(sl)).length;
+    }
+
+    function getPublicTdOpenCount(sunday) {
+      return (sunday?.slots || []).filter(sl => isSlotTdOpen(sl)).length;
+    }
+
     function getActiveSundays() {
       if (!scheduleData || !Array.isArray(scheduleData.sundays)) return [];
       return scheduleData.sundays
-        .filter(s => Array.isArray(s.slots) && s.slots.length > 0)
+        .filter(s => Array.isArray(s.slots) && s.slots.some(sl => isPublicVisibleSlot(sl)))
         .slice()
         .sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
     }
@@ -1217,6 +1246,8 @@
         const dowShort = (s.dayOfWeek || (s.title.toLowerCase().startsWith('wed') ? 'Wednesday' : 'Sunday')).slice(0, 3).toUpperCase();
         const shortLabel = s.shortDate || s.tabName.replace(/,\s*\d{4}$/, '');
         const timeWin = s.timeWindow || (dowShort === 'WED' ? '6:00 – 6:45 PM' : '2:05 – 4:05 PM');
+        const tdSchedCount = getPublicTdScheduledCount(s);
+        const tdOpenCount = getPublicTdOpenCount(s);
 
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -1224,13 +1255,13 @@
           ? 'min-w-[168px] sm:min-w-[180px] shrink-0 snap-start rounded-2xl border-2 border-[#152548] bg-[#152548] text-white p-3.5 text-left flex flex-col justify-between shadow-sm transition cursor-pointer'
           : 'min-w-[168px] sm:min-w-[180px] shrink-0 snap-start rounded-2xl border border-[#E9DECE] hover:border-[#152548] bg-[#FAF6EF]/60 hover:bg-white p-3.5 text-left flex flex-col justify-between transition cursor-pointer';
 
-        const openBadge = s.openCount > 0
-          ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${isSelected ? 'bg-emerald-400/20 text-emerald-200' : 'bg-emerald-100 text-emerald-800'}">${s.openCount} open</span>`
+        const openBadge = tdOpenCount > 0
+          ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${isSelected ? 'bg-emerald-400/20 text-emerald-200' : 'bg-emerald-100 text-emerald-800'}">${tdOpenCount} open</span>`
           : `<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded ${isSelected ? 'bg-white/15 text-slate-200' : 'bg-slate-200/70 text-slate-600'}">Full</span>`;
 
-        const countLabel = s.scheduledCount > 0
-          ? `${s.scheduledCount} Families`
-          : `${s.openCount} Open Slots`;
+        const countLabel = tdSchedCount > 0
+          ? `${tdSchedCount} Families`
+          : `${tdOpenCount} Open Slots`;
 
         btn.innerHTML = `
           <div class="flex items-center justify-between gap-1.5 w-full">
@@ -1301,6 +1332,7 @@
 
       sundaysToRender.forEach(sunday => {
         const matchingSlots = sunday.slots.filter(slot => {
+          if (!isPublicVisibleSlot(slot)) return false;
           if (q && slot.available) return false;
           return slotMatchesSearch(slot, sunday.title, q);
         });
@@ -1313,9 +1345,11 @@
         const card = document.createElement('article');
         card.className = 'bg-white border border-[#E9DECE] rounded-3xl overflow-hidden shadow-sm flex flex-col';
 
-        const openPill = sunday.openCount > 0
-          ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">${sunday.openCount} Open Slot${sunday.openCount === 1 ? '' : 's'}</span>`
-          : `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">${sunday.scheduledCount} Scheduled</span>`;
+        const tdSchedCount = getPublicTdScheduledCount(sunday);
+        const tdOpenCount = getPublicTdOpenCount(sunday);
+        const openPill = tdOpenCount > 0
+          ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">${tdOpenCount} Open Slot${tdOpenCount === 1 ? '' : 's'}</span>`
+          : `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">${tdSchedCount} Scheduled</span>`;
 
         const showAllBtnHtml = activeSundayFilter !== 'all'
           ? `<button type="button" class="btn-Reset-sunday-filter text-xs font-semibold text-[#007B91] hover:underline cursor-pointer">Show all dates</button>`
@@ -1575,8 +1609,10 @@
             ? 'min-h-[140px] bg-[#FAF6EF]/50 border-r border-b border-[#E9DECE] p-2 flex flex-col gap-1.5 col-span-1'
             : 'min-h-[90px] bg-white border-r border-b border-[#E9DECE] p-2 text-slate-400';
 
+          const tdDaySchedCount = sundayData ? getPublicTdScheduledCount(sundayData) : 0;
+          const tdDayOpenCount = sundayData ? getPublicTdOpenCount(sundayData) : 0;
           const badgeText = sundayData
-            ? (sundayData.scheduledCount > 0 ? `${sundayData.scheduledCount} fam` : `${sundayData.openCount} open`)
+            ? (tdDaySchedCount > 0 ? `${tdDaySchedCount} fam` : `${tdDayOpenCount} open`)
             : '';
 
           const topRow = document.createElement('div');
@@ -1593,6 +1629,7 @@
             chipsWrap.className = 'space-y-1 mt-0.5';
 
             sundayData.slots.forEach(slot => {
+              if (!isPublicVisibleSlot(slot)) return;
               if (q && !slotMatchesSearch(slot, sundayData.title, q)) return;
 
               const isLockedChip = isPastDay || (!slot.available && slot.status === 'attended');
@@ -1669,7 +1706,7 @@
       getActiveSundays().forEach(sunday => {
         if (activeSundayFilter !== 'all' && sunday.date !== activeSundayFilter) return;
         sunday.slots.forEach(slot => {
-          if (slot.available) return;
+          if (slot.available || !isSlotTdInterview(slot)) return;
           if (q && !slotMatchesSearch(slot, sunday.title, q)) return;
           allHouseholds.push({
             household: slot.household,
@@ -1789,7 +1826,7 @@
       openSlotSelect.innerHTML = '<option value="">— Select an open slot —</option>';
 
       activeSundays.filter(s => !isPastScheduleDate(s.date)).forEach(s => {
-        (s.slots || []).filter(sl => sl.available).forEach(sl => {
+        (s.slots || []).filter(sl => isSlotTdOpen(sl)).forEach(sl => {
           const opt = document.createElement('option');
           opt.value = `${s.date}||${sl.time}||${sl.slotIndex ?? ''}`;
           opt.dataset.date = s.date;
@@ -1815,13 +1852,15 @@
 
       for (const s of (scheduleData.sundays || [])) {
         for (const sl of (s.slots || [])) {
-          if (sl.available || !sl.household) continue;
+          if (sl.available || !sl.household || !isSlotTdInterview(sl)) continue;
           if (normalizeSurname(sl.household) === targetNorm || compactSurname(sl.household) === targetCompact) {
             return {
               household: sl.household,
               householdId: sl.householdId || '',
               members: sl.members || '',
               email: sl.email || '',
+              meetingNote: sl.meetingNote || '',
+              interviewTypes: Array.isArray(sl.interviewTypes) ? [...sl.interviewTypes] : ['TD'],
               date: s.date,
               sundayTitle: s.title,
               sundayTab: s.tabName,
@@ -1834,12 +1873,15 @@
 
       for (const u of (scheduleData.unassigned || [])) {
         if (!u.household) continue;
+        if (Array.isArray(u.interviewTypes) && !u.interviewTypes.includes('TD')) continue;
         if (normalizeSurname(u.household) === targetNorm || compactSurname(u.household) === targetCompact) {
           return {
             household: u.household,
             householdId: u.householdId || '',
             members: u.members || '',
             email: u.email || '',
+            meetingNote: u.meetingNote || '',
+            interviewTypes: Array.isArray(u.interviewTypes) ? [...u.interviewTypes] : ['TD'],
             date: '',
             sundayTitle: 'Unscheduled',
             sundayTab: '',
@@ -1860,8 +1902,9 @@
       }
       const sCount = document.getElementById('stat-sundays-count');
       const hCount = document.getElementById('stat-households-count');
+      const totalTdHouseholds = activeSundays.reduce((sum, s) => sum + getPublicTdScheduledCount(s), 0);
       if (sCount) sCount.textContent = `${activeSundays.length} Dates`;
-      if (hCount) hCount.textContent = `${scheduleData.totalScheduled} Households`;
+      if (hCount) hCount.textContent = `${totalTdHouseholds} Households`;
 
       populateModalOptions();
       renderOverviewStrip();
@@ -2113,7 +2156,7 @@
       const [targetDate, targetTime] = selectedVal.split('||');
       const targetSunday = scheduleData.sundays.find(s => s.date === targetDate);
       const targetSlot = targetSunday && Array.isArray(targetSunday.slots)
-        ? targetSunday.slots.find(sl => sl.available && sl.time === targetTime)
+        ? targetSunday.slots.find(sl => isSlotTdOpen(sl) && sl.time === targetTime)
         : null;
 
       if (!targetSunday || !targetSlot) {
@@ -2134,20 +2177,29 @@
         || (activeSlotContext && activeSlotContext.email)
         || '';
 
-      // Locate and clear the household's current scheduled slot
+      // Locate and clear the household's current scheduled slot while preserving interviewTypes and meetingNote
       let clearedCurrentSlot = false;
+      let preservedInterviewTypes = (record && Array.isArray(record.interviewTypes)) ? [...record.interviewTypes] : ['TD'];
+      let preservedMeetingNote = (record && record.meetingNote) || '';
+
       if (activeSlotContext && !activeSlotContext.isAvailableSlot && activeSlotContext.date && activeSlotContext.time) {
         const srcSunday = scheduleData.sundays.find(s => s.date === activeSlotContext.date);
         const srcSlot = srcSunday && Array.isArray(srcSunday.slots)
-          ? srcSunday.slots.find(sl => !sl.available && sl.time === activeSlotContext.time && normalizeSurname(sl.household) === normalizeSurname(householdName))
+          ? srcSunday.slots.find(sl => !sl.available && isSlotTdInterview(sl) && sl.time === activeSlotContext.time && normalizeSurname(sl.household) === normalizeSurname(householdName))
           : null;
         if (srcSlot) {
+          if (Array.isArray(srcSlot.interviewTypes)) preservedInterviewTypes = [...srcSlot.interviewTypes];
+          if (srcSlot.meetingNote) preservedMeetingNote = srcSlot.meetingNote;
           srcSlot.available = true;
+          srcSlot.tdOpen = true;
+          srcSlot.isNonTdIndividual = false;
           srcSlot.status = 'open';
           srcSlot.household = '';
           srcSlot.householdId = '';
           srcSlot.members = '';
           srcSlot.email = '';
+          srcSlot.meetingNote = '';
+          srcSlot.interviewTypes = [];
           delete srcSlot.missedDate;
           delete srcSlot.missedTime;
           clearedCurrentSlot = true;
@@ -2157,13 +2209,19 @@
       if (!clearedCurrentSlot) {
         for (const s of scheduleData.sundays) {
           for (const sl of (s.slots || [])) {
-            if (!sl.available && sl.household && normalizeSurname(sl.household) === normalizeSurname(householdName)) {
+            if (!sl.available && isSlotTdInterview(sl) && sl.household && normalizeSurname(sl.household) === normalizeSurname(householdName)) {
+              if (Array.isArray(sl.interviewTypes)) preservedInterviewTypes = [...sl.interviewTypes];
+              if (sl.meetingNote) preservedMeetingNote = sl.meetingNote;
               sl.available = true;
+              sl.tdOpen = true;
+              sl.isNonTdIndividual = false;
               sl.status = 'open';
               sl.household = '';
               sl.householdId = '';
               sl.members = '';
               sl.email = '';
+              sl.meetingNote = '';
+              sl.interviewTypes = [];
               delete sl.missedDate;
               delete sl.missedTime;
               clearedCurrentSlot = true;
@@ -2182,11 +2240,15 @@
 
       // Assign household to the selected open slot
       targetSlot.available = false;
+      targetSlot.tdOpen = true;
+      targetSlot.isNonTdIndividual = false;
       targetSlot.status = 'scheduled';
       targetSlot.household = householdName;
       targetSlot.householdId = householdId;
       targetSlot.members = members;
       targetSlot.email = email;
+      targetSlot.meetingNote = preservedMeetingNote;
+      targetSlot.interviewTypes = preservedInterviewTypes.includes('TD') ? preservedInterviewTypes : ['TD', ...preservedInterviewTypes];
 
       // Recalculate open and scheduled counts
       let totalScheduled = 0;
@@ -2329,6 +2391,7 @@
       const seen = new Set();
       scheduleData.sundays.forEach(s => {
         (s.slots || []).forEach(slot => {
+          if (!isSlotTdInterview(slot)) return;
           const h = (slot.household || '').trim();
           if (h && !seen.has(h.toLowerCase())) {
             seen.add(h.toLowerCase());
@@ -2338,6 +2401,7 @@
       });
 
       (scheduleData.unassigned || []).forEach(u => {
+        if (Array.isArray(u.interviewTypes) && !u.interviewTypes.includes('TD')) return;
         const h = (u.household || '').trim();
         if (h && !seen.has(h.toLowerCase())) {
           seen.add(h.toLowerCase());

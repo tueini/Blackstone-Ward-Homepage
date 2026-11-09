@@ -1,5 +1,12 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.46 — November 9, 2026
+
+- **Tithing Declaration (`/td`) Compatibility for Universal Interview Manager (`public/td/index.html`)**:
+  - Added `isSlotTdOpen(slot)`, `isSlotTdInterview(slot)`, `isPublicVisibleSlot(slot)`, `getPublicTdScheduledCount(sunday)`, and `getPublicTdOpenCount(sunday)` so non-TD scheduled interviews (`!slot.interviewTypes.includes('TD')` or `slot.isNonTdIndividual === true`) and non-TD open slots (`slot.tdOpen === false`) are hidden from the public `/td/` Overview Strip, Interview Schedule cards, Month Calendar, A–Z Family List, and self-service open-slot selector (`#td-form-open-slot`).
+  - Updated `handleMoveToOpenSlot()` to preserve `interviewTypes` and `meetingNote` when a TD household moves their appointment and reset `tdOpen: true` on the vacated slot.
+- Synchronized package, content, HTML, and asset version references to v1.2.46.
+
 ## 1.2.45 — November 6, 2026
 
 - **Added Gated Ward Music Coordinator Page (`/music`) on the Ward Home Site & `Music` Navigation Link (`public/index.html`, `public/music/index.html`, `public/js/music-coordinator.js`, `public/data/hymns-bank-seed.json`)**:
