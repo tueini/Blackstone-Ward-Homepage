@@ -1,5 +1,14 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.47 — November 10, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.47.
+- **Matched `/admin/` Background Style to `youth.blackstoneward.org/admin` (`public/admin/index.html`, `public/assets/admin.css`)**:
+  - Added `currentSeason()` detection in `public/admin/index.html` to set `document.body.dataset.season` (`fall`, `winter`, `spring`, `summer`) and removed the hardcoded `bg-[#FAF6EF]` class on `<body>` so `body.admin-body` uses the seasonal `--cream` background and `--scene` landscape variables.
+  - Updated `#login-view` to use `.parallax` with `.scene-image`, `.scene-wash`, and `.admin-login-card` so the login gate displays the seasonal landscape background with radial cream wash and frosted glass card matching `youth.blackstoneward.org/admin`.
+  - Updated `#dashboard-view` with the `.admin-hero-banner.parallax` scenic hero banner (`.scene-image` + `.scene-wash`), frosted glass header/footer (`bg-white/88 backdrop-blur-md`), and the `initAdminParallax()` scroll parallax engine with `prefers-reduced-motion` support.
+- Synchronized package, content, HTML, and asset version references to v1.2.47.
+
 ## 1.2.46 — November 9, 2026
 
 - **Tithing Declaration (`/td`) Compatibility for Universal Interview Manager (`public/td/index.html`)**:

@@ -1,14 +1,19 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.46
-**Date:** November 9, 2026
+**Version:** 1.2.47
+**Date:** November 10, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.46 deployed to staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`) and live production (`blackstoneward.org` / `blackstoneward.web.app`). Updated Tithing Declaration (`/td/index.html`) to filter out non-TD scheduled interviews (`!slot.interviewTypes.includes('TD')` or `slot.isNonTdIndividual === true`) and non-TD open slots (`slot.tdOpen === false`) across the Overview Strip, Interview Schedule cards, Month Calendar, A–Z Family List, and self-service open-slot selector while preserving `interviewTypes` and `meetingNote` when a TD household moves their appointment.
+**State:** Version 1.2.47 deployed to staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`) and live production (`blackstoneward.org` / `blackstoneward.web.app`). Updated `blackstoneward.org/admin/` (`public/admin/index.html` and `public/assets/admin.css`) to match the seasonal scenic parallax background style of `youth.blackstoneward.org/admin`, including dynamic season detection (`document.body.dataset.season`), full-screen scenic parallax login gate (`#login-view` with `.scene-image`, `.scene-wash`, and `.admin-login-card`), panoramic parallax hero banner (`.admin-hero-banner.parallax`), frosted glass header/footer, and `initAdminParallax()`.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Ward Admin Portal (`/admin`) Scenic Parallax Background Matching Youth Hub Admin (v1.2.47):
+  - **Dynamic Seasonal Theme (`public/admin/index.html`, `public/assets/admin.css`)**: Added `currentSeason()` detection setting `document.body.dataset.season` on load and removed the hardcoded `bg-[#FAF6EF]` body utility class so `body.admin-body` inherits the seasonal `--cream` background and `--scene` landscape artwork from `seasons.css` and `admin.css`.
+  - **Scenic Parallax Login View (`#login-view`)**: Updated `#login-view` to use `.parallax` with `<div class="scene-image" aria-hidden="true"></div>`, `<div class="scene-wash" aria-hidden="true"></div>`, and `.admin-login-card` (frosted glass card over radial cream-washed seasonal landscape), matching `youth.blackstoneward.org/admin`.
+  - **Dashboard Panoramic Parallax Hero Banner & Glass Header (`#dashboard-view`)**: Applied `.admin-hero-banner.parallax` with `.scene-image` and `.scene-wash` to the top dashboard hero banner, frosted glass styling (`bg-white/88 backdrop-blur-md`) to the sticky header and footer, and added `initAdminParallax()` with `prefers-reduced-motion: reduce` support.
 
 - Tithing Declaration (`/td`) Non-TD Interview & Private Open Slot Filtering (v1.2.46):
   - **Public Visibility Helpers (`isSlotTdOpen`, `isSlotTdInterview`, `isPublicVisibleSlot`, `getPublicTdScheduledCount`, `getPublicTdOpenCount` in `public/td/index.html`)**: Filters out non-TD scheduled appointments (slots assigned to Non-TD Interviewees with `isNonTdIndividual: true` or slots where `interviewTypes` does not include `'TD'`) and private/reserved open slots (`tdOpen === false`) from all public `/td/` views (`renderOverviewStrip()`, `renderSundayCards()`, `renderMonthCalendarView()`, `renderAlphabeticalView()`).

@@ -11,8 +11,17 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/assets/seasons.css">
-  <link rel="stylesheet" href="/assets/admin.css">
+  <link rel="stylesheet" href="/assets/admin.css?v=1.2.47">
   <script src="/security-config.js?v=1.2.5"></script>
+  <script>
+    function currentSeason() {
+      const month = new Date().getMonth() + 1;
+      return month === 12 || month <= 2 ? 'winter' : month <= 5 ? 'spring' : month <= 8 ? 'summer' : 'fall';
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.dataset.season = currentSeason();
+    });
+  </script>
   <style>
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -60,11 +69,13 @@
   </style>
 </head>
 
-<body class="admin-body bg-[#FAF6EF] text-[#152548] min-h-screen">
+<body class="admin-body text-[#152548] min-h-screen">
 
   <!-- ======================== LOGIN VIEW ======================== -->
-  <div id="login-view" class="min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white border border-[#E9DECE] rounded-2xl p-8 max-w-md w-full shadow-xl text-center">
+  <div id="login-view" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 parallax">
+    <div class="scene-image" aria-hidden="true"></div>
+    <div class="scene-wash" aria-hidden="true"></div>
+    <div class="admin-login-card">
       <div class="flex justify-center mb-4">
         <img src="/assets/ward-logo.png" alt="Blackstone Ward" class="w-16 h-20 object-contain">
       </div>
@@ -266,7 +277,7 @@
   <div id="dashboard-view" class="hidden min-h-screen flex flex-col">
 
     <!-- Header -->
-    <header class="bg-white border-b border-[#E9DECE] sticky top-0 z-30 shadow-xs">
+    <header class="bg-white/88 backdrop-blur-md border-b border-[#E9DECE] sticky top-0 z-30 shadow-xs">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <a href="/" class="flex items-center gap-2">
@@ -363,39 +374,43 @@
       <!-- ==================== SECTION: WARD CALENDAR ==================== -->
       <section id="section-calendar" class="space-y-6">
         <div
-          class="bg-white border border-[#E9DECE] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#007B91]"></span>
-              <span class="text-xs font-bold uppercase tracking-wider text-[#007B91]">Ward Events Feed</span>
+          class="admin-hero-banner parallax border border-[#E9DECE] rounded-2xl p-6 shadow-sm">
+          <div class="scene-image" aria-hidden="true"></div>
+          <div class="scene-wash" aria-hidden="true"></div>
+          <div class="admin-hero-content flex flex-col md:flex-row md:items-center justify-between gap-4 my-auto">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#007B91]"></span>
+                <span class="text-xs font-bold uppercase tracking-wider text-[#007B91]">Ward Events Feed</span>
+              </div>
+              <h2 class="text-xl font-bold text-[#152548]">Ward Calendar</h2>
+              <p class="text-xs text-[#536484] mt-0.5">Events created here automatically feed the Ward Homepage "Coming
+                Up" card and public Activity Calendar via Firestore collection <code
+                  class="bg-white/80 px-1 py-0.5 rounded font-mono text-[11px]">Ward_events</code>.</p>
             </div>
-            <h2 class="text-xl font-bold text-[#152548]">Ward Calendar</h2>
-            <p class="text-xs text-[#536484] mt-0.5">Events created here automatically feed the Ward Homepage "Coming
-              Up" card and public Activity Calendar via Firestore collection <code
-                class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">Ward_events</code>.</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2.5">
-            <button type="button" id="btn-import-youth"
-              class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-2xs transition active:scale-95 cursor-pointer"
-              title="Select events from Youth Hub to transfer to Ward Calendar">
-              <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-              <span>Transfer from Youth Hub</span>
-            </button>
-            <a href="/calendar/" target="_blank"
-              class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-[#152548] border border-[#E9DECE] transition flex items-center gap-1.5 cursor-pointer">
-              <span>View Public Calendar</span>
-              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
-            <button type="button" id="btn-add-event"
-              class="px-4 py-2 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95 cursor-pointer">
-              <span class="text-white font-bold">+ New Event</span>
-            </button>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button type="button" id="btn-import-youth"
+                class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-2xs transition active:scale-95 cursor-pointer"
+                title="Select events from Youth Hub to transfer to Ward Calendar">
+                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <span>Transfer from Youth Hub</span>
+              </button>
+              <a href="/calendar/" target="_blank"
+                class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/90 hover:bg-white text-[#152548] border border-[#E9DECE] transition flex items-center gap-1.5 cursor-pointer">
+                <span>View Public Calendar</span>
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+              <button type="button" id="btn-add-event"
+                class="px-4 py-2 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95 cursor-pointer">
+                <span class="text-white font-bold">+ New Event</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -785,11 +800,11 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-[#E9DECE] py-4 text-center text-xs text-[#536484] mt-auto">
+    <footer class="bg-white/88 backdrop-blur-md border-t border-[#E9DECE] py-4 text-center text-xs text-[#536484] mt-auto">
       <div class="max-w-7xl mx-auto px-4">
         <span>Blackstone Ward Administration Portal</span>
         <span class="mx-2">•</span>
-        <span id="footer-version">v1.2.33</span>
+        <span id="footer-version">v1.2.47</span>
       </div>
     </footer>
   </div>
@@ -1565,7 +1580,37 @@
     </div>
   </div>
 
-  <script type="module" src="/admin/admin-app.js?v=1.2.44"></script>
+  <script type="module" src="/admin/admin-app.js?v=1.2.47"></script>
+  <script>
+    // Parallax Engine for Admin
+    function initAdminParallax() {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const scenes = [...document.querySelectorAll('.parallax')];
+      let frameQueued = false;
+      function renderFrame() {
+        frameQueued = false;
+        const isMobile = window.innerWidth <= 760;
+        const speed = isMobile ? 0.18 : 0.35;
+        for (const scene of scenes) {
+          const layer = scene.querySelector('.scene-image');
+          if (!layer) continue;
+          const box = scene.getBoundingClientRect();
+          if (box.bottom < -160 || box.top > window.innerHeight + 160) continue;
+          const scrolled = Math.max(0, -box.top);
+          const offset = Math.min(150, scrolled * speed);
+          layer.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0)`;
+        }
+      }
+      function requestFrame() {
+        if (!frameQueued) { frameQueued = true; requestAnimationFrame(renderFrame); }
+      }
+      window.addEventListener('scroll', requestFrame, { passive: true });
+      window.addEventListener('resize', requestFrame, { passive: true });
+      requestFrame();
+    }
+    window.initAdminParallax = initAdminParallax;
+    document.addEventListener('DOMContentLoaded', initAdminParallax);
+  </script>
 </body>
 
 </html>

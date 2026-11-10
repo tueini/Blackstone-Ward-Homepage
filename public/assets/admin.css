@@ -59,6 +59,29 @@ body.admin-body {
   will-change: transform;
 }
 
+body[data-season="fall"] .parallax .scene-image {
+  background-image: url('/assets/autumn-landscape.png');
+}
+
+body[data-season="winter"] .parallax .scene-image {
+  background-image: url('/assets/winter-landscape.png');
+}
+
+body[data-season="spring"] .parallax .scene-image {
+  background-image: url('/assets/spring-landscape.png');
+}
+
+body[data-season="summer"] .parallax .scene-image {
+  background-image: url('/assets/summer-landscape.png');
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parallax .scene-image {
+    will-change: auto;
+    transform: none !important;
+  }
+}
+
 .parallax .scene-wash {
   position: absolute;
   inset: 0;
