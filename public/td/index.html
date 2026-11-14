@@ -264,7 +264,13 @@
               Clear
             </button>
           </div>
-          <span id="td-search-status" class="text-xs font-bold text-[#007B91] hidden"></span>
+          <div class="flex items-center gap-2.5 ml-auto">
+            <span id="td-search-status" class="text-xs font-bold text-[#007B91] hidden"></span>
+            <button type="button" id="btn-toggle-past-dates" aria-pressed="false"
+              class="hidden px-3.5 py-2 rounded-xl border border-[#E9DECE] bg-[#FAF6EF] hover:bg-slate-100 text-[#152548] text-xs font-semibold transition cursor-pointer whitespace-nowrap">
+              View Past Dates
+            </button>
+          </div>
         </div>
 
         <!-- Standard Tabbed Interface -->
@@ -517,7 +523,7 @@
         <span>•</span>
         <a href="/calendar/" class="hover:underline">Calendar</a>
         <span>•</span>
-        <span id="footer-version">v1.2.47</span>
+        <span id="footer-version">v1.2.48</span>
       </div>
     </div>
   </footer>
@@ -1119,6 +1125,7 @@
     let scheduleData = null;
     let activeSundayFilter = 'all'; // 'all' or ISO date e.g. '2026-11-01'
     let activeViewMode = 'cards';   // 'cards' | 'month' | 'az'
+    let showPastDates = false;
     let searchQuery = '';
     let loggedInHousehold = '';
     let activeSlotContext = null;
@@ -1220,12 +1227,16 @@
       return (sunday?.slots || []).filter(sl => isSlotTdOpen(sl)).length;
     }
 
-    function getActiveSundays() {
+    function getAllPublicSundays() {
       if (!scheduleData || !Array.isArray(scheduleData.sundays)) return [];
       return scheduleData.sundays
         .filter(s => Array.isArray(s.slots) && s.slots.some(sl => isPublicVisibleSlot(sl)))
         .slice()
         .sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
+    }
+
+    function getActiveSundays() {
+      return getAllPublicSundays().filter(s => showPastDates || !isPastScheduleDate(s.date));
     }
 
     function renderOverviewStrip() {
@@ -1475,28 +1486,50 @@
       });
 
       if (container.children.length === 0) {
-        container.innerHTML = `
-          <div class="lg:col-span-2 bg-white border border-[#E9DECE] rounded-3xl p-10 text-center space-y-3">
-            <p class="text-base font-bold text-[#152548]">No matching household or family member found for "${escapeHtml(searchQuery)}".</p>
-            <p class="text-xs text-[#536484]">Try searching by last name or click below to view the full schedule or request an appointment time.</p>
-            <div class="flex items-center justify-center gap-3 pt-2">
-              <button type="button" id="btn-empty-reset" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-[#152548] cursor-pointer">
-                Reset Search
-              </button>
-              <button type="button" id="btn-empty-request" class="px-4 py-2 rounded-xl bg-[#152548] text-white text-xs font-semibold cursor-pointer">
-                Request Appointment Time
-              </button>
+        if (!q && !showPastDates && getAllPublicSundays().some(s => isPastScheduleDate(s.date))) {
+          container.innerHTML = `
+            <div class="lg:col-span-2 bg-white border border-[#E9DECE] rounded-3xl p-10 text-center space-y-3">
+              <p class="text-base font-bold text-[#152548]">No upcoming interview dates remaining.</p>
+              <p class="text-xs text-[#536484]">Past interview dates are hidden by default. Click below to view past dates or request an alternate appointment time.</p>
+              <div class="flex items-center justify-center gap-3 pt-2">
+                <button type="button" id="btn-empty-view-past" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-[#152548] cursor-pointer">
+                  View Past Dates
+                </button>
+                <button type="button" id="btn-empty-request" class="px-4 py-2 rounded-xl bg-[#152548] text-white text-xs font-semibold cursor-pointer">
+                  Request Appointment Time
+                </button>
+              </div>
             </div>
-          </div>
-        `;
-        document.getElementById('btn-empty-reset')?.addEventListener('click', () => {
-          searchQuery = '';
-          activeSundayFilter = 'all';
-          const input = document.getElementById('td-family-search');
-          if (input) input.value = '';
-          renderAll();
-        });
-        document.getElementById('btn-empty-request')?.addEventListener('click', () => openChangeModal(null));
+          `;
+          document.getElementById('btn-empty-view-past')?.addEventListener('click', () => {
+            showPastDates = true;
+            renderAll();
+          });
+          document.getElementById('btn-empty-request')?.addEventListener('click', () => openChangeModal(null));
+        } else {
+          container.innerHTML = `
+            <div class="lg:col-span-2 bg-white border border-[#E9DECE] rounded-3xl p-10 text-center space-y-3">
+              <p class="text-base font-bold text-[#152548]">No matching household or family member found for "${escapeHtml(searchQuery)}".</p>
+              <p class="text-xs text-[#536484]">Try searching by last name or click below to view the full schedule or request an appointment time.</p>
+              <div class="flex items-center justify-center gap-3 pt-2">
+                <button type="button" id="btn-empty-reset" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-[#152548] cursor-pointer">
+                  Reset Search
+                </button>
+                <button type="button" id="btn-empty-request" class="px-4 py-2 rounded-xl bg-[#152548] text-white text-xs font-semibold cursor-pointer">
+                  Request Appointment Time
+                </button>
+              </div>
+            </div>
+          `;
+          document.getElementById('btn-empty-reset')?.addEventListener('click', () => {
+            searchQuery = '';
+            activeSundayFilter = 'all';
+            const input = document.getElementById('td-family-search');
+            if (input) input.value = '';
+            renderAll();
+          });
+          document.getElementById('btn-empty-request')?.addEventListener('click', () => openChangeModal(null));
+        }
       }
 
       updateSearchStatusBadge(totalMatches);
@@ -1896,6 +1929,18 @@
 
     function renderAll() {
       if (!scheduleData) return;
+      const allPublicSundays = getAllPublicSundays();
+      const hasPastDates = allPublicSundays.some(s => isPastScheduleDate(s.date));
+      const pastToggleBtn = document.getElementById('btn-toggle-past-dates');
+      if (pastToggleBtn) {
+        pastToggleBtn.setAttribute('aria-pressed', showPastDates ? 'true' : 'false');
+        pastToggleBtn.textContent = showPastDates ? 'Hide Past Dates' : 'View Past Dates';
+        pastToggleBtn.className = showPastDates
+          ? 'px-3.5 py-2 rounded-xl border border-[#152548] bg-[#152548] text-white text-xs font-semibold transition cursor-pointer whitespace-nowrap'
+          : 'px-3.5 py-2 rounded-xl border border-[#E9DECE] bg-[#FAF6EF] hover:bg-slate-100 text-[#152548] text-xs font-semibold transition cursor-pointer whitespace-nowrap';
+        if (!hasPastDates) pastToggleBtn.classList.add('hidden');
+      }
+
       const activeSundays = getActiveSundays();
       if (activeSundayFilter !== 'all' && !activeSundays.some(s => s.date === activeSundayFilter)) {
         activeSundayFilter = 'all';
@@ -2474,6 +2519,12 @@
       // Strip show-all button
       document.getElementById('btn-strip-show-all')?.addEventListener('click', () => {
         activeSundayFilter = 'all';
+        renderAll();
+      });
+
+      // Toggle past dates button
+      document.getElementById('btn-toggle-past-dates')?.addEventListener('click', () => {
+        showPastDates = !showPastDates;
         renderAll();
       });
 

@@ -1,14 +1,18 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.47
-**Date:** November 10, 2026
+**Version:** 1.2.48
+**Date:** November 14, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.47 deployed to staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`) and live production (`blackstoneward.org` / `blackstoneward.web.app`). Updated `blackstoneward.org/admin/` (`public/admin/index.html` and `public/assets/admin.css`) to match the seasonal scenic parallax background style of `youth.blackstoneward.org/admin`, including dynamic season detection (`document.body.dataset.season`), full-screen scenic parallax login gate (`#login-view` with `.scene-image`, `.scene-wash`, and `.admin-login-card`), panoramic parallax hero banner (`.admin-hero-banner.parallax`), frosted glass header/footer, and `initAdminParallax()`.
+**State:** Version 1.2.48 deployed to staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`) and live production (`blackstoneward.org` / `blackstoneward.web.app`). Updated Tithing Declaration (`/td/index.html`) to hide past interview dates by default and added a `"View Past Dates"` toggle button (`#btn-toggle-past-dates`) at the top right above the tab rule.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Tithing Declaration (`/td`) Hide Past Dates & Toggle Button (v1.2.48):
+  - **Hide Past Dates by Default (`public/td/index.html`)**: Split `getAllPublicSundays()` and `getActiveSundays()` so past interview dates (`isPastScheduleDate(s.date)`) are excluded from the overview strip, interview date cards, month calendar chips, and A–Z family directory when `showPastDates` is `false`.
+  - **`View Past Dates` Toggle (`#btn-toggle-past-dates` in `public/td/index.html`)**: Added a toggle button at the top right of the search/navigation card directly above the tab rule (`.border-b-2`) that switches between `"View Past Dates"` and `"Hide Past Dates"` when past dates exist in the schedule.
 
 - Ward Admin Portal (`/admin`) Scenic Parallax Background Matching Youth Hub Admin (v1.2.47):
   - **Dynamic Seasonal Theme (`public/admin/index.html`, `public/assets/admin.css`)**: Added `currentSeason()` detection setting `document.body.dataset.season` on load and removed the hardcoded `bg-[#FAF6EF]` body utility class so `body.admin-body` inherits the seasonal `--cream` background and `--scene` landscape artwork from `seasons.css` and `admin.css`.

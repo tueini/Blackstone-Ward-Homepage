@@ -1,5 +1,13 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.48 — November 14, 2026
+
+- After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.48.
+- **Hide Past Dates & Add `View Past Dates` Toggle on `/td/` (`public/td/index.html`)**:
+  - Added `showPastDates` state (default `false`) and updated `getActiveSundays()` via `getAllPublicSundays()` so past interview dates are hidden by default across the overview strip, interview date cards, month calendar view, and A–Z family directory (while keeping past-date login verification and reschedule lookup functional).
+  - Added the `#btn-toggle-past-dates` (`"View Past Dates"` / `"Hide Past Dates"`) button at the top right above the tab rule when past dates exist in the schedule, plus a fallback empty-state prompt when all scheduled dates are in the past.
+- Synchronized package, content, HTML, and asset version references to v1.2.48.
+
 ## 1.2.47 — November 10, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.47.
