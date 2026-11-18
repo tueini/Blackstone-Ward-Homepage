@@ -1,4 +1,5 @@
-import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.48';
+import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.49';
+import { loginWithCloudPasskey } from './passkey-client.js?v=1.2.49';
 document.body.classList.add('js-ready');
 
 const seasonNames = { fall: 'Fall · Light beige', winter: 'Winter · Light blue', spring: 'Spring · Light green', summer: 'Summer · Light yellow' };
@@ -534,35 +535,22 @@ function initBishopricLockGate() {
         return;
       }
       const typedMember = findBishopricMember(nameInput?.value);
-      let savedCred = null;
       try {
-        const raw = localStorage.getItem('wardPasskeyRegistered');
-        if (raw) savedCred = JSON.parse(raw);
-      } catch { /* ignore */ }
-      if (!savedCred) {
-        try {
-          const match = document.cookie.match(/(?:^|;\s*)ward_passkey_cred=([^;]*)/);
-          if (match) savedCred = JSON.parse(decodeURIComponent(match[1]));
-        } catch { /* ignore */ }
-      }
-      const targetMember = typedMember || findBishopricMember(savedCred?.profile?.displayName || '') || BISHOPRIC_ROSTER[0];
-      const rpId = location.hostname.endsWith('blackstoneward.org') ? 'blackstoneward.org' : location.hostname;
-      try {
-        const challenge = new Uint8Array(32);
-        crypto.getRandomValues(challenge);
-        const publicKey = { challenge, timeout: 60000, userVerification: 'required', rpId };
-        if (savedCred?.rawId && Array.isArray(savedCred.rawId)) {
-          publicKey.allowCredentials = [{ id: new Uint8Array(savedCred.rawId), type: 'public-key', transports: ['internal', 'hybrid'] }];
-        }
-        const assertion = await navigator.credentials.get({ publicKey });
-        if (assertion) {
-          writeBishopricSSOCookie(targetMember);
+        const result = await loginWithCloudPasskey({
+          leaderName: typedMember?.displayName || '',
+          requiredRole: 'bishopric'
+        });
+        if (result?.verified && result.profile) {
+          const matchedMember = findBishopricMember(result.profile.displayName) || result.profile;
+          writeBishopricSSOCookie(matchedMember);
           dialog.close();
           location.href = pendingBishopricDestination;
         }
       } catch (err) {
         if (err?.name !== 'AbortError' && passkeyHint) {
-          passkeyHint.textContent = 'No passkey found on this device yet. Please enter your Bishopric name and password below.';
+          passkeyHint.textContent = err?.status === 403
+            ? err.message
+            : 'No passkey found on this device yet. Please enter your Bishopric name and password below.';
           passkeyHint.hidden = false;
         }
       }

@@ -1,14 +1,19 @@
 # Blackstone Ward homepage project state
 
-**Version:** 1.2.48
-**Date:** November 14, 2026
+**Version:** 1.2.49
+**Date:** November 18, 2026
 **Workspace:** Website-New, explicitly requested by the user
-**State:** Version 1.2.48 deployed to staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`) and live production (`blackstoneward.org` / `blackstoneward.web.app`). Updated Tithing Declaration (`/td/index.html`) to hide past interview dates by default and added a `"View Past Dates"` toggle button (`#btn-toggle-past-dates`) at the top right above the tab rule.
+**State:** Version 1.2.49 deployed to staging (`test.blackstoneward.org` / `test-blackstoneward.web.app`) and live production (`blackstoneward.org` / `blackstoneward.web.app`) along with the shared Firebase Cloud Function `passkeyApi` (`https://us-central1-blackstoneward-b861c.cloudfunctions.net/passkeyApi`). Upgraded passkey (WebAuthn) authentication in `BW_Home` (`/admin/`, Homepage Bishopric lock, and `/music/`) to use `passkeyApi` (`functions/index.js` + `public/js/passkey-client.js`), enabling server-verified challenges/signatures, Firestore-backed cross-device passkeys (`ward_passkeys` & `webauthn_challenges`), and Firebase custom auth tokens.
 **Production URL:** https://blackstoneward.org/
 **Staging target:** test.blackstoneward.org (test-blackstoneward Hosting site)
 **GitHub Repository:** https://github.com/tueini/Blackstone-Ward-Homepage (branch: `main`)
 
 ## Implemented
+
+- Shared WebAuthn Cloud Function (`passkeyApi`) & `BW_Home` Passkey Upgrade (v1.2.49):
+  - **Cloud Function Backend (`functions/index.js`, `functions/package.json`, `firebase.json`)**: Added Firebase Functions v2 HTTPS endpoint `passkeyApi` using `@simplewebauthn/server` and `firebase-admin` with `/register/options`, `/register/verify`, `/login/options`, and `/login/verify`. Stores single-use challenges in `webauthn_challenges`, verified public-key credentials in `ward_passkeys`, refreshes leader roles from `ward_leaders`, enforces Bishopric-only checks when `requiredRole === 'bishopric'`, and mints Firebase Custom Auth tokens.
+  - **Shared Browser Client (`public/js/passkey-client.js`)**: Added `enrollCloudPasskey()` and `loginWithCloudPasskey()` calling `https://us-central1-blackstoneward-b861c.cloudfunctions.net/passkeyApi` with CORS enabled for all `*.blackstoneward.org` hubs.
+  - **Upgraded `BW_Home` Gates (`public/admin/admin-app.js`, `public/js/home.js`, `public/js/music-coordinator.js`)**: Replaced client-only `localStorage` WebAuthn challenges with server-verified Cloud Function enrollment and sign-in (including `signInWithCustomToken()`).
 
 - Tithing Declaration (`/td`) Hide Past Dates & Toggle Button (v1.2.48):
   - **Hide Past Dates by Default (`public/td/index.html`)**: Split `getAllPublicSundays()` and `getActiveSundays()` so past interview dates (`isPastScheduleDate(s.date)`) are excluded from the overview strip, interview date cards, month calendar chips, and A–Z family directory when `showPastDates` is `false`.

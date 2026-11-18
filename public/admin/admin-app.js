@@ -15,9 +15,11 @@ import {
   getAuth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  signInWithCustomToken,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { enrollCloudPasskey, loginWithCloudPasskey } from "../js/passkey-client.js?v=1.2.49";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDrWB07WNqObtjiZb_NntJQZ0dhHyLRBas",
@@ -758,32 +760,16 @@ async function initPasskeyAutofill() {
 
     passkeyAutofillAbortController = new AbortController();
 
-    const challenge = new Uint8Array(32);
-    crypto.getRandomValues(challenge);
-
-    const assertion = await navigator.credentials.get({
-      mediation: 'conditional',
+    const result = await loginWithCloudPasskey({
       signal: passkeyAutofillAbortController.signal,
-      publicKey: {
-        challenge: challenge,
-        timeout: 60000,
-        userVerification: "preferred",
-        rpId: getWebAuthnRpId()
-      }
+      mediation: 'conditional'
     });
 
-    if (assertion) {
-      let profile = null;
-      const saved = localStorage.getItem('wardPasskeyRegistered');
-      if (saved) {
-        try {
-          const data = JSON.parse(saved);
-          if (data && data.profile) profile = data.profile;
-        } catch (_) { }
+    if (result?.verified && result.profile) {
+      if (result.customToken) {
+        await signInWithCustomToken(auth, result.customToken).catch(() => { });
       }
-      if (!profile) {
-        profile = { displayName: "Duane Harris", email: "tueini@gmail.com", phoneNumber: "(508) 494-0905", role: "admin" };
-      }
+      const profile = result.profile;
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
       sessionStorage.setItem('wardAdminAuth', 'true');
       setSSOCookie(profile);
@@ -808,41 +794,16 @@ async function handleEnrollPasskey() {
   if (!profile) profile = { displayName: "Ward Leader", role: "admin", phoneNumber: "admin" };
 
   try {
-    const challenge = new Uint8Array(32);
-    crypto.getRandomValues(challenge);
+    const result = await enrollCloudPasskey(profile);
 
-    const rpId = getWebAuthnRpId();
-    const credential = await navigator.credentials.create({
-      publicKey: {
-        challenge: challenge,
-        rp: { name: "Blackstone Ward Hub", id: rpId },
-        user: {
-          id: new TextEncoder().encode(profile.phoneNumber || "admin"),
-          name: profile.phoneNumber || "admin",
-          displayName: profile.displayName || "Ward Leader"
-        },
-        pubKeyCredParams: [
-          { alg: -7, type: "public-key" },
-          { alg: -257, type: "public-key" }
-        ],
-        authenticatorSelection: {
-          authenticatorAttachment: "platform",
-          userVerification: "preferred",
-          residentKey: "preferred"
-        },
-        timeout: 60000
-      }
-    });
-
-    if (credential) {
+    if (result?.verified) {
       localStorage.setItem('wardPasskeyRegistered', JSON.stringify({
-        id: credential.id,
-        rawId: credential.rawId ? Array.from(new Uint8Array(credential.rawId)) : null,
-        profile: profile,
-        rpId: rpId,
+        id: result.credentialId,
+        profile: result.profile || profile,
+        rpId: getWebAuthnRpId(),
         enrolledAt: new Date().toISOString()
       }));
-      alert(`${getPlatformBiometricName()} successfully enabled for this device!`);
+      alert(`${getPlatformBiometricName()} successfully enabled for all Blackstone Ward hubs!`);
       const btn = document.getElementById('btn-enroll-passkey');
       if (btn) btn.classList.add('hidden');
       const promptModal = document.getElementById('passkey-prompt-modal');
@@ -890,46 +851,19 @@ async function handlePasskeyLogin() {
   }
 
   try {
-    const challenge = new Uint8Array(32);
-    crypto.getRandomValues(challenge);
+    const typedName = (
+      document.getElementById('admin-name-lookup')?.value ||
+      document.getElementById('password-leader-lookup')?.value ||
+      ''
+    ).trim();
 
-    const rpId = getWebAuthnRpId();
-    const publicKeyOpts = {
-      challenge: challenge,
-      timeout: 60000,
-      userVerification: "preferred",
-      rpId: rpId
-    };
+    const result = await loginWithCloudPasskey({ leaderName: typedName });
 
-    const saved = localStorage.getItem('wardPasskeyRegistered');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed?.rawId && Array.isArray(parsed.rawId)) {
-          publicKeyOpts.allowCredentials = [{
-            id: new Uint8Array(parsed.rawId),
-            type: 'public-key',
-            transports: ['internal']
-          }];
-        }
-      } catch (_) { }
-    }
-
-    const assertion = await navigator.credentials.get({
-      publicKey: publicKeyOpts
-    });
-
-    if (assertion) {
-      let profile = null;
-      if (saved) {
-        try {
-          const data = JSON.parse(saved);
-          if (data && data.profile) profile = data.profile;
-        } catch (_) { }
+    if (result?.verified && result.profile) {
+      if (result.customToken) {
+        await signInWithCustomToken(auth, result.customToken).catch(() => { });
       }
-      if (!profile) {
-        profile = { displayName: "Duane Harris", email: "tueini@gmail.com", phoneNumber: "(508) 494-0905", role: "admin" };
-      }
+      const profile = result.profile;
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
       sessionStorage.setItem('wardAdminAuth', 'true');
       setSSOCookie(profile);

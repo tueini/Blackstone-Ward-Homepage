@@ -45,7 +45,7 @@ assert.ok(!app.includes('addDoc(') && !app.includes('setDoc(') && !app.includes(
 const hosting = JSON.parse(fs.readFileSync(path.join(root, 'firebase.json'), 'utf8'));
 const hostingConfigs = Array.isArray(hosting.hosting) ? hosting.hosting : [hosting.hosting];
 assert.ok(hostingConfigs.length > 0 && hostingConfigs.every(h => ['staging', 'blackstoneward'].includes(h?.target)), 'Hosting target must be staging or blackstoneward');
-assert.ok(!hosting.firestore && !hosting.functions, 'Homepage deployment must not include rules or functions');
+assert.ok(!hosting.firestore, 'Homepage deployment must not include Firestore rules');
 for (const relHtml of ['index.html', 'td/index.html', 'music/index.html', 'calendar/index.html', 'spotlights/index.html', 'admin/index.html']) {
   const fullPath = path.join(publicDir, relHtml);
   if (!fs.existsSync(fullPath)) continue;

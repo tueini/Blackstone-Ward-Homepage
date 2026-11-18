@@ -1,5 +1,14 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.49 — November 18, 2026
+
+- After explicit approval, deployed `functions:passkeyApi` (`https://us-central1-blackstoneward-b861c.cloudfunctions.net/passkeyApi`, Node.js 22 2nd Gen), live production Hosting (`blackstoneward` / `blackstoneward.org`), and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.49.
+- **Shared WebAuthn Cloud Function (`passkeyApi`) & `BW_Home` Passkey Upgrade (`functions/index.js`, `public/js/passkey-client.js`, `public/admin/admin-app.js`, `public/js/home.js`, `public/js/music-coordinator.js`)**:
+  - Created Firebase Cloud Function v2 `passkeyApi` (`functions/index.js`) using `@simplewebauthn/server` with `/register/options`, `/register/verify`, `/login/options`, and `/login/verify`, CORS support for all `*.blackstoneward.org` hubs, Firestore challenge/credential storage (`webauthn_challenges`, `ward_passkeys`), live `ward_leaders` role lookup, and Firebase Custom Auth token minting.
+  - Added `public/js/passkey-client.js` and upgraded `/admin/`, the Homepage Bishopric lock (`#bishopric-lock-dialog`), and `/music/` to use server-verified cloud passkeys.
+  - Updated `firebase.json` and `scripts/check-site.js` to allow the shared `functions` codebase while preserving the Firestore rules guardrail.
+- Synchronized package, content, HTML, and asset version references to v1.2.49.
+
 ## 1.2.48 — November 14, 2026
 
 - After explicit approval, deployed to live production Hosting (`blackstoneward` / `blackstoneward.org`) and beta Hosting (`test-blackstoneward` / `test.blackstoneward.org`). Verified live delivery of v1.2.48.

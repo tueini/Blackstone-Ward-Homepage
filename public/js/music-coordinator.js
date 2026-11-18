@@ -11,8 +11,10 @@ import {
 import {
   getAuth,
   RecaptchaVerifier,
-  signInWithPhoneNumber
+  signInWithPhoneNumber,
+  signInWithCustomToken
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { loginWithCloudPasskey } from "./passkey-client.js?v=1.2.49";
 
 // ======================== FIREBASE CONFIGURATION ========================
 const firebaseConfig = {
@@ -610,97 +612,34 @@ function initMusicLoginGate() {
         return;
       }
 
-      const resolveTargetMember = (savedPasskey) => {
-        const typedName =
-          (document.getElementById("music-gate-name")?.value || "").trim() ||
-          (document.getElementById("music-sms-name")?.value || "").trim();
-        if (typedName) {
-          const fromTyped = findAuthorizedMusicUser(typedName);
-          if (fromTyped) return fromTyped;
-        }
-        if (savedPasskey?.profile?.displayName) {
-          const fromPasskey = findAuthorizedMusicUser(savedPasskey.profile.displayName);
-          if (fromPasskey) return fromPasskey;
-        }
-        const sso = readSSOCookie();
-        if (sso) {
-          const fromSso = findAuthorizedMusicUser(sso.displayName || sso.name || "");
-          if (fromSso) return fromSso;
-        }
-        try {
-          const lastMem = JSON.parse(localStorage.getItem("musicLastMember") || localStorage.getItem("bishopricLastMember") || "null");
-          if (lastMem?.name) {
-            const fromLast = findAuthorizedMusicUser(lastMem.name);
-            if (fromLast) return fromLast;
-          }
-        } catch (_) {}
-        return MUSIC_AUTHORIZED_ROSTER[0];
-      };
-
-      const rpId = window.location.hostname.endsWith("blackstoneward.org") ? "blackstoneward.org" : window.location.hostname;
-      const savedPasskey = readSavedPasskeyData();
-      const targetMember = resolveTargetMember(savedPasskey);
-
-      if (savedPasskey?.rawId && Array.isArray(savedPasskey.rawId)) {
-        try {
-          const challenge = new Uint8Array(32);
-          crypto.getRandomValues(challenge);
-          const assertion = await navigator.credentials.get({
-            publicKey: {
-              challenge,
-              timeout: 60000,
-              userVerification: "required",
-              rpId,
-              allowCredentials: [{
-                id: new Uint8Array(savedPasskey.rawId),
-                type: "public-key",
-                transports: ["internal", "hybrid"]
-              }]
-            }
-          });
-          if (assertion) {
-            unlockMusicPlanner(targetMember);
-            return;
-          }
-        } catch (getErr) {
-          if (getErr?.name === "AbortError") return;
-        }
-      }
+      const typedName =
+        (document.getElementById("music-gate-name")?.value || "").trim() ||
+        (document.getElementById("music-sms-name")?.value || "").trim();
+      const typedMember = typedName ? findAuthorizedMusicUser(typedName) : null;
 
       try {
-        const challenge = new Uint8Array(32);
-        crypto.getRandomValues(challenge);
-        const userIdBytes = new TextEncoder().encode(targetMember.id || "mio_cowden");
-        const cred = await navigator.credentials.create({
-          publicKey: {
-            challenge,
-            rp: { name: "Blackstone Ward Music Planner", id: rpId },
-            user: {
-              id: userIdBytes,
-              name: targetMember.email || `${targetMember.id}@blackstoneward.org`,
-              displayName: targetMember.name
-            },
-            pubKeyCredParams: [
-              { type: "public-key", alg: -7 },
-              { type: "public-key", alg: -257 }
-            ],
-            authenticatorSelection: {
-              authenticatorAttachment: "platform",
-              userVerification: "required",
-              residentKey: "preferred"
-            },
-            timeout: 60000
-          }
+        const result = await loginWithCloudPasskey({
+          leaderName: typedMember?.name || ""
         });
-        if (cred && cred.rawId) {
-          const rawIdArr = Array.from(new Uint8Array(cred.rawId));
-          writeSavedPasskeyData(rawIdArr, targetMember);
-          unlockMusicPlanner(targetMember);
+        if (result?.verified && result.profile) {
+          const matchedMember = findAuthorizedMusicUser(result.profile.displayName || result.profile.name || "");
+          if (!matchedMember) {
+            if (passkeyHint) {
+              passkeyHint.textContent = "This passkey is not authorized for the Ward Music Planner.";
+              passkeyHint.classList.remove("hidden");
+            }
+            return;
+          }
+          if (result.customToken) {
+            await signInWithCustomToken(auth, result.customToken).catch(() => { });
+          }
+          unlockMusicPlanner(matchedMember);
           return;
         }
-      } catch (_) {
+      } catch (err) {
+        if (err?.name === "AbortError") return;
         if (passkeyHint) {
-          passkeyHint.textContent = "Touch ID / Face ID verification was cancelled or unavailable. Please use Password or Phone verification below.";
+          passkeyHint.textContent = "No cloud passkey found on this device yet. Please sign in with Password or Phone SMS below.";
           passkeyHint.classList.remove("hidden");
         }
       }
