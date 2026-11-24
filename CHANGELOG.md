@@ -1,7 +1,7 @@
 # Blackstone Ward homepage changelog
 
-## Functions 1.3.0 — prepared 2026-11-24, NOT deployed
-- `functions/changeRequestNotify.js` (and export from `functions/index.js`): emails the Ward Clerk when a change request is opened, and the requester when it is closed, by writing a `mail` doc for the existing Trigger Email extension. Needs its own deploy approval (`firebase deploy --only functions:changeRequestNotify`). Home site remains 1.2.95.
+## Functions 1.3.0 — LIVE 2026-11-24 3:15:26 PM ET (Duane t478u 3:11 PM ET "Approved to go live.")
+- `functions/changeRequestNotify.js` (and export from `functions/index.js`): emails the Ward Clerk when a change request is opened, and the requester when it is closed, by writing a `mail` doc for the existing Trigger Email extension. Deployed `--only functions:changeRequestNotify --project blackstoneward-b861c` (nothing else). ACTIVE, us-central1, nodejs22, Firestore written trigger on `change_requests/{requestId}`. Home site remains 1.2.95.
 
 ## 1.2.95 — November 23, 2026 (Code Complete ~10:42 PM ET; test (hosting:staging) 10:39 PM ET, test now serves Bish 1.1.78; PRODUCTION 2026-11-23 11:25 PM ET (Duane approved 11:24 PM ET). Duane chat 10:23 / 10:24 / 10:27 PM ET)
 - **Music Planner** (`public/js/music-coordinator.js`, same code as Bish 1.1.78 apart from the known prefill-helper spot and version comments): four meeting types.
