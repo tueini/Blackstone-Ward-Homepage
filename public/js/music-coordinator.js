@@ -17,7 +17,7 @@ import {
   signInWithCustomToken,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { loginWithCloudPasskey } from "./passkey-client.js?v=1.2.94";
+import { loginWithCloudPasskey } from "./passkey-client.js?v=1.2.95";
 
 // ======================== FIREBASE CONFIGURATION ========================
 const firebaseConfig = {
@@ -34,7 +34,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const MUSIC_PLANNER_VERSION = "1.2.94";
+const MUSIC_PLANNER_VERSION = "1.2.95";
 { const gv = document.getElementById("music-gate-version-label"); if (gv) gv.textContent = `Music Planner • Version ${MUSIC_PLANNER_VERSION}`; } // v1.2.83: version on sign-in screen
 
 const BISHOPRIC_IDS = new Set([
@@ -1042,14 +1042,95 @@ function ensureAllAvailableSacramentYearsInitialized() {
   });
 }
 
-function isNoWardSacramentMeetingType(mType) {
-  const clean = String(mType || "Standard").trim();
-  return (
-    clean === "Stake Conference" ||
-    clean === "General Conference" ||
-    clean === "No Ward Sacrament"
-  );
+// BEGIN meeting-kind helpers (Bish 1.1.78 / Home 1.2.95, Duane 10:23-10:27 PM ET 2026-11-23). Keep this block identical in
+// BW_Bish bishopric-hub.js and both music-coordinator.js copies (BW_Platform test 21 checks it).
+// Four meeting types: Standard, Fast & Testimony (stored as "Fast Sunday"), Special, No Ward Sacrament. Older stored types are
+// mapped when read; a Sunday's record is only rewritten when someone saves it, and the old name moves into the new field:
+//   Stake Conference / General Conference / Special Stake Meeting -> No Ward Sacrament (reason = the old name)
+//   Ward Conference / Primary Program / Christmas Program / Easter Program / any other name -> Special (description = the old name)
+const MEETING_KIND_STANDARD = "Standard";
+const MEETING_KIND_FAST = "Fast Sunday";
+const MEETING_KIND_SPECIAL = "Special";
+const MEETING_KIND_NO_WARD = "No Ward Sacrament";
+const LEGACY_NO_WARD_MEETING_TYPES = ["Stake Conference", "General Conference", "Special Stake Meeting"];
+function getMeetingKindInfo(s) {
+  const t = String(s?.meetingType || "").trim();
+  if (!t || t === MEETING_KIND_STANDARD) return { kind: MEETING_KIND_STANDARD, reason: "", description: "" };
+  if (t === MEETING_KIND_FAST || t === "Fast & Testimony") return { kind: MEETING_KIND_FAST, reason: "", description: "" };
+  if (t === MEETING_KIND_NO_WARD) return { kind: MEETING_KIND_NO_WARD, reason: String(s?.noWardReason || "").trim(), description: "" };
+  if (LEGACY_NO_WARD_MEETING_TYPES.includes(t)) {
+    return { kind: MEETING_KIND_NO_WARD, reason: String(s?.noWardReason || "").trim() || t, description: "" };
+  }
+  if (t === MEETING_KIND_SPECIAL) return { kind: MEETING_KIND_SPECIAL, reason: "", description: String(s?.specialDescription || "").trim() };
+  return { kind: MEETING_KIND_SPECIAL, reason: "", description: String(s?.specialDescription || "").trim() || t };
 }
+function getMeetingTypeLabel(s) {
+  const k = getMeetingKindInfo(s);
+  if (k.kind === MEETING_KIND_FAST) return "Fast & Testimony";
+  if (k.kind === MEETING_KIND_NO_WARD) return k.reason ? `No Ward Sacrament: ${k.reason}` : "No Ward Sacrament";
+  if (k.kind === MEETING_KIND_SPECIAL) return k.description ? `Special: ${k.description}` : "Special";
+  return "Standard";
+}
+function isNoWardSacramentMeetingType(mType) {
+  return getMeetingKindInfo({ meetingType: mType }).kind === MEETING_KIND_NO_WARD;
+}
+// Special meeting with "Program Run by" on: no speakers or music between the Sacrament Hymn and the Closing Hymn.
+function isProgramRunByOrg(s) {
+  return getMeetingKindInfo(s).kind === MEETING_KIND_SPECIAL && !!s?.programRunBy;
+}
+function getProgramRunByText(s) {
+  const org = String(s?.programRunByOrg || "").trim();
+  return `Speakers and Musical numbers to be provided by ${org || "(organization not entered yet)"}`;
+}
+// Special meetings: any number of slots (Hymn or Musical Number) between the Sacrament Hymn and the Closing Hymn.
+// Until a Special Sunday is saved with slots, its one intermediate hymn / musical number shows as the first slot.
+function getSpecialMusicSlots(s) {
+  const norm = x => ({
+    type: x && x.type === "musical_number" ? "musical_number" : "hymn",
+    hymn: String(x?.hymn || ""),
+    musicalNumber: String(x?.musicalNumber || "")
+  });
+  if (Array.isArray(s?.specialMusicSlots)) return s.specialMusicSlots.map(norm);
+  const iType = s?.intermediateType || "hymn";
+  if (iType === "none") return [];
+  if (iType === "musical_number") return [norm({ type: "musical_number", musicalNumber: s?.musicalNumber })];
+  return [norm({ type: "hymn", hymn: s?.intermediateHymn })];
+}
+// Saves the slots and copies the first one into the older intermediate fields, which earlier app versions read.
+function mirrorSpecialSlotsToIntermediate(s, slots) {
+  s.specialMusicSlots = slots;
+  const first = slots[0];
+  s.intermediateType = first ? first.type : "none";
+  if (first && first.type === "hymn") s.intermediateHymn = first.hymn;
+  if (first && first.type === "musical_number") s.musicalNumber = first.musicalNumber;
+}
+// Closing music: Closing Hymn / Musical Number / None on Special meetings; always the Closing Hymn otherwise.
+function getClosingMusicType(s) {
+  if (getMeetingKindInfo(s).kind !== MEETING_KIND_SPECIAL) return "hymn";
+  const t = s?.closingType;
+  return t === "musical_number" || t === "none" ? t : "hymn";
+}
+function getClosingMusicPlain(s) {
+  const t = getClosingMusicType(s);
+  if (t === "musical_number") return { label: "Closing Musical Number:", value: s?.closingMusicalNumber || "TBD" };
+  if (t === "none") return { label: "Closing Music:", value: "None" };
+  return { label: "Closing Hymn:", value: s?.closingHymn || "TBD" };
+}
+// Program lines for the music between the Sacrament Hymn and the Closing Hymn ("Label: value").
+function getMiddleMusicPlainLines(s) {
+  const k = getMeetingKindInfo(s);
+  if (k.kind === MEETING_KIND_FAST) return [];
+  if (k.kind === MEETING_KIND_SPECIAL) {
+    if (s?.programRunBy) return [];
+    return getSpecialMusicSlots(s).map(x => x.type === "musical_number"
+      ? `Musical Number: ${x.musicalNumber || "TBD"}`
+      : `Hymn: ${x.hymn || "TBD"}`);
+  }
+  if (s?.intermediateType === "musical_number") return [`Musical Number: ${s.musicalNumber || "TBD"}`];
+  if (s?.intermediateType === "none") return ["Intermediate Music: None"];
+  return [`Intermediate Hymn: ${s?.intermediateHymn || "TBD"}`];
+}
+// END meeting-kind helpers
 
 function getNextWardSacramentSundayKey(todayIso = getTodayIsoEastern()) {
   const sortedDates = Object.keys(sundaysMap).sort();
@@ -1384,9 +1465,8 @@ function renderMusicPlanner() {
       const dStr = s.date;
       const isSel = dStr === selectedMusicSundayDate;
       const isPastSunday = dStr < todayIso;
-      const mType = s.meetingType || "Standard";
-      const isStandardType = mType === "Standard"; // v1.2.89: footer shows the meeting type
-      const mTypeLabel = isStandardType ? "Standard Sunday" : mType;
+      const isStandardType = getMeetingKindInfo(s).kind === MEETING_KIND_STANDARD; // v1.2.89: footer shows the meeting type
+      const mTypeLabel = isStandardType ? "Standard Sunday" : getMeetingTypeLabel(s); // Bish 1.1.78 / Home 1.2.95: four types
       const tabClass = isSel
         ? "relative z-20 border-t-4 border-t-[#007B91] border-x-2 border-x-[#152548] border-b-0 bg-white rounded-t-2xl rounded-b-none pb-4"
         : isPastSunday
@@ -1434,9 +1514,13 @@ function renderMusicPlanner() {
   containerEl.innerHTML = monthSundays.map((s, idx) => {
     const dStr = s.date;
     const nthLabel = `${idx + 1}${idx === 0 ? "st" : idx === 1 ? "nd" : idx === 2 ? "rd" : "th"} Sunday`;
-    const mType = s.meetingType || "Standard";
-    const noWardSac = isNoWardSacramentMeetingType(mType);
-    const isFastSunday = mType === "Fast Sunday";
+    const mKind = getMeetingKindInfo(s); // Bish 1.1.78 / Home 1.2.95: four meeting types (legacy names mapped)
+    const mType = getMeetingTypeLabel(s);
+    const noWardSac = mKind.kind === MEETING_KIND_NO_WARD;
+    const isFastSunday = mKind.kind === MEETING_KIND_FAST;
+    const isSpecialMeeting = mKind.kind === MEETING_KIND_SPECIAL;
+    const programRunBy = isProgramRunByOrg(s);
+    const closingType = getClosingMusicType(s);
     const isPastSunday = dStr < todayIso;
     const iType = s.intermediateType || "hymn";
 
@@ -1459,7 +1543,7 @@ function renderMusicPlanner() {
           </div>
 
           <p class="text-sm sm:text-base font-bold text-red-700 py-1">
-            No ward sacrament service on this Sunday
+            ${escapeHtml(mKind.reason ? mType : "No ward sacrament service on this Sunday")}
           </p>
         </article>
       `;
@@ -1598,8 +1682,10 @@ function renderMusicPlanner() {
           </div>
         </div>
 
-        <!-- Row 4: Intermediate Hymn / Special Musical Number (Hidden on Fast Sunday) -->
-        <div class="${isFastSunday ? "hidden" : ""} p-4 rounded-2xl bg-[#FAF6EF]/80 border border-[#E9DECE] space-y-3">
+        ${isSpecialMeeting ? renderMusicSpecialSlotsBlock(s, dStr, programRunBy) : ""}
+
+        <!-- Row 4: Intermediate Hymn / Special Musical Number (Hidden on Fast Sunday; Special meetings use the slots above) -->
+        <div class="${isFastSunday || isSpecialMeeting ? "hidden" : ""} p-4 rounded-2xl bg-[#FAF6EF]/80 border border-[#E9DECE] space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="text-xs font-extrabold uppercase tracking-wider text-[#152548]">
               Intermediate Hymn / Special Musical Number
@@ -1676,8 +1762,10 @@ function renderMusicPlanner() {
           </p>
         </div>
 
+        ${isSpecialMeeting ? renderMusicClosingTypeBlock(s, dStr, closingType) : ""}
+
         <!-- Row 5: Closing Hymn (Moved After Intermediate Hymn, Full-Width Expanded Line) -->
-        <div class="form-field-group relative" data-music-dropdown-wrap="hymn__${dStr}__closingHymn">
+        <div id="music-closing-hymn-wrap-${dStr}" class="${closingType === "hymn" ? "" : "hidden"} form-field-group relative" data-music-dropdown-wrap="hymn__${dStr}__closingHymn">
           <label for="music-closing-hymn-${dStr}" class="text-xs font-bold text-[#152548]">
             Closing Hymn
           </label>
@@ -1708,6 +1796,122 @@ function renderMusicPlanner() {
     cardEl.classList.toggle("hidden", cardEl.getAttribute("data-sunday-music-card") !== selectedMusicSundayDate);
   });
   if (selectedMusicSundayDate) containerEl.setAttribute("aria-labelledby", `music-sunday-tab-${selectedMusicSundayDate}`);
+}
+
+// Bish 1.1.78 / Home 1.2.95 (Duane 10:23 PM ET): Special meetings get any number of musical slots (Hymn or Musical Number)
+// between the Sacrament Hymn and the Closing Hymn. With "Program Run by" on, the organization's note replaces the slots.
+function renderMusicSpecialSlotsBlock(s, dStr, programRunBy) {
+  if (programRunBy) {
+    return `
+        <div class="p-4 rounded-2xl bg-[#FAF6EF]/80 border border-[#E9DECE] space-y-1">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-[#152548]">Music between Sacrament Hymn &amp; Closing Hymn</span>
+          <p class="text-sm font-bold text-[#A74319]">${escapeHtml(getProgramRunByText(s))}</p>
+        </div>
+    `;
+  }
+  const slots = getSpecialMusicSlots(s);
+  const rows = slots.map((x, i) => `
+          <div class="p-3 rounded-xl bg-white border border-[#E9DECE] space-y-2" data-music-special-slot="${i}">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-[#536484]">Musical Slot ${i + 1}</span>
+              <fieldset class="inline-flex flex-wrap p-1 bg-[#FAF6EF] border border-[#E9DECE] rounded-xl gap-1">
+                <legend class="sr-only">Musical slot ${i + 1} type for ${escapeHtml(formatShortDate(dStr))}</legend>
+                <label class="cursor-pointer">
+                  <input type="radio" name="special_type_${dStr}_${i}" value="hymn"
+                    data-music-sunday="${dStr}" data-music-field="specialSlotType" data-music-slot-idx="${i}"
+                    ${x.type === "hymn" ? "checked" : ""} class="sr-only peer">
+                  <span class="block px-3 py-1 rounded-lg text-xs font-bold text-[#536484] peer-checked:bg-[#152548] peer-checked:text-white transition">Hymn</span>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="special_type_${dStr}_${i}" value="musical_number"
+                    data-music-sunday="${dStr}" data-music-field="specialSlotType" data-music-slot-idx="${i}"
+                    ${x.type === "musical_number" ? "checked" : ""} class="sr-only peer">
+                  <span class="block px-3 py-1 rounded-lg text-xs font-bold text-[#536484] peer-checked:bg-[#007B91] peer-checked:text-white transition">Musical Number</span>
+                </label>
+              </fieldset>
+              <button type="button" data-music-remove-special-slot="${dStr}__${i}" aria-label="Remove musical slot ${i + 1}"
+                class="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-[11px] font-bold cursor-pointer">Remove</button>
+            </div>
+            <div id="music-special-hymn-wrap-${dStr}-${i}" class="${x.type === "hymn" ? "" : "hidden"} form-field-group relative"
+              data-music-dropdown-wrap="hymn__${dStr}__special${i}">
+              <label for="music-special-hymn-${dStr}-${i}" class="sr-only">Musical slot ${i + 1} hymn</label>
+              <div class="relative flex items-center">
+                <input type="text" id="music-special-hymn-${dStr}-${i}" name="special_hymn_${dStr}_${i}"
+                  list="music-hymns-datalist" autocomplete="off"
+                  data-music-sunday="${dStr}" data-music-field="special${i}" data-is-hymn-input="true"
+                  value="${escapeHtml(formatOrMatchHymnValue(x.hymn))}"
+                  placeholder="Type or pull down hymn"
+                  class="w-full pl-3.5 pr-9 py-2.5 rounded-xl border border-[#E9DECE] bg-white text-xs sm:text-sm font-semibold text-[#152548] focus:border-[#152548] outline-none">
+                <button type="button" data-toggle-hymn-menu="${dStr}__special${i}"
+                  aria-label="Pull down Hymns list for musical slot ${i + 1}"
+                  title="Pull down Hymns list"
+                  class="absolute right-1.5 w-7 h-7 rounded-lg hover:bg-[#EFE6D5] text-[#536484] hover:text-[#152548] flex items-center justify-center text-xs font-bold transition cursor-pointer">
+                  ▾
+                </button>
+              </div>
+              <div id="music-dropdown-hymn__${dStr}__special${i}"
+                class="music-custom-dropdown hidden absolute left-0 right-0 top-full mt-1 z-30 bg-white border border-[#E9DECE] rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-[#E9DECE]/60">
+              </div>
+            </div>
+            <div id="music-special-mn-wrap-${dStr}-${i}" class="${x.type === "musical_number" ? "" : "hidden"} form-field-group">
+              <label for="music-special-mn-${dStr}-${i}" class="sr-only">Musical slot ${i + 1} musical number</label>
+              <input type="text" id="music-special-mn-${dStr}-${i}" name="special_mn_${dStr}_${i}"
+                data-music-sunday="${dStr}" data-music-field="specialMusicalNumber"
+                value="${escapeHtml(x.musicalNumber)}"
+                placeholder="Enter performers &amp; song title (e.g. Primary Children — I Am a Child of God)..."
+                class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] bg-white text-xs sm:text-sm font-semibold text-[#152548] focus:border-[#152548] outline-none">
+            </div>
+          </div>`).join("");
+  return `
+        <div class="p-4 rounded-2xl bg-[#FAF6EF]/80 border border-[#E9DECE] space-y-3" data-music-special-slots="${dStr}">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-[#152548]">Music between Sacrament Hymn &amp; Closing Hymn</span>
+            <button type="button" data-music-add-special-slot="${dStr}"
+              class="px-3 py-1.5 rounded-xl bg-white hover:bg-[#EFE6D5] border border-[#E9DECE] text-[#152548] text-xs font-bold transition cursor-pointer">+ Add Musical Slot</button>
+          </div>
+          ${rows || `<p class="text-xs italic text-[#536484]">No music between the Sacrament Hymn and the Closing Hymn.</p>`}
+        </div>
+  `;
+}
+
+// Bish 1.1.78 / Home 1.2.95: Special meetings choose the closing music: Closing Hymn / Musical Number / None.
+function renderMusicClosingTypeBlock(s, dStr, closingType) {
+  return `
+        <div class="p-4 rounded-2xl bg-[#FAF6EF]/80 border border-[#E9DECE] space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-[#152548]">Closing Music</span>
+            <fieldset class="inline-flex flex-wrap p-1 bg-white border border-[#E9DECE] rounded-xl gap-1">
+              <legend class="sr-only">Closing music type for ${escapeHtml(formatShortDate(dStr))}</legend>
+              <label class="cursor-pointer">
+                <input type="radio" name="closing_type_${dStr}" value="hymn" data-music-sunday="${dStr}" data-music-field="closingType"
+                  ${closingType === "hymn" ? "checked" : ""} class="sr-only peer">
+                <span class="block px-3 py-1 rounded-lg text-xs font-bold text-[#536484] peer-checked:bg-[#152548] peer-checked:text-white transition">Closing Hymn</span>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="closing_type_${dStr}" value="musical_number" data-music-sunday="${dStr}" data-music-field="closingType"
+                  ${closingType === "musical_number" ? "checked" : ""} class="sr-only peer">
+                <span class="block px-3 py-1 rounded-lg text-xs font-bold text-[#536484] peer-checked:bg-[#007B91] peer-checked:text-white transition">Musical Number</span>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="closing_type_${dStr}" value="none" data-music-sunday="${dStr}" data-music-field="closingType"
+                  ${closingType === "none" ? "checked" : ""} class="sr-only peer">
+                <span class="block px-3 py-1 rounded-lg text-xs font-bold text-[#536484] peer-checked:bg-slate-600 peer-checked:text-white transition">None</span>
+              </label>
+            </fieldset>
+          </div>
+          <div id="music-closing-mn-wrap-${dStr}" class="${closingType === "musical_number" ? "" : "hidden"} form-field-group">
+            <label for="music-closing-mn-${dStr}" class="text-xs font-bold text-[#536484]">Closing Musical Number (Performers &amp; Selection)</label>
+            <input type="text" id="music-closing-mn-${dStr}" name="closing_mn_${dStr}"
+              data-music-sunday="${dStr}" data-music-field="closingMusicalNumber"
+              value="${escapeHtml(s.closingMusicalNumber || "")}"
+              placeholder="Enter performers &amp; song title (e.g. Ward Choir — Come, Thou Fount)..."
+              class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] bg-white text-xs sm:text-sm font-semibold text-[#152548] focus:border-[#152548] outline-none">
+          </div>
+          <p id="music-closing-none-note-${dStr}" class="${closingType === "none" ? "" : "hidden"} text-xs italic text-[#536484]">
+            No closing music scheduled for this Sunday.
+          </p>
+        </div>
+  `;
 }
 
 // ======================== CUSTOM PULL-DOWN MENUS FOR HYMNS, CHORISTERS & ACCOMPANISTS ========================
@@ -1828,6 +2032,27 @@ function collectMonthMusicFormIntoState() {
     s.intermediateType = checkedType;
     if (interHymnInp) s.intermediateHymn = formatOrMatchHymnValue(interHymnInp.value.trim());
     if (specialInp) s.musicalNumber = specialInp.value.trim();
+
+    // Bish 1.1.78 / Home 1.2.95: Special meetings: musical slots and closing music type. With "Program Run by" on, the slots
+    // are not on the page, so the saved slots stay as they are.
+    if (getMeetingKindInfo(s).kind === MEETING_KIND_SPECIAL) {
+      if (cardEl.querySelector("[data-music-special-slots]")) {
+        const slots = [...cardEl.querySelectorAll("[data-music-special-slot]")].map(row => {
+          const i = row.getAttribute("data-music-special-slot");
+          const type = cardEl.querySelector(`input[name="special_type_${dStr}_${i}"]:checked`)?.value === "musical_number" ? "musical_number" : "hymn";
+          return {
+            type,
+            hymn: formatOrMatchHymnValue((document.getElementById(`music-special-hymn-${dStr}-${i}`)?.value || "").trim()),
+            musicalNumber: (document.getElementById(`music-special-mn-${dStr}-${i}`)?.value || "").trim()
+          };
+        });
+        mirrorSpecialSlotsToIntermediate(s, slots);
+      }
+      const cType = cardEl.querySelector(`input[name="closing_type_${dStr}"]:checked`)?.value;
+      if (cType) s.closingType = cType;
+      const closingMnInp = document.getElementById(`music-closing-mn-${dStr}`);
+      if (closingMnInp) s.closingMusicalNumber = closingMnInp.value.trim();
+    }
   });
 }
 
@@ -2000,6 +2225,37 @@ function initMusicPlannerInteractions() {
       return;
     }
 
+    // Bish 1.1.78 / Home 1.2.95: add / remove a Special meeting musical slot
+    const addSpecialSlotBtn = e.target.closest("[data-music-add-special-slot]");
+    if (addSpecialSlotBtn) {
+      const dStr = addSpecialSlotBtn.getAttribute("data-music-add-special-slot") || "";
+      collectMonthMusicFormIntoState();
+      const s = sundaysMap[dStr];
+      if (s) {
+        const slots = getSpecialMusicSlots(s);
+        slots.push({ type: "hymn", hymn: "", musicalNumber: "" });
+        mirrorSpecialSlotsToIntermediate(s, slots);
+        renderMusicPlanner();
+        persistMusicToFirestore(`✓ Added a musical slot on ${formatShortDate(dStr)}`);
+      }
+      return;
+    }
+    const removeSpecialSlotBtn = e.target.closest("[data-music-remove-special-slot]");
+    if (removeSpecialSlotBtn) {
+      const [dStr, idxStr] = (removeSpecialSlotBtn.getAttribute("data-music-remove-special-slot") || "").split("__");
+      collectMonthMusicFormIntoState();
+      const s = sundaysMap[dStr];
+      const idx = Number(idxStr);
+      if (s && Number.isInteger(idx) && idx >= 0) {
+        const slots = getSpecialMusicSlots(s);
+        slots.splice(idx, 1);
+        mirrorSpecialSlotsToIntermediate(s, slots);
+        renderMusicPlanner();
+        persistMusicToFirestore(`✓ Removed a musical slot on ${formatShortDate(dStr)}`);
+      }
+      return;
+    }
+
     // Toggle Hymn dropdown menu
     const toggleHymnBtn = e.target.closest("[data-toggle-hymn-menu]");
     if (toggleHymnBtn) {
@@ -2031,7 +2287,8 @@ function initMusicPlannerInteractions() {
         intermediateHymn: `music-intermediate-hymn-${dStr}`,
         closingHymn: `music-closing-hymn-${dStr}`
       };
-      const inp = document.getElementById(fieldIdMap[fieldName] || "");
+      const specialSlotMatch = /^special(\d+)$/.exec(fieldName); // Bish 1.1.78 / Home 1.2.95: Special meeting musical slots
+      const inp = document.getElementById(fieldIdMap[fieldName] || (specialSlotMatch ? `music-special-hymn-${dStr}-${specialSlotMatch[1]}` : ""));
       if (inp) {
         inp.value = chosenVal;
         closeAllMusicDropdowns();
@@ -2218,6 +2475,16 @@ function initMusicPlannerInteractions() {
         document.getElementById(`music-inter-hymn-wrap-${dStr}`)?.classList.toggle("hidden", iType !== "hymn");
         document.getElementById(`music-inter-special-wrap-${dStr}`)?.classList.toggle("hidden", iType !== "musical_number");
         document.getElementById(`music-inter-none-note-${dStr}`)?.classList.toggle("hidden", iType !== "none");
+      }
+      if (dStr && field === "specialSlotType") { // Bish 1.1.78 / Home 1.2.95
+        const slotIdx = e.target.getAttribute("data-music-slot-idx");
+        document.getElementById(`music-special-hymn-wrap-${dStr}-${slotIdx}`)?.classList.toggle("hidden", e.target.value !== "hymn");
+        document.getElementById(`music-special-mn-wrap-${dStr}-${slotIdx}`)?.classList.toggle("hidden", e.target.value !== "musical_number");
+      }
+      if (dStr && field === "closingType") {
+        document.getElementById(`music-closing-hymn-wrap-${dStr}`)?.classList.toggle("hidden", e.target.value !== "hymn");
+        document.getElementById(`music-closing-mn-wrap-${dStr}`)?.classList.toggle("hidden", e.target.value !== "musical_number");
+        document.getElementById(`music-closing-none-note-${dStr}`)?.classList.toggle("hidden", e.target.value !== "none");
       }
       if (e.target.getAttribute("data-is-hymn-input") === "true") {
         e.target.value = formatOrMatchHymnValue(e.target.value);
