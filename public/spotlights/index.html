@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="/assets/seasons.css">
   <link rel="stylesheet" href="/assets/styles.css">
   <link rel="stylesheet" href="/assets/site.css">
-  <script src="/security-config.js?v=1.2.0"></script>
+  <script src="/security-config.js?v=1.2.94"></script>
   <style>
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #FAF6EF; color: #152548; }
   </style>
@@ -184,15 +184,7 @@
         const rawHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
         const approvedHashes = window.SPOTLIGHT_APPROVED_HASHES || [];
-        const masterHash = window.SECURE_AUTH_HASHES?.MASTER;
-        const masterHashes = [
-          masterHash,
-          ...(window.MASTER_APPROVED_HASHES || []),
-          "103a9f4c69d7331576e1a7b7f96ce781e3336f7b304424373aea1f263c581a3d",
-          "7ca8ae40ffb835bcc16f1de3fc4f27e3e6b3c709bc5d300f932cd019f86e488b",
-          "4b465598d5fd124a3856acff035f025315f798faf08049ee57409e3045c72e37",
-          "7f39e9e47d673293ede2907b955e989ab9188e35c39684c95eff536bb5b3e542"
-        ].filter(Boolean);
+        // v1.2.91 (Duane 2026-11-23, #3): the temporary master password is retired; its hash and check are removed.
 
         let validNames = [
           "harris", "ames", "mullis", "laverty", "walther",
@@ -206,7 +198,7 @@
           }
         } catch (_) {}
 
-        if (approvedHashes.includes(hash) || masterHashes.includes(hash) || masterHashes.includes(rawHash) || validNames.includes(val)) {
+        if (approvedHashes.includes(hash) || validNames.includes(val)) {
           sessionStorage.setItem('wardSpotlightsUnlocked', 'true');
           unlockInput.value = '';
           checkAccess();

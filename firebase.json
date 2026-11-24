@@ -4,7 +4,7 @@
       "target": "staging",
       "public": "public",
       "cleanUrls": true,
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/.agents/**", "**/*.md", "**/*.bak", "**/*.log", "**/*.orig", "**/*~"],
       "headers": [
         {"source": "**", "headers": [
           {"key": "X-Content-Type-Options", "value": "nosniff"},
@@ -27,7 +27,7 @@
       "target": "blackstoneward",
       "public": "public",
       "cleanUrls": true,
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/.agents/**", "**/*.md", "**/*.bak", "**/*.log", "**/*.orig", "**/*~"],
       "headers": [
         {"source": "**", "headers": [
           {"key": "X-Content-Type-Options", "value": "nosniff"},

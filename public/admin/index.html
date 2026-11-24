@@ -11,8 +11,8 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/assets/seasons.css">
-  <link rel="stylesheet" href="/assets/admin.css?v=1.2.49">
-  <script src="/security-config.js?v=1.2.5"></script>
+  <link rel="stylesheet" href="/assets/admin.css?v=1.2.94">
+  <script src="/security-config.js?v=1.2.94"></script>
   <script>
     function currentSeason() {
       const month = new Date().getMonth() + 1;
@@ -80,7 +80,7 @@
         <img src="/assets/ward-logo.png" alt="Blackstone Ward" class="w-16 h-20 object-contain">
       </div>
       <h1 class="text-2xl font-bold text-[#152548] mb-1">Ward Admin Portal</h1>
-      <p class="text-xs text-[#536484] mb-6">Passwordless Leader Access &amp; Administration</p>
+      <p class="text-xs text-[#536484] mb-6">Sign in with a passkey, phone, password, or Google</p>
 
       <!-- Biometric TouchID / FaceID Login -->
       <div id="passkey-login-container" class="mb-4">
@@ -90,18 +90,43 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
           </svg>
-          <span id="passkey-login-label">Sign In with TouchID / FaceID</span>
+          <span id="passkey-login-label">Sign In with Touch ID / Face ID</span>
         </button>
         <p id="passkey-hint-msg" class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2.5 mt-2.5 text-left hidden"></p>
-        <div class="flex items-center gap-3 my-3">
-          <div class="h-px bg-[#E9DECE] flex-1"></div>
-          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Or use phone text</span>
-          <div class="h-px bg-[#E9DECE] flex-1"></div>
-        </div>
       </div>
 
+      <!-- v1.2.60: Google sign-in (Firebase Auth GoogleAuthProvider / signInWithPopup) -->
+      <div id="google-login-container" class="mb-4">
+        <button type="button" id="btn-google-signin"
+          class="w-full py-3 bg-white hover:bg-slate-50 text-[#152548] font-semibold rounded-xl transition shadow-md flex items-center justify-center gap-2 text-sm active:scale-[0.99] border border-[#E9DECE]">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M23.49 12.27c0-.82-.07-1.64-.23-2.43H12v4.6h6.48a5.54 5.54 0 01-2.4 3.63v3h3.88c2.27-2.09 3.53-5.17 3.53-8.8z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.97-1.07 7.96-2.93l-3.88-3c-1.08.73-2.47 1.16-4.08 1.16-3.14 0-5.8-2.12-6.76-4.96H1.24v3.09A12 12 0 0012 24z"/>
+            <path fill="#FBBC05" d="M5.24 14.27A7.2 7.2 0 014.86 12c0-.79.14-1.55.38-2.27V6.64H1.24A12 12 0 000 12c0 1.94.46 3.77 1.24 5.36l4-3.09z"/>
+            <path fill="#EA4335" d="M12 4.75c1.76 0 3.35.6 4.6 1.8l3.44-3.44C17.96 1.19 15.24 0 12 0 7.31 0 3.2 2.69 1.24 6.64l4 3.09C6.2 6.87 8.86 4.75 12 4.75z"/>
+          </svg>
+          <span>Sign in with Google</span>
+        </button>
+        <p id="google-login-error" class="text-xs text-red-600 font-medium mt-2.5 text-left hidden"></p>
+      </div>
+
+      <!-- 2026-11-20: Bishopric Hub-style folder tabs (Phone Text (SMS) default | Password Sign-In) -->
+      <div class="td-tabs-panel text-left">
+        <div class="td-tablist-bar" role="tablist" aria-label="Choose sign-in method">
+          <div class="flex flex-wrap items-end gap-1.5">
+            <button type="button" id="btn-login-tab-sms" data-login-tab="sms" role="tab" aria-selected="true"
+              aria-controls="phone-login-form" class="td-folder-tab active-tab">
+              Phone Text (SMS)
+            </button>
+            <button type="button" id="btn-login-tab-password" data-login-tab="password" role="tab"
+              aria-selected="false" aria-controls="login-form" class="td-folder-tab">
+              Password Sign-In
+            </button>
+          </div>
+        </div>
+        <div class="td-tab-body">
       <!-- Phone Login Form (Step 1: Phone, Step 2: SMS Code) -->
-      <form id="phone-login-form" class="space-y-4">
+      <form id="phone-login-form" class="space-y-4" role="tabpanel" aria-labelledby="btn-login-tab-sms">
         <!-- Step 1: Phone input -->
         <div id="phone-step-1" class="space-y-4">
           <!-- Leader Name Lookup -->
@@ -116,17 +141,8 @@
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </span>
-              <input type="text" id="admin-name-lookup" placeholder="Type your first and last name" autocomplete="username webauthn" list="authorized-leaders-datalist"
+              <input type="text" id="admin-name-lookup" name="ward-leader-name" placeholder="Type your first and last name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-form-type="other"
                 class="w-full pl-10 pr-4 py-3 rounded-xl border border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/10 outline-none transition text-sm">
-              <datalist id="authorized-leaders-datalist"></datalist>
-            </div>
-            <div id="leader-match-indicator"
-              class="hidden mt-1.5 p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-left text-xs text-emerald-800 items-center justify-between">
-              <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span id="leader-match-text">Duane Harris (Ward Administrator)</span>
-              </div>
-              <span class="text-[10px] text-emerald-600 font-semibold uppercase">Leader Verified</span>
             </div>
           </div>
 
@@ -196,15 +212,15 @@
       </form>
 
       <!-- Toggle Passcode Fallback -->
-      <div class="mt-4 pt-4 border-t border-[#E9DECE]">
+      <div class="login-legacy-toggle mt-4 pt-4 border-t border-[#E9DECE]">
         <button type="button" id="toggle-passcode-view-btn"
           class="text-xs text-[#536484] hover:text-[#152548] transition underline">
           Or sign in with password
         </button>
       </div>
 
-      <!-- Password Login Form (Personal or Master Password) -->
-      <form id="login-form" class="space-y-4 hidden mt-4 pt-4 border-t border-[#E9DECE]">
+      <!-- Password Login Form (Personal Password; master password retired 2026-11-23) -->
+      <form id="login-form" autocomplete="off" class="space-y-4 hidden" role="tabpanel" aria-labelledby="btn-login-tab-password">
         <div>
           <label for="password-leader-lookup"
             class="block text-left text-xs font-semibold text-[#536484] mb-1 uppercase tracking-wider">Who is logging
@@ -216,8 +232,7 @@
                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </span>
-            <input type="text" id="password-leader-lookup" placeholder="Type your first and last name"
-              autocomplete="username webauthn" list="authorized-leaders-datalist"
+            <input type="text" id="password-leader-lookup" name="ward-leader-name-pw" placeholder="Type your first and last name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-form-type="other"
               class="w-full pl-10 pr-4 py-3 rounded-xl border border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/10 outline-none transition text-sm">
           </div>
         </div>
@@ -225,6 +240,7 @@
           <div class="flex items-center justify-between mb-1">
             <label for="admin-passcode"
               class="block text-left text-xs font-semibold text-[#536484] uppercase tracking-wider">Password</label>
+            <!-- 2026-11-20: hidden while personal leader passwords are disabled -->
             <button type="button" id="btn-open-self-reset"
               class="text-xs text-[#007B91] hover:underline font-medium">Forgot password?</button>
           </div>
@@ -235,8 +251,7 @@
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </span>
-            <input type="password" id="admin-passcode" placeholder="Enter personal or master password..."
-              autocomplete="current-password"
+            <input type="password" id="admin-passcode" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Enter password..."
               class="w-full pl-10 pr-10 py-3 rounded-xl border border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/10 outline-none transition text-sm">
             <button type="button" id="btn-toggle-login-pw"
               class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#152548] transition p-1"
@@ -255,17 +270,18 @@
             </button>
           </div>
         </div>
-        <p id="login-error" class="text-xs text-red-600 font-medium hidden">Incorrect password. Please try again or
-          reset below.</p>
+        <p id="login-error" class="text-xs text-red-600 font-medium hidden">Incorrect password. Please try again.</p>
         <button type="submit" id="login-btn"
           class="w-full py-3 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-xl transition shadow-md active:scale-[0.99] text-sm">
           Sign In with Password
         </button>
         <button type="button" id="toggle-phone-view-btn"
-          class="text-xs text-[#536484] hover:text-[#152548] transition underline block mx-auto">
+          class="login-legacy-toggle text-xs text-[#536484] hover:text-[#152548] transition underline block mx-auto">
           ← Back to Phone Sign In
         </button>
       </form>
+        </div>
+      </div>
 
       <div class="mt-6 pt-6 border-t border-[#E9DECE]">
         <a href="/" class="text-xs text-[#536484] hover:text-[#152548] transition">← Return to Ward Homepage</a>
@@ -278,7 +294,7 @@
 
     <!-- Header -->
     <header class="bg-white/88 backdrop-blur-md border-b border-[#E9DECE] sticky top-0 z-30 shadow-xs">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-3">
           <a href="/" class="flex items-center gap-2">
             <img src="/assets/ward-logo.png" alt="Blackstone Ward" class="w-8 h-10 object-contain">
@@ -289,7 +305,7 @@
             </div>
           </a>
         </div>
-        <div class="flex items-center gap-2 sm:gap-3">
+        <div class="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
           <!-- Logged-in Account Identity -->
           <div id="leader-identity-badge"
             class="hidden items-center gap-2.5 px-3 py-1.5 bg-[#FAF6EF] border border-[#E9DECE] rounded-xl text-xs shadow-2xs">
@@ -299,20 +315,20 @@
             </div>
             <div class="text-left leading-tight">
               <div class="flex items-center gap-1.5">
-                <span id="leader-display-name" class="font-bold text-[#152548] text-xs">Duane Harris</span>
+                <span id="leader-display-name" class="font-bold text-[#152548] text-xs"></span>
                 <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block" title="Active Session"></span>
               </div>
               <div class="text-[10px] text-[#536484] flex items-center gap-1 mt-0.5">
-                <span id="leader-role-label" class="font-semibold text-[#A74319]">Ward Administrator</span>
+                <span id="leader-role-label" class="font-semibold text-[#A74319]">Web Administrator</span>
                 <span class="text-slate-300">•</span>
-                <span id="leader-email-label" class="text-slate-500 font-mono">tueini@gmail.com</span>
+                <span id="leader-email-label" class="text-slate-500 font-mono"></span>
               </div>
             </div>
           </div>
 
           <!-- Passkey Enrollment Button -->
           <button type="button" id="btn-enroll-passkey"
-            class="hidden text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-3 py-1.5 rounded-lg transition items-center gap-1.5 shadow-2xs">
+            class="hidden shrink-0 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1.5 shadow-2xs">
             <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
@@ -332,6 +348,20 @@
             class="text-xs font-semibold text-red-600 hover:text-red-700 transition px-3 py-1.5 rounded-lg hover:bg-red-50">
             Log Out
           </button>
+        </div>
+      </div>
+      <!-- v1.2.63: can't-miss Enable/Refresh bar; not clipped by the header row -->
+      <div id="passkey-enroll-banner" class="hidden border-t border-emerald-200 bg-emerald-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2">
+          <p id="passkey-enroll-banner-text" class="text-sm font-medium text-emerald-900">Enable Touch ID / Face ID on this device so you can sign in without a text code.</p>
+          <div class="flex items-center gap-3 shrink-0">
+            <button type="button" id="btn-enroll-passkey-banner"
+              class="text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-3 py-1.5 rounded-lg transition shadow-2xs">
+              <span id="btn-enroll-passkey-banner-label">Enable Touch ID / Face ID</span>
+            </button>
+            <button type="button" id="btn-dismiss-passkey-banner"
+              class="text-xs font-medium text-emerald-800 hover:underline">Not now</button>
+          </div>
         </div>
       </div>
 
@@ -354,7 +384,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
-          <span>Authorized Leaders &amp; Users</span>
+          <span>Users &amp; Access</span>
         </button>
         <button type="button" id="tab-settings"
           class="tab-btn bg-slate-100 text-[#536484] hover:text-[#152548] px-4 py-2 rounded-t-lg font-semibold text-xs tracking-wide transition flex items-center gap-2">
@@ -578,7 +608,7 @@
         </div>
       </section>
 
-      <!-- ==================== SECTION: AUTHORIZED LEADERS & USERS ==================== -->
+      <!-- ==================== SECTION: USERS & ACCESS (v1.2.56: tabs Authorized Users | Access Matrix) ==================== -->
       <section id="section-leaders" class="hidden space-y-6">
         <div class="bg-white border border-[#E9DECE] rounded-2xl p-6 shadow-sm space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-4">
@@ -588,19 +618,17 @@
                 <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">Access Control &amp;
                   RBAC</span>
               </div>
-              <h2 class="text-xl font-bold text-[#152548]">Authorized Leaders &amp; Users</h2>
+              <h2 class="text-xl font-bold text-[#152548]">Authorized Users</h2>
               <p class="text-xs text-[#536484] mt-0.5">Register ward leaders and callings. Leaders can sign in
-                passwordless using SMS text codes or biometric passkeys.</p>
+                with a passkey, a phone text code, a personal password, or Google.</p>
+              <!-- v1.2.53 notice, updated v1.2.60: passkey required to add/edit leaders; other methods are view-only (D8 passwords still allowed). -->
+              <p id="leaders-access-notice" class="text-xs text-[#A74319] font-medium mt-1.5">Only a bishopric
+                or admin leader signed in with a passkey can add or edit leaders. A sign-in with a phone text
+                code, a personal password, or Google can view the list and may set passwords according to the
+                password-edit rules, but cannot add or edit leaders. Leaders can't be deleted; turn off Active
+                instead.</p>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" id="btn-toggle-access-matrix"
-                class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#152548] font-semibold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer">
-                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span id="btn-toggle-matrix-text">Website Access Matrix</span>
-              </button>
               <button type="button" id="btn-add-leader"
                 class="px-4 py-2.5 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95 whitespace-nowrap cursor-pointer">
                 <span class="text-white font-bold">+ Add Ward Leader</span>
@@ -608,6 +636,28 @@
             </div>
           </div>
 
+          <!-- v1.2.56: two tabs -->
+          <div class="flex items-center gap-1 border-b border-[#E9DECE]" role="tablist" aria-label="Users &amp; Access">
+            <button type="button" id="tab-view-users" role="tab" aria-selected="true" aria-controls="leaders-users-panel"
+              class="leaders-view-tab px-4 py-2 -mb-px border-b-2 border-[#152548] text-[#152548] font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <span>Authorized Users</span>
+            </button>
+            <button type="button" id="btn-toggle-access-matrix" role="tab" aria-selected="false" aria-controls="leaders-access-matrix-panel"
+              class="leaders-view-tab px-4 py-2 -mb-px border-b-2 border-transparent text-slate-500 hover:text-[#152548] font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer">
+              <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span id="btn-toggle-matrix-text">Access Matrix</span>
+            </button>
+          </div>
+
+          <!-- v1.2.56: Authorized Users tab -->
+          <div id="leaders-users-panel" role="tabpanel" aria-labelledby="tab-view-users" class="space-y-4">
           <!-- Leaders Subtabs (All, Bishopric, Youth, EQ, RS, SS) -->
           <div class="flex items-center border-b border-[#E9DECE] gap-1.5 overflow-x-auto pb-2 pt-1">
             <button type="button" id="tab-lead-all"
@@ -648,44 +698,6 @@
             </button>
           </div>
 
-          <!-- Role & Website Access Matrix Panel -->
-          <div id="leaders-access-matrix-panel" class="hidden space-y-3 border border-[#E9DECE] rounded-xl p-4 bg-slate-50/70">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E9DECE] pb-3">
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
-                  <h3 class="text-sm font-bold text-[#152548]">Role &amp; Website Access Matrix</h3>
-                </div>
-                <p class="text-xs text-[#536484] mt-0.5">Read/write permissions for ward callings across admin areas on <code class="font-mono text-slate-700 bg-white px-1 py-0.5 rounded border border-slate-200">youth.blackstoneward.org</code>.</p>
-              </div>
-              <div class="flex items-center gap-2 text-xs">
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Active on Youth Hub</span>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-200 text-slate-700">Ward Portal Only</span>
-              </div>
-            </div>
-            <div class="overflow-x-auto rounded-lg border border-[#E9DECE] bg-white">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-slate-100 border-b border-[#E9DECE] text-[#536484] uppercase tracking-wider font-semibold">
-                  <tr>
-                    <th class="px-3.5 py-2.5">Calling / Leadership</th>
-                    <th class="px-3 py-2.5">Org</th>
-                    <th class="px-2.5 py-2.5 text-center">Youth Status</th>
-                    <th class="px-2.5 py-2.5 text-center">Settings &amp; Privacy</th>
-                    <th class="px-2.5 py-2.5 text-center">Combined</th>
-                    <th class="px-2.5 py-2.5 text-center">Priests</th>
-                    <th class="px-2.5 py-2.5 text-center">Teachers</th>
-                    <th class="px-2.5 py-2.5 text-center">Deacons</th>
-                    <th class="px-2.5 py-2.5 text-center">Young Women</th>
-                    <th class="px-2.5 py-2.5 text-center">Primary</th>
-                  </tr>
-                </thead>
-                <tbody id="access-matrix-table-body" class="divide-y divide-[#E9DECE]">
-                  <!-- Populated dynamically -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
           <!-- Bulk Selection Bar -->
           <div id="leaders-bulk-bar"
             class="hidden items-center justify-between p-3 bg-slate-50 border border-[#E9DECE] rounded-xl text-xs">
@@ -723,11 +735,11 @@
                     <input type="checkbox" id="select-all-leaders"
                       class="rounded border-[#E9DECE] text-[#152548] focus:ring-0 cursor-pointer" title="Select All">
                   </th>
-                  <th class="px-4 py-3">Leader Name</th>
+                  <th class="px-4 py-3">Users</th>
                   <th class="px-4 py-3">Email</th>
                   <th class="px-4 py-3">Mobile Phone</th>
                   <th class="px-4 py-3">Calling</th>
-                  <th class="px-4 py-3">Website &amp; Youth Access</th>
+                  <th class="w-px px-2 py-3 whitespace-nowrap">Org <button type="button" class="org-legend-btn ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-300 bg-white text-[9px] font-bold text-slate-500 hover:text-[#152548] hover:border-[#152548] focus:outline-none focus:ring-2 focus:ring-[#152548]/30 cursor-pointer align-middle normal-case" aria-label="Show organization codes" aria-haspopup="dialog" aria-expanded="false">i</button></th>
                   <th class="px-4 py-3">Status</th>
                   <th class="px-4 py-3 text-right">Action</th>
                 </tr>
@@ -736,6 +748,40 @@
                 <!-- Injected dynamically -->
               </tbody>
             </table>
+          </div>
+          </div>
+
+          <!-- v1.2.56: Access Matrix tab -->
+          <div id="leaders-access-matrix-panel" role="tabpanel" aria-labelledby="btn-toggle-access-matrix" class="hidden space-y-3 border border-[#E9DECE] rounded-xl p-4 bg-slate-50/70">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E9DECE] pb-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
+                  <h3 class="text-sm font-bold text-[#152548]">Access Matrix</h3>
+                </div>
+                <p class="text-xs text-[#536484] mt-0.5">Read/write permissions for ward callings across admin areas on all Blackstone Ward hubs.</p>
+              </div>
+              <button type="button" id="btn-add-calling"
+                class="hidden px-4 py-2.5 bg-[#152548] hover:bg-[#0E1A34] text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95 whitespace-nowrap cursor-pointer self-start sm:self-auto">
+                <span class="text-white font-bold">+ Add Calling</span>
+              </button>
+            </div>
+            <div class="overflow-x-auto rounded-lg border border-[#E9DECE] bg-white">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 border-b border-[#E9DECE] text-[#536484] uppercase tracking-wider font-semibold">
+                  <tr id="access-matrix-head-row">
+                    <th scope="col" class="w-14 min-w-[3.5rem] px-3 py-2.5">RC</th>
+                    <th scope="col" class="px-3 py-2.5">Calling</th>
+                    <th scope="col" class="w-px px-2 py-2.5 whitespace-nowrap">Org <button type="button" class="org-legend-btn ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-300 bg-white text-[9px] font-bold text-slate-500 hover:text-[#152548] hover:border-[#152548] focus:outline-none focus:ring-2 focus:ring-[#152548]/30 cursor-pointer align-middle normal-case" aria-label="Show organization codes" aria-haspopup="dialog" aria-expanded="false">i</button></th>
+                    <th scope="col" class="px-3 py-2.5 whitespace-nowrap">Accessible Areas <button type="button" id="btn-restricted-areas-info" class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full border border-slate-300 bg-white text-[9px] font-bold text-slate-500 hover:text-[#152548] hover:border-[#152548] focus:outline-none focus:ring-2 focus:ring-[#152548]/30 cursor-pointer align-middle normal-case" aria-label="Show restricted areas" aria-haspopup="dialog">i</button></th>
+                    <th scope="col" class="px-3 py-2.5 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="access-matrix-table-body" class="divide-y divide-[#E9DECE]">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
@@ -804,7 +850,7 @@
       <div class="max-w-7xl mx-auto px-4">
         <span>Blackstone Ward Administration Portal</span>
         <span class="mx-2">•</span>
-        <span id="footer-version">v1.2.49</span>
+        <span id="footer-version">v1.2.94</span>
       </div>
     </footer>
   </div>
@@ -1119,20 +1165,21 @@
         <input type="hidden" id="leader-id">
         <div>
           <label for="leader-name" class="block text-xs font-semibold text-[#536484] mb-1">Leader Name *</label>
-          <input type="text" id="leader-name" required placeholder="e.g. Duane Harris"
+          <input type="text" id="leader-name" required placeholder="Enter First &amp; Last Name (e.g. Mahonri Moriancumer)"
             class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
         </div>
         <div>
-          <label for="leader-email" class="block text-xs font-semibold text-[#536484] mb-1">Email Address</label>
-          <input type="email" id="leader-email" placeholder="e.g. tueini@gmail.com"
+          <label for="leader-email" class="block text-xs font-semibold text-[#536484] mb-1">Email Address (for Google sign-in)</label>
+          <input type="email" id="leader-email" placeholder="e.g. mahonri.moriancumer@example.com"
             class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
+          <p class="text-[11px] text-[#536484] mt-1">Used to sign in with Google. Each active leader needs a unique email.</p>
         </div>
         <div>
           <label for="leader-phone" class="block text-xs font-semibold text-[#536484] mb-1">Cell Phone Number (for SMS
-            text login) *</label>
-          <input type="tel" id="leader-phone" required placeholder="(508) 494-0905 or +15084940905"
+            text login)</label>
+          <input type="tel" id="leader-phone" placeholder="(508) 555-0123 or +15085550123"
             class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
-          <p class="text-[11px] text-[#536484] mt-1">Used to text their secure 6-digit login code.</p>
+          <p class="text-[11px] text-[#536484] mt-1">Optional if a personal password or Google email is provided. Used to text a 6-digit login code. Each active leader needs a unique phone.</p>
         </div>
         <div>
           <div class="flex items-center justify-between mb-1">
@@ -1155,86 +1202,16 @@
               </svg>
             </button>
           </div>
-          <p class="text-[11px] text-[#536484] mt-1">Allows this leader to sign in without their mobile phone. Leave
-            blank to keep existing password.</p>
+          <p class="text-[11px] text-[#536484] mt-1">Optional if a phone or Google email is provided. Allows sign-in
+            with a personal password (then they can enable a passkey). Leave blank to keep an existing password.</p>
         </div>
         <div>
           <label for="leader-calling" class="block text-xs font-semibold text-[#536484] mb-1">Calling / Leadership Position *</label>
           <select id="leader-calling"
             class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none bg-white font-medium text-[#152548]">
-            <optgroup label="Bishopric &amp; Ward Officers">
-              <option value="Bishopric">Bishopric</option>
-              <option value="Ward Activity">Ward Activity</option>
-              <option value="Ward Cleaning">Ward Cleaning</option>
-            </optgroup>
-            <optgroup label="Youth Leadership">
-              <option value="Youth ADL Priest">Youth ADL Priest</option>
-              <option value="Youth Priest">Youth Priest</option>
-              <option value="Youth ADL Teacher">Youth ADL Teacher</option>
-              <option value="Youth Teacher">Youth Teacher</option>
-              <option value="Youth ADL Deacon">Youth ADL Deacon</option>
-              <option value="Youth Deacon">Youth Deacon</option>
-              <option value="Youth YW Pres">Youth YW Pres</option>
-              <option value="Youth ADL YW">Youth ADL YW</option>
-              <option value="Youth Builders">Youth Builders</option>
-              <option value="Youth Messengers">Youth Messengers</option>
-              <option value="Youth Gatherers">Youth Gatherers</option>
-              <option value="Youth Primary Pres">Youth Primary Pres</option>
-            </optgroup>
-            <optgroup label="Elders Quorum">
-              <option value="EQ Pres">EQ Pres</option>
-              <option value="EQ Activity">EQ Activity</option>
-            </optgroup>
-            <optgroup label="Relief Society">
-              <option value="RS Pres">RS Pres</option>
-              <option value="RS Activity">RS Activity</option>
-            </optgroup>
-            <optgroup label="Sunday School">
-              <option value="SS Pres">SS Pres</option>
-            </optgroup>
+            <option value="">Select a calling…</option>
           </select>
           <input type="hidden" id="leader-role" value="bishopric">
-        </div>
-        <div class="border border-[#E9DECE] rounded-xl p-3.5 bg-slate-50/70 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <label class="block text-xs font-bold text-[#152548]">Youth Hub Admin Access (youth.blackstoneward.org)</label>
-            <button type="button" id="btn-reset-calling-access"
-              class="text-[11px] text-blue-600 hover:text-blue-800 underline font-medium cursor-pointer">
-              Reset to Calling Defaults
-            </button>
-          </div>
-          <p class="text-[11px] text-[#536484]">Designate which admin areas of the Youth Hub this leader can view and modify:</p>
-          <div class="grid grid-cols-2 gap-2 pt-0.5">
-            <label class="flex items-center gap-2 text-xs text-[#152548] cursor-pointer">
-              <input type="checkbox" class="youth-area-check rounded border-[#E9DECE] text-[#152548] focus:ring-0" value="Settings & Privacy">
-              <span>Settings &amp; Privacy</span>
-            </label>
-            <label class="flex items-center gap-2 text-xs text-[#152548] cursor-pointer">
-              <input type="checkbox" class="youth-area-check rounded border-[#E9DECE] text-[#152548] focus:ring-0" value="Combined">
-              <span>Combined</span>
-            </label>
-            <label class="flex items-center gap-2 text-xs text-[#152548] cursor-pointer">
-              <input type="checkbox" class="youth-area-check rounded border-[#E9DECE] text-[#152548] focus:ring-0" value="Priests">
-              <span>Priests</span>
-            </label>
-            <label class="flex items-center gap-2 text-xs text-[#152548] cursor-pointer">
-              <input type="checkbox" class="youth-area-check rounded border-[#E9DECE] text-[#152548] focus:ring-0" value="Teachers">
-              <span>Teachers</span>
-            </label>
-            <label class="flex items-center gap-2 text-xs text-[#152548] cursor-pointer">
-              <input type="checkbox" class="youth-area-check rounded border-[#E9DECE] text-[#152548] focus:ring-0" value="Deacons">
-              <span>Deacons</span>
-            </label>
-            <label class="flex items-center gap-2 text-xs text-[#152548] cursor-pointer">
-              <input type="checkbox" class="youth-area-check rounded border-[#E9DECE] text-[#152548] focus:ring-0" value="Young Women">
-              <span>Young Women</span>
-            </label>
-            <label class="flex items-center gap-2 text-xs text-[#152548] cursor-pointer">
-              <input type="checkbox" class="youth-area-check rounded border-[#E9DECE] text-[#152548] focus:ring-0" value="Primary">
-              <span>Primary</span>
-            </label>
-          </div>
-          <p id="youth-access-hint" class="text-[11px] text-slate-500 italic mt-1"></p>
         </div>
         <div class="flex items-center gap-6 pt-2">
           <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-[#152548]">
@@ -1305,19 +1282,19 @@
       <div class="mt-4 p-4 rounded-xl bg-slate-50 border border-[#E9DECE] space-y-2">
         <div class="flex items-center justify-between text-xs">
           <span class="text-slate-500">Leader:</span>
-          <span id="onboard-name-val" class="font-bold text-[#152548]">Duane Harris</span>
+          <span id="onboard-name-val" class="font-bold text-[#152548]"></span>
         </div>
         <div class="flex items-center justify-between text-xs">
           <span class="text-slate-500">Calling:</span>
-          <span id="onboard-role-badge" class="font-bold text-[#A74319]">Ward Administrator</span>
+          <span id="onboard-role-badge" class="font-bold text-[#A74319]">Web Administrator</span>
         </div>
         <div class="flex items-center justify-between text-xs">
           <span class="text-slate-500">Mobile Phone:</span>
-          <span id="onboard-phone-val" class="font-mono font-semibold text-[#152548]">(508) 494-0905</span>
+          <span id="onboard-phone-val" class="font-mono font-semibold text-[#152548]"></span>
         </div>
         <div class="flex items-center justify-between text-xs">
           <span class="text-slate-500">Email:</span>
-          <span id="onboard-email-val" class="font-semibold text-[#152548]">tueini@gmail.com</span>
+          <span id="onboard-email-val" class="font-semibold text-[#152548]"></span>
         </div>
       </div>
 
@@ -1370,6 +1347,110 @@
         </div>
         <p id="onboard-action-hint" class="text-[11px] text-[#536484] text-center pt-0.5">Clicking <strong>Send Text</strong> or <strong>Send Email</strong> opens your device's messaging or mail app with the invitation ready to send and marks the leader as onboarded.</p>
       </div>
+    </div>
+  </div>
+
+  <!-- v1.2.56: Restricted Areas (Permissions-v3.xlsx, Restricted Areas tab) -->
+  <div id="restricted-areas-modal" role="dialog" aria-modal="true" aria-labelledby="restricted-areas-title"
+    class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white border border-[#E9DECE] rounded-2xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl relative my-8">
+      <button type="button" class="modal-close absolute top-5 right-5 text-slate-400 hover:text-slate-700 transition"
+        aria-label="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <h3 id="restricted-areas-title" class="text-lg font-bold text-[#152548]">Restricted Areas</h3>
+      <p class="text-xs text-[#536484] mt-0.5 mb-4">Area numbers used in the Accessible Areas column.</p>
+      <div class="overflow-x-auto rounded-lg border border-[#E9DECE]">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-100 border-b border-[#E9DECE] text-[#536484] uppercase tracking-wider font-semibold">
+            <tr>
+              <th scope="col" class="px-3 py-2">ID</th>
+              <th scope="col" class="px-3 py-2">Restricted Area</th>
+              <th scope="col" class="px-3 py-2">Section</th>
+              <th scope="col" class="px-3 py-2">Status</th>
+            </tr>
+          </thead>
+          <tbody id="restricted-areas-body" class="divide-y divide-[#E9DECE]"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- v1.2.76: shown when the full leader list read is denied for this sign-in (password, authenticator app or Google) -->
+  <div id="leaders-denied-modal" role="dialog" aria-modal="true" aria-labelledby="leaders-denied-title"
+    class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white border border-[#E9DECE] rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+      <h3 id="leaders-denied-title" class="text-lg font-bold text-[#152548]">Leader list needs a different sign-in</h3>
+      <p id="leaders-denied-msg" class="text-sm text-[#536484] mt-3"></p>
+      <div class="mt-6 flex justify-end">
+        <button type="button" class="modal-close px-4 py-2 rounded-lg bg-[#152548] text-white text-sm font-semibold hover:bg-[#0f1b36] transition">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- v1.2.68: Add Calling / Edit Calling. Save writes ward_permissions_roles (and meta/history). Copy row / Download CSV remain as fallback. -->
+  <div id="calling-modal" role="dialog" aria-modal="true" aria-labelledby="calling-modal-title"
+    class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white border border-[#E9DECE] rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative my-8">
+      <button type="button" class="modal-close absolute top-5 right-5 text-slate-400 hover:text-slate-700 transition"
+        aria-label="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <h3 id="calling-modal-title" class="text-lg font-bold text-[#152548] mb-4">Add Calling</h3>
+      <form id="calling-form" class="space-y-4" onsubmit="return false;">
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label for="calling-rc" class="block text-xs font-semibold text-[#536484] mb-1">RC *</label>
+            <input type="text" id="calling-rc" autocomplete="off" spellcheck="false"
+              class="w-full px-3 py-2.5 rounded-xl border border-[#E9DECE] text-sm font-mono focus:border-[#152548] outline-none read-only:bg-slate-50 read-only:text-slate-500">
+          </div>
+          <div class="col-span-2">
+            <label for="calling-label" class="block text-xs font-semibold text-[#536484] mb-1">Calling Label *</label>
+            <input type="text" id="calling-label" autocomplete="off" placeholder="e.g. Exec Sec"
+              class="w-full px-3 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
+          </div>
+        </div>
+        <div>
+          <label for="calling-name" class="block text-xs font-semibold text-[#536484] mb-1">Full Calling Name (Roles &amp; Callings) *</label>
+          <input type="text" id="calling-name" autocomplete="off" placeholder="e.g. Ward Executive Secretary"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-[#E9DECE] text-sm focus:border-[#152548] outline-none">
+        </div>
+        <fieldset class="border border-[#E9DECE] rounded-xl p-3.5 bg-slate-50/70">
+          <legend class="px-1 text-xs font-bold text-[#152548]">Org *</legend>
+          <div id="calling-orgs" class="grid grid-cols-2 gap-1.5"></div>
+        </fieldset>
+        <fieldset class="border border-[#E9DECE] rounded-xl p-3.5 bg-slate-50/70">
+          <legend class="px-1 text-xs font-bold text-[#152548]">Accessible Areas</legend>
+          <div id="calling-areas" class="grid grid-cols-6 gap-1.5"></div>
+          <p class="text-[11px] text-[#536484] mt-2">Hover a number for its site and section.</p>
+        </fieldset>
+        <p id="calling-save-note" class="text-[11px] text-[#536484] font-medium">Save writes this calling to the online
+          permissions list. If saving is denied, the Firestore rules update is still awaiting approval — use Copy row
+          or Download CSV and update Permissions_v6.xlsx.</p>
+        <p id="calling-modal-status" class="text-[11px] font-medium min-h-[1rem]" aria-live="polite"></p>
+        <div class="flex items-center justify-end gap-2 pt-4 border-t border-[#E9DECE]">
+          <button type="button"
+            class="modal-close px-4 py-2 border border-[#E9DECE] rounded-xl text-xs font-semibold text-[#536484] hover:bg-slate-50 transition">
+            Cancel
+          </button>
+          <button type="button" id="calling-copy-btn"
+            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#152548] rounded-xl text-xs font-semibold transition border border-[#E9DECE] cursor-pointer">
+            Copy row
+          </button>
+          <button type="button" id="calling-csv-btn"
+            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-[#152548] rounded-xl text-xs font-semibold transition border border-[#E9DECE] cursor-pointer">
+            Download CSV
+          </button>
+          <button type="button" id="calling-save-btn"
+            class="px-4 py-2 bg-[#152548] hover:bg-[#0E1A34] text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
+            Save
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1580,7 +1661,7 @@
     </div>
   </div>
 
-  <script type="module" src="/admin/admin-app.js?v=1.2.49"></script>
+  <script type="module" src="/admin/admin-app.js?v=1.2.94"></script>
   <script>
     // Parallax Engine for Admin
     function initAdminParallax() {

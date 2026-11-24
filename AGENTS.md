@@ -35,3 +35,8 @@ These standing rules are derived directly from `AG_Best_Practices.md` and govern
 - **Direct Push**: When instructed to push to GitHub (e.g., *"commit and push to GitHub"*), the agent stages, commits with the synchronized version number, and pushes directly to `origin main` on `https://github.com/tueini/Blackstone-Ward-Homepage`.
 - **Zero Air Gap Required**: No manual Personal Access Tokens or external terminal operations are required from the human operator.
 
+
+## Placeholder / Hint Text Consistency (standing rule, Duane, 2026-11-23 12:13 AM ET)
+- When editing placeholder or hint text in form fields, keep the example pattern already used in this hub or across hubs. Do not replace specific example names (such as "e.g. Mahonri Moriancumer") with generic text, or generic text with specific names, unless Duane explicitly asks.
+- Consistency with prior usage is required. Flag any deviation to Duane and get his approval before making it.
+- Applies to both new code changes and deployment steps (check before staging or production that hint text has not drifted from the established pattern).

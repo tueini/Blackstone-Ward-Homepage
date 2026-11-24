@@ -10,11 +10,11 @@
   <meta name="theme-color" content="#FAF6EF">
   <title>Blackstone Ward — Welcome home</title>
   <link rel="icon" href="assets/ward-logo.png" type="image/png">
-  <link rel="stylesheet" href="assets/tailwind.css?v=1.2.49">
-  <link rel="stylesheet" href="assets/styles.css?v=1.2.49">
-  <link rel="stylesheet" href="assets/seasons.css?v=1.2.49">
-  <link rel="stylesheet" href="assets/site.css?v=1.2.49">
-  <script type="module" src="js/home.js?v=1.2.49"></script>
+  <link rel="stylesheet" href="assets/tailwind.css?v=1.2.94">
+  <link rel="stylesheet" href="assets/styles.css?v=1.2.94">
+  <link rel="stylesheet" href="assets/seasons.css?v=1.2.94">
+  <link rel="stylesheet" href="assets/site.css?v=1.2.94">
+  <script type="module" src="js/home.js?v=1.2.94"></script>
 </head>
 
 <body data-season="fall">
@@ -207,19 +207,37 @@
       <div class="bishopric-lock-body">
         <button type="button" class="button bishopric-passkey-btn" id="bishopric-passkey-btn">Sign In with Touch ID / Face ID</button>
         <p class="bishopric-lock-hint" id="bishopric-passkey-hint" hidden></p>
-        <form id="bishopric-lock-form" class="bishopric-lock-form">
+        <!-- 2026-11-20: Bishopric Hub-style tabs. Only Password is offered here (this dialog has no SMS code path); text-code sign-in is on the Bishopric Hub. -->
+        <!-- v1.2.77 (Duane voice 11:51 PM ET): tabbed like every hub login: Touch ID on top, then Password Sign-In and Phone Text (SMS) tabs.
+             The SMS tab hands off to bish.blackstoneward.org, whose sign-in opens on its Phone Text (SMS) tab. -->
+        <!-- v1.2.78 (Duane 12:01 AM ET): Phone Text (SMS) is the default tab; both tabs styled as equal folder tabs in one row (site.css). -->
+        <!-- v1.2.79 (Duane 12:04 AM ET): default Phone Text (SMS) tab is on the left, Password Sign-In on the right. -->
+        <div class="td-tabs-panel">
+          <div class="td-tablist-bar" role="tablist" aria-label="Choose sign-in method">
+            <button type="button" id="bishopric-tab-sms" data-bishopric-tab="sms" role="tab" aria-selected="true" aria-controls="bishopric-sms-panel" class="td-folder-tab active-tab">Phone Text (SMS)</button>
+            <!-- v1.2.92 (Duane 2026-11-23): Password Sign-In tab hidden; with the master password retired it signed no one in (no personal-password path here). -->
+            <button type="button" id="bishopric-tab-password" data-bishopric-tab="password" role="tab" aria-selected="false" aria-controls="bishopric-lock-form" class="td-folder-tab" hidden style="display:none">Password Sign-In</button>
+          </div>
+          <div class="td-tab-body">
+        <form id="bishopric-lock-form" autocomplete="off" class="bishopric-lock-form" role="tabpanel" aria-labelledby="bishopric-tab-password" hidden>
           <div class="bishopric-field">
             <label for="bishopric-member-name">Bishopric Member Name</label>
-            <input type="text" id="bishopric-member-name" placeholder="First and last name (e.g. Duane Harris)" autocomplete="username webauthn" required>
+            <input type="text" id="bishopric-member-name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Enter First &amp; Last Name (e.g. Mahonri Moriancumer)" required>
             <p class="bishopric-member-match" id="bishopric-member-match" hidden></p>
           </div>
           <div class="bishopric-field">
-            <label for="bishopric-password">Personal or Master Password</label>
-            <input type="password" id="bishopric-password" placeholder="Enter your password" autocomplete="current-password" required>
+            <label for="bishopric-password">Password</label>
+            <input type="password" id="bishopric-password" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore placeholder="Enter your password" required>
           </div>
           <p class="bishopric-lock-error" id="bishopric-lock-error" role="alert" hidden></p>
           <button type="submit" class="button primary bishopric-submit-btn" id="bishopric-unlock-submit">Verify &amp; Enter Bishopric Hub →</button>
         </form>
+        <div id="bishopric-sms-panel" class="bishopric-lock-form" role="tabpanel" aria-labelledby="bishopric-tab-sms">
+          <p class="bishopric-sms-note">Text-code sign-in finishes on the Bishopric Hub: enter your name and mobile number there and we'll text you a 6-digit code.</p>
+          <a class="button primary bishopric-submit-btn" id="bishopric-sms-continue" href="https://bish.blackstoneward.org/">Continue with Phone Text (SMS) →</a>
+        </div>
+          </div>
+        </div>
       </div>
     </dialog>
   </main>
@@ -227,7 +245,7 @@
     <div class="wrap footer-content">
       <p id="footer-identity">Blackstone Ward • Blackstone Valley Massachusetts Stake</p>
       <div class="footer-release"><span id="footer-season">Fall</span><span id="footer-version"
-          aria-label="Website version">v1.2.49</span></div>
+          aria-label="Website version">v1.2.94</span></div>
     </div>
   </footer>
   <noscript>

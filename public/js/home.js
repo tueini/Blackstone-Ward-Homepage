@@ -1,5 +1,5 @@
-import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.49';
-import { loginWithCloudPasskey } from './passkey-client.js?v=1.2.49';
+import { currentSeason, resolveSeason, safeURL, contactURL, upcomingEvents, activeAnnouncements, youthURL, formatEvent } from './content.js?v=1.2.94';
+import { loginWithCloudPasskey } from './passkey-client.js?v=1.2.94';
 document.body.classList.add('js-ready');
 
 const seasonNames = { fall: 'Fall · Light beige', winter: 'Winter · Light blue', spring: 'Spring · Light green', summer: 'Summer · Light yellow' };
@@ -367,12 +367,10 @@ const BISHOPRIC_ROSTER = [
   { id: 'cole_houston', name: 'Cole Houston', shortName: 'Cole Houston', lastName: 'Houston', role: 'Ward Clerk', email: '' },
   { id: 'brian_mcdonald', name: 'Brian McDonald', shortName: 'Brian McDonald', lastName: 'McDonald', role: 'Executive Secretary', email: 'mcdonaldlds830@gmail.com' }
 ];
-const MASTER_APPROVED_HASHES = new Set([
-  '103a9f4c69d7331576e1a7b7f96ce781e3336f7b304424373aea1f263c581a3d',
-  '7ca8ae40ffb835bcc16f1de3fc4f27e3e6b3c709bc5d300f932cd019f86e488b',
-  '4b465598d5fd124a3856acff035f025315f798faf08049ee57409e3045c72e37',
-  '7f39e9e47d673293ede2907b955e989ab9188e35c39684c95eff536bb5b3e542'
-]);
+// v1.2.91 (Duane 2026-11-23, #3): the temporary master password is retired; its hash and check are removed.
+// 2026-11-20 (Duane): personal leader passwords (ward_leaders.passwordHash) are disabled for now.
+// v1.2.91 (#3): the master password is retired, so this Password tab signs no one in; use Touch ID.
+const PERSONAL_LEADER_PASSWORDS_DISABLED = true;
 let wardLeadersPool = [];
 let pendingBishopricDestination = 'https://bish.blackstoneward.org/';
 
@@ -451,10 +449,37 @@ function initBishopricLockGate() {
     if (errorEl) errorEl.hidden = true;
     if (passkeyHint) passkeyHint.hidden = true;
     if (pwInput) pwInput.value = '';
+    setBishopricTab('sms'); // v1.2.78: Phone Text (SMS) is the default tab
     dialog.showModal();
   });
 
   if (closeBtn) closeBtn.addEventListener('click', () => dialog.close());
+
+  // v1.2.77 (Duane voice 11:51 PM ET): Password Sign-In / Phone Text (SMS) tabs. The SMS panel links to the Bishopric Hub,
+  // whose sign-in opens on its Phone Text (SMS) tab. The Password path below is unchanged.
+  const smsPanel = document.getElementById('bishopric-sms-panel');
+  const tabBtns = dialog.querySelectorAll('[data-bishopric-tab]:not([hidden])'); // v1.2.92: hidden Password tab is skipped
+  const setBishopricTab = mode => {
+    const isSms = mode === 'sms';
+    tabBtns.forEach(btn => {
+      const active = (btn.getAttribute('data-bishopric-tab') === 'sms') === isSms;
+      btn.classList.toggle('active-tab', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    if (form) form.hidden = isSms;
+    if (smsPanel) smsPanel.hidden = !isSms;
+    if (errorEl) errorEl.hidden = true;
+  };
+  tabBtns.forEach((btn, idx) => {
+    btn.addEventListener('click', () => setBishopricTab(btn.getAttribute('data-bishopric-tab')));
+    btn.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      const next = tabBtns[(idx + 1) % tabBtns.length];
+      next.focus();
+      setBishopricTab(next.getAttribute('data-bishopric-tab'));
+    });
+  });
 
   if (nameInput) {
     nameInput.addEventListener('input', () => {
@@ -487,7 +512,7 @@ function initBishopricLockGate() {
       const rawPw = (pwInput?.value || '').trim();
       if (!rawPw) {
         if (errorEl) {
-          errorEl.textContent = 'Please enter your personal or master password.';
+          errorEl.textContent = 'Please enter your password.';
           errorEl.hidden = false;
         }
         pwInput?.focus();
@@ -495,22 +520,9 @@ function initBishopricLockGate() {
       }
       if (submitBtn) submitBtn.textContent = 'Verifying...';
       try {
-        const rawHash = await computeSha256(rawPw);
-        const lowerHash = await computeSha256(rawPw.toLowerCase());
-        const leaderDoc = wardLeadersPool.find(l => {
-          const dn = String(l.displayName || '').toLowerCase();
-          return dn === matched.name.toLowerCase() || dn.includes(matched.lastName.toLowerCase());
-        });
-        const validMaster = MASTER_APPROVED_HASHES.has(rawHash) || MASTER_APPROVED_HASHES.has(lowerHash);
-        const validPersonal = leaderDoc?.passwordHash && (leaderDoc.passwordHash === rawHash || leaderDoc.passwordHash === lowerHash);
-        if (validMaster || validPersonal) {
-          writeBishopricSSOCookie(matched);
-          dialog.close();
-          location.href = pendingBishopricDestination;
-          return;
-        }
+        // v1.2.91 (Duane 2026-11-23, #2/#3): no master password and no browser-side password hash compare here.
         if (errorEl) {
-          errorEl.textContent = 'Incorrect password. Please enter your personal leader password or the ward master password.';
+          errorEl.textContent = 'Incorrect password. Please try again.';
           errorEl.hidden = false;
         }
       } catch {
@@ -529,7 +541,7 @@ function initBishopricLockGate() {
       if (passkeyHint) passkeyHint.hidden = true;
       if (!window.PublicKeyCredential) {
         if (passkeyHint) {
-          passkeyHint.textContent = 'Touch ID / Face ID is not supported in this browser. Please enter your name and password below.';
+          passkeyHint.textContent = 'Touch ID / Face ID is not supported in this browser. Please use Phone Text (SMS) below.';
           passkeyHint.hidden = false;
         }
         return;
@@ -550,7 +562,7 @@ function initBishopricLockGate() {
         if (err?.name !== 'AbortError' && passkeyHint) {
           passkeyHint.textContent = err?.status === 403
             ? err.message
-            : 'No passkey found on this device yet. Please enter your Bishopric name and password below.';
+            : 'No passkey found on this device yet. Please use Phone Text (SMS) below.';
           passkeyHint.hidden = false;
         }
       }

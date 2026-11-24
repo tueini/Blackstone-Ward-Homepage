@@ -61,4 +61,15 @@ for (const relHtml of ['index.html', 'td/index.html', 'music/index.html', 'calen
     }
   }
 }
-console.log('Site integrity, public content, asset links, and hosting scope verified.');
+// v1.2.58: the vendored permissions module (BW_Platform scripts/vendor-permissions.js) must be complete and current.
+{
+  const permDir = path.join(publicDir, 'js/permissions');
+  const permJson = JSON.parse(fs.readFileSync(path.join(permDir, 'permissions.json'), 'utf8'));
+  const accessSrc = fs.readFileSync(path.join(permDir, 'access.js'), 'utf8');
+  const embedded = accessSrc.match(/^export const PERMISSIONS = ([\s\S]*?);\nexport const PERMISSIONS_SHA256/m);
+  assert.ok(embedded, 'Vendored access.js must embed PERMISSIONS');
+  assert.deepEqual(JSON.parse(embedded[1]), permJson, 'Vendored access.js and permissions.json must match');
+  const adminApp = fs.readFileSync(path.join(publicDir, 'admin/admin-app.js'), 'utf8');
+  assert.ok(adminApp.includes(`from "../js/permissions/access.js?v=${manifest.version}"`), 'Permissions module URL must match the release version');
+}
+console.log('Site integrity, public content, asset links, hosting scope and vendored permissions verified.');
