@@ -1,5 +1,10 @@
 # Blackstone Ward homepage changelog
 
+## 1.2.94 — November 23, 2026 (LIVE 10:07 PM ET, test 10:06 PM ET; Duane chat t450u "Please edit the example text and push to live")
+
+- Leader edit form example text no longer shows the owner's real email/phone: `public/admin/index.html` L1173 `#leader-email` placeholder "e.g. mahonri.moriancumer@example.com" (was the owner's email); L1180 `#leader-phone` placeholder "(508) 555-0123 or +15085550123" (was the owner's number). Same wording structure; Mahonri pattern. No code changes.
+- Versions 1.2.94. Backup `.bw_home_1.2.94_20261123/` (SHA256SUMS.txt).
+
 ## functions 1.2.6 (passkeyApi 1.4.1) — November 23, 2026 (LIVE 9:51 PM ET; Duane approved in chat t449u, cleanup item 3). Hosting unchanged.
 
 - `functions/index.js` L674-677 (`handlePasswordLogin`): when a leader has no scrypt credential, the one-time SHA-256 check now also reads a `ward_leader_credentials/{leaderId}` record `{ algo: 'sha256-legacy', legacyHash }` (old hashes moved off the browser-readable `ward_leaders` by `BW_Platform/migration/move-legacy-pwhash.js`). On success it is replaced with salted scrypt as before (`pwStoreScrypt` overwrites the credentials doc). A scrypt record still always wins. No other change.

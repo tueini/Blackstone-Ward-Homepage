@@ -17,7 +17,7 @@ import {
   signInWithCustomToken,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { loginWithCloudPasskey } from "./passkey-client.js?v=1.2.93";
+import { loginWithCloudPasskey } from "./passkey-client.js?v=1.2.94";
 
 // ======================== FIREBASE CONFIGURATION ========================
 const firebaseConfig = {
@@ -34,7 +34,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const MUSIC_PLANNER_VERSION = "1.2.93";
+const MUSIC_PLANNER_VERSION = "1.2.94";
 { const gv = document.getElementById("music-gate-version-label"); if (gv) gv.textContent = `Music Planner • Version ${MUSIC_PLANNER_VERSION}`; } // v1.2.83: version on sign-in screen
 
 const BISHOPRIC_IDS = new Set([
