@@ -851,3 +851,14 @@ exports.tdPublicSync = onDocumentWritten(
   { document: 'home_content/{docId}', region: 'us-central1' },
   td.makeSync({ db })
 );
+
+
+// v1.3.0 (2026-11-24, phase 4): email the Ward Clerk when a change request is opened,
+// and the requester when it is closed. NOT DEPLOYED until Duane's separate approval.
+// Deploy ONLY with: firebase deploy --only functions:changeRequestNotify --project blackstoneward-b861c
+// (never a broader functions deploy). Uses the existing mail collection / Trigger Email extension.
+const changeRequestNotifyMod = require('./changeRequestNotify');
+exports.changeRequestNotify = onDocumentWritten(
+  { document: 'change_requests/{requestId}', region: 'us-central1' },
+  changeRequestNotifyMod.makeHandler({ db })
+);
