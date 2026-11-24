@@ -10,12 +10,12 @@
   <meta name="theme-color" content="#FAF6EF">
   <title>Blackstone Ward — Sacrament Meeting Music Planner</title>
   <link rel="icon" href="/assets/ward-logo.png" type="image/png">
-  <script src="/security-config.js?v=1.1.46"></script>
+  <script src="/security-config.js?v=1.2.93"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/assets/seasons.css?v=1.1.46">
+  <link rel="stylesheet" href="/assets/seasons.css?v=1.2.93">
   <style>
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -145,6 +145,85 @@
         rgba(250, 246, 239, 0.97) 100%
       );
     }
+
+    /* 2026-11-20: Bishopric Hub-style folder tabs for sign-in (copied from BW_Bish public/assets/bishopric-hub.css) */
+    .td-tabs-panel {
+      background: #ffffff;
+      border: 1px solid #e9dece;
+      border-radius: 22px;
+      box-shadow: 0 4px 20px -2px rgba(21, 37, 72, 0.06);
+      overflow: visible;
+    }
+
+    .td-tablist-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 12px 20px 0 20px;
+      background: #f5efe4;
+      border-bottom: 1px solid #e9dece;
+      border-radius: 21px 21px 0 0;
+    }
+
+    .td-folder-tab {
+      position: relative;
+      top: 1px;
+      padding: 10px 18px;
+      border-radius: 12px 12px 0 0;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: transparent;
+      color: #536484;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .td-folder-tab:hover {
+      color: #152548;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .td-folder-tab.active-tab {
+      background: #ffffff;
+      color: #152548;
+      font-weight: 800;
+      border-color: #e9dece;
+      border-bottom: 1px solid #ffffff;
+      box-shadow: 0 -2px 8px rgba(21, 37, 72, 0.04);
+    }
+
+    .td-tab-body {
+      padding: 22px 24px;
+      background: #ffffff;
+      border-radius: 0 0 21px 21px;
+    }
+
+    @media (max-width: 640px) {
+      .td-tablist-bar {
+        padding: 10px 12px 0 12px;
+      }
+      .td-folder-tab {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+      .td-tab-body {
+        padding: 16px 14px;
+      }
+    }
+
+    /* v1.2.88: Sunday folder tabs. The active Sunday card sits inside the bordered tab panel, so the card's own border/shadow are dropped there. */
+    #music-sundays-container > article {
+      border-width: 0;
+      box-shadow: none;
+      border-radius: 0 0 1rem 1rem;
+    }
   </style>
 </head>
 
@@ -226,7 +305,7 @@
           <p class="text-xs text-emerald-800">Signed in as <strong id="music-gate-sso-name">Mio Cowden</strong>.</p>
           <button type="button" id="btn-music-sso-continue"
             class="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition shadow-sm cursor-pointer">
-            Continue to Music Planner &rarr;
+            Verify to continue
           </button>
         </div>
 
@@ -244,36 +323,34 @@
             class="hidden text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-left"></p>
         </div>
 
-        <!-- Auth Mode Switcher (Password vs Phone SMS) -->
-        <div class="max-w-md mx-auto pt-1">
-          <fieldset class="border border-[#E9DECE] rounded-xl p-1 bg-[#FAF6EF]/80 grid grid-cols-2 gap-1">
-            <legend class="sr-only">Choose credential verification method</legend>
-            <label class="cursor-pointer">
-              <input type="radio" name="music_gate_auth_mode" value="password" checked class="sr-only peer">
-              <span
-                class="block py-2 px-3 rounded-lg text-xs font-bold text-[#536484] peer-checked:bg-[#152548] peer-checked:text-white transition">
-                Password Sign-In
-              </span>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="music_gate_auth_mode" value="sms" class="sr-only peer">
-              <span
-                class="block py-2 px-3 rounded-lg text-xs font-bold text-[#536484] peer-checked:bg-[#152548] peer-checked:text-white transition">
+        <!-- 2026-11-20: Bishopric Hub-style folder tabs (Phone Text (SMS) default | Password Sign-In); the tabs drive the existing auth-mode radios -->
+        <div class="td-tabs-panel max-w-md mx-auto text-left">
+          <div class="td-tablist-bar" role="tablist" aria-label="Choose credential verification method">
+            <div class="flex flex-wrap items-end gap-1.5">
+              <button type="button" id="btn-music-tab-sms" data-music-auth-tab="sms" role="tab" aria-selected="true"
+                aria-controls="music-gate-sms-form" class="td-folder-tab active-tab">
                 Phone Text (SMS)
-              </span>
-            </label>
-          </fieldset>
-        </div>
+              </button>
+              <!-- v1.2.92 (Duane 2026-11-23): Password Sign-In tab hidden; personal passwords are off here and the master password is retired. -->
+              <button type="button" id="btn-music-tab-password" data-music-auth-tab="password" role="tab"
+                aria-selected="false" aria-controls="music-gate-pw-form" class="td-folder-tab" hidden style="display:none">
+                Password Sign-In
+              </button>
+            </div>
+            <input type="radio" name="music_gate_auth_mode" value="sms" checked class="sr-only" tabindex="-1" aria-hidden="true">
+            <input type="radio" name="music_gate_auth_mode" value="password" class="sr-only" tabindex="-1" aria-hidden="true">
+          </div>
 
+          <div class="td-tab-body">
         <!-- PASSWORD CREDENTIAL FORM -->
-        <form id="music-gate-pw-form" action="#unlock" method="POST" class="space-y-4 max-w-md mx-auto text-left"
-          novalidate>
+        <form id="music-gate-pw-form" autocomplete="off" action="#unlock" method="POST" class="hidden space-y-4 max-w-md mx-auto text-left"
+          role="tabpanel" aria-labelledby="btn-music-tab-password" novalidate>
           <div class="form-field-group">
             <label for="music-gate-name" class="text-xs font-bold uppercase tracking-wider text-[#536484]">
               Enter First &amp; Last Name *
             </label>
-            <input type="text" id="music-gate-name" name="member_name" autocomplete="name webauthn" required
-              placeholder="e.g. Mio Cowden" aria-describedby="music-gate-match"
+            <input type="text" id="music-gate-name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="member_name" required
+              placeholder="Enter First &amp; Last Name (e.g. Mahonri Moriancumer)" aria-describedby="music-gate-match"
               class="w-full px-4 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/15 outline-none text-sm text-[#152548] font-medium bg-white transition">
             <div id="music-gate-match" aria-live="polite"
               class="hidden mt-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center justify-between">
@@ -287,7 +364,7 @@
               Password *
             </label>
             <div class="relative">
-              <input type="password" id="music-gate-password" name="password" autocomplete="current-password" required
+              <input type="password" id="music-gate-password" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore name="password" required
                 placeholder="Enter your password..." aria-describedby="music-gate-pw-error"
                 class="w-full pl-4 pr-12 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] focus:ring-2 focus:ring-[#152548]/15 outline-none text-sm text-[#152548] font-medium bg-white transition">
               <button type="button" id="btn-toggle-music-pw" aria-label="Show password" aria-pressed="false"
@@ -309,14 +386,13 @@
 
         <!-- PHONE SMS CREDENTIAL FORM -->
         <form id="music-gate-sms-form" action="#unlock-sms" method="POST"
-          class="hidden space-y-4 max-w-md mx-auto text-left" novalidate>
+          class="space-y-4 max-w-md mx-auto text-left" role="tabpanel" aria-labelledby="btn-music-tab-sms" novalidate>
           <div id="music-sms-step-1" class="space-y-4">
             <div class="form-field-group">
               <label for="music-sms-name" class="text-xs font-bold uppercase tracking-wider text-[#536484]">
                 Enter First &amp; Last Name *
               </label>
-              <input type="text" id="music-sms-name" name="sms_member_name" autocomplete="name" required
-                placeholder="e.g. Mio Cowden"
+              <input type="text" id="music-sms-name" name="sms_member_name" placeholder="Enter First &amp; Last Name (e.g. Mahonri Moriancumer)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-form-type="other" required
                 class="w-full px-4 py-3 rounded-xl border-2 border-[#E9DECE] focus:border-[#152548] outline-none text-sm text-[#152548] font-medium bg-white transition">
             </div>
 
@@ -364,6 +440,9 @@
           </p>
           <div id="music-recaptcha-container" class="flex justify-center"></div>
         </form>
+          </div>
+        </div>
+        <p id="music-gate-version-label" class="text-center text-[10px] font-medium text-[#536484] !mt-4 -mb-3 sm:-mb-5">Music Planner • Version 1.2.93</p>
       </div>
     </section>
   </div>
@@ -383,10 +462,10 @@
               <span>🎵 Blackstone Ward • Ward Music Coordinator</span>
             </div>
             <h1 class="text-3xl sm:text-4xl font-serif font-bold text-[#152548] tracking-tight">
-              Sacrament Meeting Music Planner
+              Sacrament Mtg Music Planner
             </h1>
-            <p class="text-xs sm:text-sm text-[#536484] font-medium max-w-2xl">
-              Assign hymns, special musical numbers, choristers, and accompanists for each Sunday of the month based on the monthly theme. Saving automatically syncs with the Bishopric Hub.
+            <p class="text-xs sm:text-sm text-[#536484] font-medium max-w-[29rem]">
+              Assign hymns, special musical numbers, choristers and accompanists for each Sunday of the month based on the monthly theme.
             </p>
           </div>
 
@@ -394,7 +473,7 @@
           <div class="flex flex-wrap items-center gap-2">
             <button type="button" id="btn-music-open-hymns"
               class="px-3.5 py-2 rounded-xl bg-white hover:bg-[#EFE6D5] border border-[#E9DECE] text-[#152548] text-xs font-bold transition shadow-2xs cursor-pointer">
-              📖 Hymns Table
+              Hymns
             </button>
             <button type="button" id="btn-music-open-choristers"
               class="px-3.5 py-2 rounded-xl bg-white hover:bg-[#EFE6D5] border border-[#E9DECE] text-[#152548] text-xs font-bold transition shadow-2xs cursor-pointer">
@@ -419,28 +498,30 @@
             <span id="music-year-eyebrow" class="text-[11px] font-extrabold uppercase tracking-wider text-[#007B91]">
               2026 • Sacrament Meeting Music
             </span>
-            <h2 class="text-xl sm:text-2xl font-serif font-bold text-[#152548]">
-              Select Month &amp; Review Monthly Theme
+            <h2 id="music-month-section-title" class="text-xl sm:text-2xl font-serif font-bold text-[#152548]">
+              2026 Monthly Music Selections
             </h2>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
             <span id="music-sync-status" role="status" aria-live="polite"
-              class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
+              class="text-xs font-bold text-emerald-700">
               ✓ Synced with Bishopric Hub
             </span>
-            <div id="music-year-btn-group"
-              class="inline-flex flex-wrap items-center gap-1 p-1 bg-[#FAF6EF] border border-[#E9DECE] rounded-xl"
-              role="group" aria-label="Select Year">
-              <!-- Populated dynamically -->
-            </div>
           </div>
         </div>
 
-        <!-- Month Pills Strip -->
-        <div id="music-month-pills" class="flex items-center gap-1.5 overflow-x-auto pb-1" role="tablist"
-          aria-label="Select Month">
-          <!-- Populated dynamically -->
+        <!-- Month Pills Strip + Year Selector (v1.2.86: years moved to the right of the months) -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div id="music-month-pills" class="flex-1 min-w-0 flex items-center gap-1.5 overflow-x-auto pb-1" role="tablist"
+            aria-label="Select Month">
+            <!-- Populated dynamically -->
+          </div>
+          <div id="music-year-btn-group"
+            class="shrink-0 inline-flex flex-wrap items-center gap-1 p-1 bg-[#FAF6EF] border border-[#E9DECE] rounded-xl"
+            role="group" aria-label="Select Year">
+            <!-- Populated dynamically -->
+          </div>
         </div>
 
         <!-- Requirement 2.b.i: Monthly Theme Display Banner -->
@@ -449,10 +530,6 @@
             <div class="flex items-center gap-2">
               <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#007B91]">
                 <span id="music-selected-month-label">November 2026</span> • Monthly Sacrament Theme
-              </span>
-              <span id="music-start-time-badge"
-                class="px-2.5 py-0.5 rounded-full bg-[#152548]/10 text-[#152548] text-[11px] font-extrabold">
-                Sacrament Start Time: 12:00 PM
               </span>
             </div>
             <div id="music-monthly-theme-display" class="text-lg sm:text-2xl font-serif font-bold text-[#152548]">
@@ -474,12 +551,20 @@
             SUNDAYS IN NOVEMBER 2026
           </h3>
           <p class="text-xs text-[#536484]">
-            Changes auto-save or click <strong>Save Month Music</strong> to sync all Sundays to <code>bish.blackstoneward.org</code>.
+            Changes save automatically and sync to the Bishopric Hub.
           </p>
         </div>
 
-        <div id="music-sundays-container" class="space-y-5">
-          <!-- Populated dynamically with a card for each Sunday of the selected month -->
+        <!-- v1.2.88: Sunday folder tabs + connected panel (Bishopric Hub Sacrament planner pattern) -->
+        <div>
+          <div id="music-sunday-tabs" role="tablist" aria-label="Sundays in selected month"
+            class="relative z-20 flex items-end gap-2 sm:gap-2.5 overflow-x-auto">
+            <!-- Populated dynamically with one tab per Sunday of the selected month -->
+          </div>
+          <div id="music-sundays-container" role="tabpanel"
+            class="bg-white border-2 border-[#152548] rounded-b-2xl rounded-t-none shadow-md -mt-[2px] relative z-10">
+            <!-- Populated dynamically with a card for each Sunday of the selected month (only the active Sunday is shown) -->
+          </div>
         </div>
 
         <div class="bg-white border border-[#E9DECE] rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-wrap items-center justify-between gap-3">
@@ -487,19 +572,15 @@
             class="text-xs font-bold text-emerald-700">
             ✓ All Sunday music assignments synced with Bishopric Hub
           </span>
-          <button type="submit" id="btn-music-save-all-bottom"
-            class="px-6 py-3 rounded-xl bg-[#152548] hover:bg-[#0E1A34] text-white text-xs sm:text-sm font-bold transition shadow-md cursor-pointer">
-            Save Month Music &amp; Sync to Bishopric Hub &rarr;
-          </button>
         </div>
       </form>
     </main>
 
     <!-- Footer -->
     <footer class="mt-auto border-t border-[#E9DECE] bg-white py-5 px-4 text-center text-xs text-[#536484]">
-      <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="max-w-6xl mx-auto flex flex-col items-center justify-center text-center gap-1">
         <span>Blackstone Ward Sacrament Meeting Music Planner • Synced with Bishopric Hub</span>
-        <span id="music-footer-version" class="font-semibold text-[#152548]">Version 1.1.46</span>
+        <span id="music-footer-version" class="font-semibold text-[#152548]">Version 1.2.93</span>
       </div>
     </footer>
   </div>
@@ -690,7 +771,7 @@
     </div>
   </dialog>
 
-  <script type="module" src="/js/music-coordinator.js?v=1.1.46"></script>
+  <script type="module" src="/js/music-coordinator.js?v=1.2.93"></script>
 </body>
 
 </html>

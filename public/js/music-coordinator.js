@@ -6,15 +6,18 @@ import {
   getDoc,
   setDoc,
   doc,
-  onSnapshot
+  onSnapshot,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import {
   getAuth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-  signInWithCustomToken
+  signInWithCustomToken,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { loginWithCloudPasskey } from "./passkey-client.js?v=1.2.49";
+import { loginWithCloudPasskey } from "./passkey-client.js?v=1.2.93";
 
 // ======================== FIREBASE CONFIGURATION ========================
 const firebaseConfig = {
@@ -31,7 +34,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const MUSIC_PLANNER_VERSION = "1.1.46";
+const MUSIC_PLANNER_VERSION = "1.2.93";
+{ const gv = document.getElementById("music-gate-version-label"); if (gv) gv.textContent = `Music Planner • Version ${MUSIC_PLANNER_VERSION}`; } // v1.2.83: version on sign-in screen
 
 const BISHOPRIC_IDS = new Set([
   "duane_harris",
@@ -88,6 +92,7 @@ let wardLeadersPool = [];
 let smsConfirmationResult = null;
 let saveDebounceTimer = null;
 let openDropdownKey = null; // e.g. "hymn__2026-11-15__openingHymn" | "chor__2026-11-15" | "acc__2026-11-15"
+let selectedMusicSundayDate = null; // v1.2.88: active Sunday tab (YYYY-MM-DD)
 
 // ======================== HELPERS ========================
 function escapeHtml(str) {
@@ -143,6 +148,10 @@ function normalizePhone(phoneStr) {
   if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
   return String(phoneStr).startsWith("+") ? String(phoneStr) : `+${digits}`;
 }
+
+// 2026-11-20 (Duane): personal leader passwords (ward_leaders.passwordHash) are disabled for now.
+// 2026-11-23 (Duane, #3): the temporary master password is retired, so the Password tab signs no one in here.
+const PERSONAL_LEADER_PASSWORDS_DISABLED = true;
 
 async function computeSha256(text) {
   const encoder = new TextEncoder();
@@ -294,6 +303,59 @@ async function loadWardLeadersPool() {
   }
 }
 
+// v1.2.69 (2026-11-22): tightened rules draft (BW_Platform prod-rules/firestore.rules.draft-20261122-tighten) let an
+// SMS session read only ward_leaders records whose phoneNumber is its verified number, and treat it as a leader only
+// after it binds leader_sessions/{uid}. Also works under the live rules (the bind is simply refused there).
+function leaderPhoneVariants(e164) {
+  const m = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(String(e164 || ''));
+  if (!m) return e164 ? [String(e164)] : [];
+  const [, a, b, c] = m;
+  const d = a + b + c;
+  return [`+1${d}`, d, `1${d}`, `(${a}) ${b}-${c}`, `(${a})${b}-${c}`, `${a}-${b}-${c}`, `${a}.${b}.${c}`, `${a} ${b} ${c}`,
+    `+1 ${a} ${b} ${c}`, `+1 (${a}) ${b}-${c}`, `+1-${a}-${b}-${c}`, `+1 ${a}-${b}-${c}`, `1-${a}-${b}-${c}`, `1 (${a}) ${b}-${c}`];
+}
+async function findLeadersByVerifiedPhone(e164) {
+  if (!leaderPhoneVariants(e164).length) return [];
+  const snap = await getDocs(query(collection(db, "ward_leaders"), where("phoneNumber", "in", leaderPhoneVariants(e164))));
+  const list = [];
+  snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+  return list;
+}
+async function bindLeaderSession(leaderId, hub) {
+  const user = auth.currentUser;
+  if (!user || !leaderId) return false;
+  try {
+    await setDoc(doc(db, "leader_sessions", user.uid), { leaderId: String(leaderId), boundAt: new Date().toISOString(), hub });
+    return true;
+  } catch (e) {
+    console.info("leader_sessions bind not saved:", e && e.code ? e.code : e);
+    return false;
+  }
+}
+// v1.2.69: after an SMS sign-in, bind this session to the caller's own active ward_leaders record (if any).
+async function bindVerifiedPhoneSession() {
+  try {
+    const phone = auth.currentUser?.phoneNumber || "";
+    if (!phone) return false;
+    const mine = (await findLeadersByVerifiedPhone(phone)).filter(l => l.active !== false);
+    if (mine.length) return await bindLeaderSession(mine[0].id, "music");
+    console.info("No ward_leaders record for this verified phone; cloud saves need a passkey sign-in.");
+  } catch (e) {
+    console.info("Phone session bind skipped:", e && e.code ? e.code : e);
+  }
+  return false;
+}
+// v1.2.69: saves to shared site data need a passkey or text-message sign-in once the tightened rules are live.
+const CLOUD_SAVE_DENIED_MSG = "Saved on this device only. Saving to the shared site now needs a passkey (Touch ID) or text-message sign-in by a registered leader; password sign-ins can't save. Please sign in again with your passkey or a text code.";
+let cloudSaveDeniedAt = 0;
+function notifyCloudSaveDenied(err) {
+  if (!err || err.code !== "permission-denied") return;
+  const now = Date.now();
+  if (now - cloudSaveDeniedAt < 10000) return;
+  cloudSaveDeniedAt = now;
+  alert(CLOUD_SAVE_DENIED_MSG);
+}
+
 function readSSOCookie() {
   try {
     const match = document.cookie.match(/(?:^|;\s*)ward_auth_session=([^;]*)/);
@@ -430,6 +492,48 @@ function lockMusicPlanner() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+// v1.2.83: a saved unlock in browser storage is client-editable, so it is restored only when Firebase still has a live
+// sign-in (Touch ID passkey or text code) for the same leader. A personal-password session alone ('pw_') never counts,
+// and ward-password unlocks (no Firebase sign-in) do not survive a reload.
+function waitForAuthReady() {
+  return new Promise(resolve => {
+    const unsub = onAuthStateChanged(auth, u => { try { unsub(); } catch (_) {} resolve(u || null); });
+  });
+}
+async function liveSignInLeaderName() {
+  const user = await waitForAuthReady();
+  if (!user) return "";
+  try {
+    const claims = (await user.getIdTokenResult()).claims || {};
+    if (claims.pw || String(user.uid || "").startsWith("pw_")) return "";
+    if (claims.leaderId) {
+      if (claims.displayName) return String(claims.displayName);
+      const snap = await getDoc(doc(db, "ward_leaders", String(claims.leaderId)));
+      if (snap.exists()) return String(snap.data().displayName || snap.data().name || "");
+      return "";
+    }
+    if (user.phoneNumber) {
+      const mine = (await findLeadersByVerifiedPhone(user.phoneNumber)).filter(l => l.active !== false);
+      const l = mine[0];
+      if (l) return String(l.displayName || l.name || `${l.firstName || ""} ${l.lastName || ""}`.trim());
+    }
+  } catch (e) {
+    console.info("Saved unlock not restored (sign-in check failed):", e && e.code ? e.code : e);
+  }
+  return "";
+}
+async function restoreSavedMusicUnlock(savedMusic) {
+  const liveName = await liveSignInLeaderName();
+  const live = liveName ? findAuthorizedMusicUser(liveName) : null;
+  const saved = findAuthorizedMusicUser(savedMusic.name);
+  if (live && saved && (live.id ? live.id === saved.id : live.name === saved.name)) {
+    unlockMusicPlanner(live);
+    return;
+  }
+  sessionStorage.removeItem("musicPlannerAuth");
+  localStorage.removeItem("musicPlannerAuth");
+}
+
 function initMusicLoginGate() {
   // 1. Check saved session in sessionStorage / localStorage (either musicPlannerAuth or bishopricHubAuth)
   try {
@@ -440,15 +544,12 @@ function initMusicLoginGate() {
       localStorage.getItem("bishopricHubAuth") ||
       "null"
     );
-    if (savedMusic && savedMusic.name) {
-      const matched = findAuthorizedMusicUser(savedMusic.name);
-      if (matched) {
-        unlockMusicPlanner(matched);
-      }
+    if (savedMusic && savedMusic.name && findAuthorizedMusicUser(savedMusic.name)) {
+      restoreSavedMusicUnlock(savedMusic); // v1.2.83: only with a live sign-in for the same leader
     }
   } catch (_) {}
 
-  // 2. Check SSO cookie
+  // 2. Check SSO cookie (v1.2.83: display and name prefill only; never unlock from the cookie)
   const ssoUser = readSSOCookie();
   if (ssoUser) {
     const matched = findAuthorizedMusicUser(ssoUser.displayName || ssoUser.name || "");
@@ -461,7 +562,22 @@ function initMusicLoginGate() {
         nameEl.textContent = `${matched.name} (${matched.role})`;
         if (roleEl) roleEl.textContent = matched.role;
         banner.classList.remove("hidden");
-        btnContinue.addEventListener("click", () => unlockMusicPlanner(matched));
+        const prefillMusicNames = () => {
+          const smsName = document.getElementById("music-sms-name");
+          const pwName = document.getElementById("music-gate-name");
+          if (smsName && !smsName.value.trim()) smsName.value = matched.name;
+          if (pwName && !pwName.value.trim()) pwName.value = matched.name;
+        };
+        prefillMusicNames();
+        btnContinue.addEventListener("click", () => {
+          prefillMusicNames();
+          const smsForm = document.getElementById("music-gate-sms-form");
+          const smsVisible = smsForm && !smsForm.classList.contains("hidden");
+          const target = document.getElementById(smsVisible ? "music-sms-name" : "music-gate-name")
+            || document.getElementById("btn-music-gate-passkey");
+          target?.scrollIntoView({ behavior: "smooth", block: "center" });
+          if (target && typeof target.focus === "function") target.focus();
+        });
       }
     }
   }
@@ -557,34 +673,11 @@ function initMusicLoginGate() {
       if (submitBtn) submitBtn.textContent = "Verifying Credentials...";
 
       try {
-        const rawHash = await computeSha256(rawPw);
-        const lowerHash = await computeSha256(rawPw.toLowerCase());
-
-        const masterHashes = new Set([
-          window.SECURE_AUTH_HASHES?.MASTER,
-          window.SECURE_AUTH_HASHES?.WARD,
-          ...(window.MASTER_APPROVED_HASHES || [])
-        ]);
-
-        // 1. Check Master / Ward Passwords
-        if (masterHashes.has(rawHash) || masterHashes.has(lowerHash)) {
-          unlockMusicPlanner(matchedMember);
-          return;
-        }
-
-        // 2. Check Personal Leader Password in Firestore ward_leaders
-        const leaderDoc = wardLeadersPool.find(l => {
-          const dn = String(l.displayName || l.name || "").toLowerCase();
-          return dn === matchedMember.name.toLowerCase() || (matchedMember.lastName && dn.includes(matchedMember.lastName.toLowerCase()));
-        });
-
-        if (leaderDoc && leaderDoc.passwordHash && (leaderDoc.passwordHash === rawHash || leaderDoc.passwordHash === lowerHash)) {
-          unlockMusicPlanner(matchedMember);
-          return;
-        }
+        // 2026-11-23 (Duane, #2/#3): the master password is retired and the browser no longer hashes or compares
+        // passwords. Personal leader passwords are not enabled on the Music Planner (PERSONAL_LEADER_PASSWORDS_DISABLED).
 
         if (pwError) {
-          pwError.textContent = "Incorrect password. Please enter your personal leader password or the ward password.";
+          pwError.textContent = "Incorrect password. Please try again, or use Phone Text (SMS).";
           pwError.classList.remove("hidden");
         }
       } catch (err) {
@@ -606,7 +699,7 @@ function initMusicLoginGate() {
       passkeyHint?.classList.add("hidden");
       if (!window.PublicKeyCredential) {
         if (passkeyHint) {
-          passkeyHint.textContent = "Biometrics / Passkeys are not supported in this browser. Please use Password or Phone SMS below.";
+          passkeyHint.textContent = "Biometrics / Passkeys are not supported in this browser. Please use Phone SMS below.";
           passkeyHint.classList.remove("hidden");
         }
         return;
@@ -639,7 +732,7 @@ function initMusicLoginGate() {
       } catch (err) {
         if (err?.name === "AbortError") return;
         if (passkeyHint) {
-          passkeyHint.textContent = "No cloud passkey found on this device yet. Please sign in with Password or Phone SMS below.";
+          passkeyHint.textContent = "No cloud passkey found on this device yet. Please sign in with Phone SMS below.";
           passkeyHint.classList.remove("hidden");
         }
       }
@@ -665,6 +758,7 @@ function initMusicLoginGate() {
     }
     try {
       await smsConfirmationResult.confirm(code);
+      await bindVerifiedPhoneSession(); // v1.2.69
       unlockMusicPlanner(smsConfirmationResult._matchedMember || MUSIC_AUTHORIZED_ROSTER[0]);
     } catch (_) {
       if (smsError) {
@@ -753,7 +847,7 @@ function initMusicLoginGate() {
           return;
         }
         if (smsError) {
-          smsError.textContent = err.message || "Could not send SMS code. Please use Touch ID or Password Sign-In.";
+          smsError.textContent = err.message || "Could not send SMS code. Please use Touch ID.";
           smsError.classList.remove("hidden");
         }
       } finally {
@@ -1185,6 +1279,7 @@ async function persistMusicToFirestore(statusMessage = "✓ Saved & Synced to Bi
     if (botSt) botSt.textContent = statusMessage;
   } catch (err) {
     console.warn("Could not save Music Planner to Firestore:", err);
+    notifyCloudSaveDenied(err); // v1.2.69
     if (topSt) topSt.textContent = "Saved locally (offline)";
     if (botSt) botSt.textContent = "Saved locally (will sync when online)";
   }
@@ -1204,6 +1299,10 @@ function renderMusicPlanner() {
   const eyebrowEl = document.getElementById("music-year-eyebrow");
   if (eyebrowEl) {
     eyebrowEl.textContent = `${selectedYear} • Sacrament Meeting Music`;
+  }
+  const monthSectionTitleEl = document.getElementById("music-month-section-title"); // v1.2.84: year title
+  if (monthSectionTitleEl) {
+    monthSectionTitleEl.textContent = `${selectedYear} Monthly Music Selections`;
   }
 
   const availYears = getAvailableSacramentYears();
@@ -1238,7 +1337,7 @@ function renderMusicPlanner() {
               ? "bg-slate-200 hover:bg-slate-300 text-slate-600 hover:text-[#152548] border border-slate-300"
               : "bg-[#FAF6EF] hover:bg-[#EFE6D5] text-[#536484] hover:text-[#152548] border border-[#E9DECE]"
           }">
-          ${MONTH_SHORT[m - 1]} ${selectedYear}
+          ${MONTH_SHORT[m - 1]}
         </button>
       `;
     }
@@ -1273,6 +1372,55 @@ function renderMusicPlanner() {
   const monthSundays = Object.values(sundaysMap)
     .filter(s => s.date && s.date.startsWith(mKey))
     .sort((a, b) => a.date.localeCompare(b.date));
+
+  // v1.2.88: Sunday folder tabs. Default to the next upcoming Sunday in this month, else the first; a month switch resets it.
+  if (!monthSundays.some(s => s.date === selectedMusicSundayDate)) {
+    const upcoming = monthSundays.find(s => s.date >= todayIso);
+    selectedMusicSundayDate = (upcoming || monthSundays[0] || {}).date || null;
+  }
+  const sundayTabsEl = document.getElementById("music-sunday-tabs");
+  if (sundayTabsEl) {
+    sundayTabsEl.innerHTML = monthSundays.map((s, idx) => {
+      const dStr = s.date;
+      const isSel = dStr === selectedMusicSundayDate;
+      const isPastSunday = dStr < todayIso;
+      const mType = s.meetingType || "Standard";
+      const isStandardType = mType === "Standard"; // v1.2.89: footer shows the meeting type
+      const mTypeLabel = isStandardType ? "Standard Sunday" : mType;
+      const tabClass = isSel
+        ? "relative z-20 border-t-4 border-t-[#007B91] border-x-2 border-x-[#152548] border-b-0 bg-white rounded-t-2xl rounded-b-none pb-4"
+        : isPastSunday
+        ? "relative z-0 mb-[2px] border-2 border-b-0 border-slate-300 bg-slate-200/90 hover:bg-slate-300/80 text-slate-600 rounded-t-2xl rounded-b-none opacity-95 hover:opacity-100"
+        : "relative z-0 mb-[2px] border-2 border-b-0 border-[#E9DECE] bg-[#FAF6EF] hover:bg-[#EFE6D5] hover:border-[#007B91] rounded-t-2xl rounded-b-none";
+      const dim = isPastSunday && !isSel;
+      return `
+        <button type="button" role="tab" id="music-sunday-tab-${dStr}" aria-selected="${isSel}" aria-controls="music-sundays-container"
+          data-music-select-sunday="${dStr}"
+          class="flex-1 min-w-[9.5rem] text-left p-3.5 transition cursor-pointer flex flex-col justify-between gap-2 ${tabClass}">
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider ${dim ? "text-slate-600" : "text-[#007B91]"}">
+                ${idx + 1}${idx === 0 ? "st" : idx === 1 ? "nd" : idx === 2 ? "rd" : "th"} Sunday
+              </span>
+            </div>
+            <div class="text-sm font-extrabold ${dim ? "text-slate-700" : "text-[#152548]"}">${escapeHtml(formatShortDate(dStr))}</div>
+          </div>
+          <div class="pt-2 border-t ${dim ? "border-slate-300" : "border-[#E9DECE]"} flex items-center justify-between gap-1 text-[11px]">
+            <span class="font-bold ${dim ? "text-slate-600" : isStandardType ? "text-[#536484]" : "text-[#A74319]"} truncate">${escapeHtml(mTypeLabel)}</span>
+            ${isSel ? `<span class="font-extrabold text-[#007B91] whitespace-nowrap">● Active Tab</span>` : ""}
+          </div>
+        </button>
+      `;
+    }).join("");
+    // Narrow screens: keep the active tab scrolled into view inside the tab row (horizontal only; never scrolls the page)
+    const activeTabEl = sundayTabsEl.querySelector('[aria-selected="true"]');
+    if (activeTabEl && sundayTabsEl.scrollWidth > sundayTabsEl.clientWidth) {
+      const tabLeft = activeTabEl.offsetLeft;
+      const tabRight = tabLeft + activeTabEl.offsetWidth;
+      if (tabLeft < sundayTabsEl.scrollLeft) sundayTabsEl.scrollLeft = tabLeft;
+      else if (tabRight > sundayTabsEl.scrollLeft + sundayTabsEl.clientWidth) sundayTabsEl.scrollLeft = tabRight - sundayTabsEl.clientWidth;
+    }
+  }
 
   const containerEl = document.getElementById("music-sundays-container");
   if (!containerEl) return;
@@ -1348,10 +1496,6 @@ function renderMusicPlanner() {
 
           <div class="flex items-center gap-2">
             <span id="music-card-status-${dStr}" class="text-[11px] font-bold text-emerald-700"></span>
-            <button type="button" data-save-sunday-music="${dStr}"
-              class="px-3.5 py-1.5 rounded-xl bg-[#007B91] hover:bg-[#006072] text-white text-xs font-bold transition shadow-2xs cursor-pointer">
-              Save ${escapeHtml(formatShortDate(dStr))} Music ✓
-            </button>
           </div>
         </div>
 
@@ -1558,6 +1702,12 @@ function renderMusicPlanner() {
       </article>
     `;
   }).join("");
+
+  // v1.2.88: every Sunday card stays in the DOM (save-all reads them all); only the active Sunday's card is shown.
+  containerEl.querySelectorAll("[data-sunday-music-card]").forEach(cardEl => {
+    cardEl.classList.toggle("hidden", cardEl.getAttribute("data-sunday-music-card") !== selectedMusicSundayDate);
+  });
+  if (selectedMusicSundayDate) containerEl.setAttribute("aria-labelledby", `music-sunday-tab-${selectedMusicSundayDate}`);
 }
 
 // ======================== CUSTOM PULL-DOWN MENUS FOR HYMNS, CHORISTERS & ACCOMPANISTS ========================
@@ -1944,6 +2094,16 @@ function initMusicPlannerInteractions() {
       return;
     }
 
+    // v1.2.88: Sunday folder tab selection
+    const sunTabBtn = e.target.closest("[data-music-select-sunday]");
+    if (sunTabBtn) {
+      if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+      collectMonthMusicFormIntoState();
+      selectedMusicSundayDate = sunTabBtn.getAttribute("data-music-select-sunday") || selectedMusicSundayDate;
+      renderMusicPlanner();
+      return;
+    }
+
     // Save Single Sunday Music Button
     const saveSunBtn = e.target.closest("[data-save-sunday-music]");
     if (saveSunBtn) {
@@ -2175,3 +2335,40 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadDataAndSyncFirestore();
 });
 
+
+// 2026-11-20: Bishopric Hub-style folder tabs drive the existing auth-mode radios (wiring only).
+(() => {
+  const tabBtns = Array.from(document.querySelectorAll("[data-music-auth-tab]:not([hidden])")); // hidden Password tab is skipped
+  const radios = Array.from(document.querySelectorAll('input[name="music_gate_auth_mode"]'));
+  if (!tabBtns.length || !radios.length) return;
+  const syncTabs = () => {
+    const mode = (radios.find(r => r.checked) || {}).value || "sms";
+    tabBtns.forEach(btn => {
+      const active = btn.dataset.musicAuthTab === mode;
+      btn.classList.toggle("active-tab", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+      btn.tabIndex = active ? 0 : -1;
+    });
+  };
+  const selectTab = (mode) => {
+    const radio = radios.find(r => r.value === mode);
+    if (radio && !radio.checked) {
+      radio.checked = true;
+      radio.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    syncTabs();
+  };
+  tabBtns.forEach((btn, idx) => {
+    btn.addEventListener("click", () => selectTab(btn.dataset.musicAuthTab));
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        const nextBtn = tabBtns[(idx + 1) % tabBtns.length];
+        nextBtn.focus();
+        selectTab(nextBtn.dataset.musicAuthTab);
+      }
+    });
+  });
+  radios.forEach(r => r.addEventListener("change", syncTabs));
+  syncTabs();
+})();

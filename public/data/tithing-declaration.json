@@ -1,34 +1,32 @@
 {
+  "year": "2026",
   "title": "Blackstone Ward Tithing Declaration",
   "subtitle": "Interview Schedule — November through Early December 2026",
-  "updatedAt": "2026-11-01",
-  "contacts": {
-    "toEmail": "mcdonaldlds830@gmail.com",
-    "ccEmail": "duanepharris@gmail.com"
-  },
   "totalScheduled": 56,
   "totalOpenSlots": 11,
-  "unassigned": [],
+  "updatedAt": "2026-11-01",
   "sundays": [
     {
-      "tabName": "November 1, 2026",
-      "title": "Sunday, November 1, 2026",
       "date": "2026-11-01",
       "dayOfWeek": "Sunday",
       "shortDate": "Nov 1",
+      "tabName": "November 1, 2026",
       "timeWindow": "11:30 AM & 2:05 – 4:05 PM",
-      "scheduledCount": 12,
+      "title": "Sunday, November 1, 2026",
       "totalSlots": 13,
       "openCount": 1,
+      "scheduledCount": 12,
       "slots": [
         {
           "slotIndex": 1,
           "time": "11:30 AM",
           "startTime24": "11:30",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         },
         {
@@ -36,9 +34,11 @@
           "time": "2:05 PM",
           "startTime24": "14:05",
           "durationMinutes": 10,
-          "household": "Bourne",
-          "members": "Garrett Austin Bourne, Cami Bourne, Lucie May Bourne, Oliver Glen Bourne",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -46,9 +46,11 @@
           "time": "2:15 PM",
           "startTime24": "14:15",
           "durationMinutes": 10,
-          "household": "Bogle",
-          "members": "Braxton Bogle, Mo Bogle, Miles Evan Bogle, Ellie Kei Bogle",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -56,9 +58,11 @@
           "time": "2:25 PM",
           "startTime24": "14:25",
           "durationMinutes": 10,
-          "household": "Bova",
-          "members": "Ruth Bova",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -66,9 +70,11 @@
           "time": "2:35 PM",
           "startTime24": "14:35",
           "durationMinutes": 10,
-          "household": "Shurick",
-          "members": "Christine Anne",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -76,9 +82,11 @@
           "time": "2:45 PM",
           "startTime24": "14:45",
           "durationMinutes": 10,
-          "household": "Barcalow",
-          "members": "Jilda Ann Barcalow",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -86,9 +94,11 @@
           "time": "2:55 PM",
           "startTime24": "14:55",
           "durationMinutes": 10,
-          "household": "Batista Araujo",
-          "members": "Pamela Thayna Batista Araujo",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -96,9 +106,11 @@
           "time": "3:05 PM",
           "startTime24": "15:05",
           "durationMinutes": 10,
-          "household": "Appleby",
-          "members": "Stacy Appleby",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -106,9 +118,11 @@
           "time": "3:15 PM",
           "startTime24": "15:15",
           "durationMinutes": 10,
-          "household": "Begin",
-          "members": "Michelle Begin",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -116,9 +130,11 @@
           "time": "3:25 PM",
           "startTime24": "15:25",
           "durationMinutes": 10,
-          "household": "Bennett",
-          "members": "Sarah Bennett",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -126,9 +142,11 @@
           "time": "3:35 PM",
           "startTime24": "15:35",
           "durationMinutes": 10,
-          "household": "Bishaw",
-          "members": "Ericshayne Bishaw, Kim Bishaw",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -136,9 +154,11 @@
           "time": "3:45 PM",
           "startTime24": "15:45",
           "durationMinutes": 10,
-          "household": "Brown",
-          "members": "Josh Brown, Megan Brown, Will Brown, Josie Brown, Jameson Brown",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -146,32 +166,36 @@
           "time": "3:55 PM",
           "startTime24": "15:55",
           "durationMinutes": 10,
-          "household": "Buckley",
-          "members": "Wade Buckley, Brieana Buckley",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         }
       ]
     },
     {
-      "tabName": "November 4, 2026",
-      "title": "Wednesday, November 4, 2026",
       "date": "2026-11-04",
       "dayOfWeek": "Wednesday",
       "shortDate": "Nov 4",
+      "tabName": "November 4, 2026",
       "timeWindow": "6:00 – 6:45 PM",
-      "scheduledCount": 0,
+      "title": "Wednesday, November 4, 2026",
       "totalSlots": 3,
       "openCount": 3,
+      "scheduledCount": 0,
       "slots": [
         {
           "slotIndex": 1,
           "time": "6:00 PM",
           "startTime24": "18:00",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         },
         {
@@ -179,9 +203,11 @@
           "time": "6:15 PM",
           "startTime24": "18:15",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         },
         {
@@ -189,32 +215,36 @@
           "time": "6:30 PM",
           "startTime24": "18:30",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         }
       ]
     },
     {
-      "tabName": "November 8, 2026",
-      "title": "Sunday, November 8, 2026",
       "date": "2026-11-08",
       "dayOfWeek": "Sunday",
       "shortDate": "Nov 8",
+      "tabName": "November 8, 2026",
       "timeWindow": "2:05 – 4:05 PM",
-      "scheduledCount": 12,
+      "title": "Sunday, November 8, 2026",
       "totalSlots": 12,
       "openCount": 0,
+      "scheduledCount": 12,
       "slots": [
         {
           "slotIndex": 1,
           "time": "2:05 PM",
           "startTime24": "14:05",
           "durationMinutes": 10,
-          "household": "Fuller",
-          "members": "Harrison, Alanna Lynn, Ralph Wells, Juliet Tommy",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -222,9 +252,11 @@
           "time": "2:15 PM",
           "startTime24": "14:15",
           "durationMinutes": 10,
-          "household": "Fairbank",
-          "members": "Keith, Rebecca, Rachel, Molly, Mathilde Lois, Abigail Susannah, Keith Arthur",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -232,9 +264,11 @@
           "time": "2:25 PM",
           "startTime24": "14:25",
           "durationMinutes": 10,
-          "household": "Klein / Kein",
-          "members": "Rachel Ballard Klein, Susannah Rachel Klein, Asha Ballard Kein",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -242,9 +276,11 @@
           "time": "2:35 PM",
           "startTime24": "14:35",
           "durationMinutes": 10,
-          "household": "Laskowsky",
-          "members": "Brandi Laskowsky Afoakwah, Jasmiya, Buddy, Nova Star Laskowsky McNeill",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -252,9 +288,11 @@
           "time": "2:45 PM",
           "startTime24": "14:45",
           "durationMinutes": 10,
-          "household": "Cowden",
-          "members": "John Cowden, Mio Cowden, Melody Cowden",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -262,9 +300,11 @@
           "time": "2:55 PM",
           "startTime24": "14:55",
           "durationMinutes": 10,
-          "household": "Dunton",
-          "members": "Bethany B Dunton, Jackson Whitman Dunton",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -272,9 +312,11 @@
           "time": "3:05 PM",
           "startTime24": "15:05",
           "durationMinutes": 10,
-          "household": "Escobar",
-          "members": "Karina Escobar",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -282,9 +324,11 @@
           "time": "3:15 PM",
           "startTime24": "15:15",
           "durationMinutes": 10,
-          "household": "Evans",
-          "members": "David Robert, Laurie Sue",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -292,9 +336,11 @@
           "time": "3:25 PM",
           "startTime24": "15:25",
           "durationMinutes": 10,
-          "household": "Faria / Gomes Silva",
-          "members": "Tairini Priscila Lopes de Faria, Caio César Gomes Silva",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -302,9 +348,11 @@
           "time": "3:35 PM",
           "startTime24": "15:35",
           "durationMinutes": 10,
-          "household": "Fisk",
-          "members": "Dan, Anna",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -312,9 +360,11 @@
           "time": "3:45 PM",
           "startTime24": "15:45",
           "durationMinutes": 10,
-          "household": "Gaudette",
-          "members": "Edward Jay",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -322,32 +372,36 @@
           "time": "3:55 PM",
           "startTime24": "15:55",
           "durationMinutes": 10,
-          "household": "Hernandez",
-          "members": "Juan Roberto, Nelly",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         }
       ]
     },
     {
-      "tabName": "November 11, 2026",
-      "title": "Wednesday, November 11, 2026",
       "date": "2026-11-11",
       "dayOfWeek": "Wednesday",
       "shortDate": "Nov 11",
+      "tabName": "November 11, 2026",
       "timeWindow": "6:00 – 6:45 PM",
-      "scheduledCount": 0,
+      "title": "Wednesday, November 11, 2026",
       "totalSlots": 3,
       "openCount": 3,
+      "scheduledCount": 0,
       "slots": [
         {
           "slotIndex": 1,
           "time": "6:00 PM",
           "startTime24": "18:00",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         },
         {
@@ -355,9 +409,11 @@
           "time": "6:15 PM",
           "startTime24": "18:15",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         },
         {
@@ -365,32 +421,36 @@
           "time": "6:30 PM",
           "startTime24": "18:30",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         }
       ]
     },
     {
-      "tabName": "November 22, 2026",
-      "title": "Sunday, November 22, 2026",
       "date": "2026-11-22",
       "dayOfWeek": "Sunday",
       "shortDate": "Nov 22",
+      "tabName": "November 22, 2026",
       "timeWindow": "2:05 – 4:05 PM",
-      "scheduledCount": 12,
+      "title": "Sunday, November 22, 2026",
       "totalSlots": 12,
       "openCount": 0,
+      "scheduledCount": 12,
       "slots": [
         {
           "slotIndex": 1,
           "time": "2:05 PM",
           "startTime24": "14:05",
           "durationMinutes": 10,
-          "household": "King",
-          "members": "Jeffrey, Kathleen, Caleb J. Fasteson",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -398,9 +458,11 @@
           "time": "2:15 PM",
           "startTime24": "14:15",
           "durationMinutes": 10,
-          "household": "Jensen",
-          "members": "Austin, Catherine Lee, Hillam Max",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -408,9 +470,11 @@
           "time": "2:25 PM",
           "startTime24": "14:25",
           "durationMinutes": 10,
-          "household": "Hill / Carlson",
-          "members": "David Hill, Donna Carlson Hill, Samuel Scott Carlson, John Carlson",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -418,9 +482,11 @@
           "time": "2:35 PM",
           "startTime24": "14:35",
           "durationMinutes": 10,
-          "household": "Hunsaker",
-          "members": "Ben, Meg, Ethan Benjamin",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -428,9 +494,11 @@
           "time": "2:45 PM",
           "startTime24": "14:45",
           "durationMinutes": 10,
-          "household": "Laverty",
-          "members": "Michael, Lia, Colton Michael, Kael David",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -438,9 +506,11 @@
           "time": "2:55 PM",
           "startTime24": "14:55",
           "durationMinutes": 10,
-          "household": "Hogan",
-          "members": "Deborah",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -448,9 +518,11 @@
           "time": "3:05 PM",
           "startTime24": "15:05",
           "durationMinutes": 10,
-          "household": "Holmes",
-          "members": "Terry",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -458,9 +530,11 @@
           "time": "3:15 PM",
           "startTime24": "15:15",
           "durationMinutes": 10,
-          "household": "Houston",
-          "members": "Cole Watenpaugh, Kendra Watenpaugh",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -468,9 +542,11 @@
           "time": "3:25 PM",
           "startTime24": "15:25",
           "durationMinutes": 10,
-          "household": "Howell",
-          "members": "Emma Elizabeth, Tim, Paula Jean, Zachery Edward",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -478,9 +554,11 @@
           "time": "3:35 PM",
           "startTime24": "15:35",
           "durationMinutes": 10,
-          "household": "Howell",
-          "members": "K.C.",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -488,9 +566,11 @@
           "time": "3:45 PM",
           "startTime24": "15:45",
           "durationMinutes": 10,
-          "household": "Lessard",
-          "members": "Annette",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -498,32 +578,36 @@
           "time": "3:55 PM",
           "startTime24": "15:55",
           "durationMinutes": 10,
-          "household": "Watson",
-          "members": "Beth",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         }
       ]
     },
     {
-      "tabName": "November 29, 2026",
-      "title": "Sunday, November 29, 2026",
       "date": "2026-11-29",
       "dayOfWeek": "Sunday",
       "shortDate": "Nov 29",
+      "tabName": "November 29, 2026",
       "timeWindow": "2:05 – 4:05 PM",
-      "scheduledCount": 12,
+      "title": "Sunday, November 29, 2026",
       "totalSlots": 12,
       "openCount": 0,
+      "scheduledCount": 12,
       "slots": [
         {
           "slotIndex": 1,
           "time": "2:05 PM",
           "startTime24": "14:05",
           "durationMinutes": 10,
-          "household": "Mullis",
-          "members": "Shaun Christopher, Melanie Sue, Landon Christopher, Caden Vlademar, Dallin Nicholai, Lana Sue, Rosalie Ling Rehon",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -531,9 +615,11 @@
           "time": "2:15 PM",
           "startTime24": "14:15",
           "durationMinutes": 10,
-          "household": "Robinson",
-          "members": "Blake, Julissa, Jaziyah",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -541,9 +627,11 @@
           "time": "2:25 PM",
           "startTime24": "14:25",
           "durationMinutes": 10,
-          "household": "McDonald",
-          "members": "Brian Evan",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -551,9 +639,11 @@
           "time": "2:35 PM",
           "startTime24": "14:35",
           "durationMinutes": 10,
-          "household": "Martin / Hoffman",
-          "members": "Barbara Martin, Shayna Hoffman",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -561,9 +651,11 @@
           "time": "2:45 PM",
           "startTime24": "14:45",
           "durationMinutes": 10,
-          "household": "Saylor",
-          "members": "Virginia Saylor",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -571,9 +663,11 @@
           "time": "2:55 PM",
           "startTime24": "14:55",
           "durationMinutes": 10,
-          "household": "Harris",
-          "members": "Joyce",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -581,9 +675,11 @@
           "time": "3:05 PM",
           "startTime24": "15:05",
           "durationMinutes": 10,
-          "household": "McKinnon",
-          "members": "Bryan, Claudia",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -591,9 +687,11 @@
           "time": "3:15 PM",
           "startTime24": "15:15",
           "durationMinutes": 10,
-          "household": "Phillips",
-          "members": "Joseph Quintin, Janet Ellen",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -601,9 +699,11 @@
           "time": "3:25 PM",
           "startTime24": "15:25",
           "durationMinutes": 10,
-          "household": "Rickett",
-          "members": "William",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -611,9 +711,11 @@
           "time": "3:35 PM",
           "startTime24": "15:35",
           "durationMinutes": 10,
-          "household": "Rowey",
-          "members": "Matt Rowey",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -621,9 +723,11 @@
           "time": "3:45 PM",
           "startTime24": "15:45",
           "durationMinutes": 10,
-          "household": "Thapa",
-          "members": "Sher, Bala",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -631,32 +735,36 @@
           "time": "3:55 PM",
           "startTime24": "15:55",
           "durationMinutes": 10,
-          "household": "Truscott",
-          "members": "John, Carrie",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         }
       ]
     },
     {
-      "tabName": "December 6, 2026",
-      "title": "Sunday, December 6, 2026",
       "date": "2026-12-06",
       "dayOfWeek": "Sunday",
       "shortDate": "Dec 6",
+      "tabName": "December 6, 2026",
       "timeWindow": "2:05 – 4:05 PM",
-      "scheduledCount": 8,
+      "title": "Sunday, December 6, 2026",
       "totalSlots": 12,
       "openCount": 4,
+      "scheduledCount": 8,
       "slots": [
         {
           "slotIndex": 1,
           "time": "2:05 PM",
           "startTime24": "14:05",
           "durationMinutes": 10,
-          "household": "Seeley",
-          "members": "Benjamin Seeley, Ana Seeley",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -664,9 +772,11 @@
           "time": "2:15 PM",
           "startTime24": "14:15",
           "durationMinutes": 10,
-          "household": "Venancio / Mafra",
-          "members": "Fabio Junior Venancio, Ana Paula Batista Mafra, João Lucas Batista Mafra Venâncio, Julia Mafra Venancio",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -674,9 +784,11 @@
           "time": "2:25 PM",
           "startTime24": "14:25",
           "durationMinutes": 10,
-          "household": "Wild",
-          "members": "Andrew Vance, Amber Lynn, Vance Timothy, Logan Hadley, Ethan Franklyn, Lenna Annemarie, Blake Andrade",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -684,9 +796,11 @@
           "time": "2:35 PM",
           "startTime24": "14:35",
           "durationMinutes": 10,
-          "household": "Wild",
-          "members": "Daniel Franklyn, Danielle, Samuel",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -694,9 +808,11 @@
           "time": "2:45 PM",
           "startTime24": "14:45",
           "durationMinutes": 10,
-          "household": "Wild",
-          "members": "Fred",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -704,9 +820,11 @@
           "time": "2:55 PM",
           "startTime24": "14:55",
           "durationMinutes": 10,
-          "household": "Sofoul",
-          "members": "Stephen, Christine, Conner, Luke Scott",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -714,9 +832,11 @@
           "time": "3:05 PM",
           "startTime24": "15:05",
           "durationMinutes": 10,
-          "household": "Shea",
-          "members": "Rosemary",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -724,9 +844,11 @@
           "time": "3:15 PM",
           "startTime24": "15:15",
           "durationMinutes": 10,
-          "household": "Sugarman",
-          "members": "Michael, Amy",
           "available": false,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "scheduled"
         },
         {
@@ -734,9 +856,11 @@
           "time": "3:25 PM",
           "startTime24": "15:25",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         },
         {
@@ -744,9 +868,11 @@
           "time": "3:35 PM",
           "startTime24": "15:35",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         },
         {
@@ -754,9 +880,11 @@
           "time": "3:45 PM",
           "startTime24": "15:45",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         },
         {
@@ -764,12 +892,15 @@
           "time": "3:55 PM",
           "startTime24": "15:55",
           "durationMinutes": 10,
-          "household": "",
-          "members": "",
           "available": true,
+          "tdOpen": true,
+          "interviewTypes": [
+            "TD"
+          ],
           "status": "open"
         }
       ]
     }
-  ]
+  ],
+  "source": "static fallback, sanitized 2026-11-22 (v1.2.73)"
 }

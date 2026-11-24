@@ -20,10 +20,13 @@ export function base64urlToBuffer(base64url) {
   return bytes;
 }
 
-async function postPasskeyJson(route, body) {
+async function postPasskeyJson(route, body, idToken = '') {
+  // passkeyApi 1.1.0 (2026-11-22): enrollment calls carry the signed-in leader's Firebase ID token; login calls do not.
+  const headers = { 'Content-Type': 'application/json' };
+  if (idToken) headers.Authorization = `Bearer ${idToken}`;
   const res = await fetch(`${PASSKEY_API_BASE}${route}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(body || {})
   });
   let data = null;
@@ -40,8 +43,15 @@ async function postPasskeyJson(route, body) {
   return data;
 }
 
-export async function enrollCloudPasskey(leaderProfile) {
-  const { challengeId, options } = await postPasskeyJson('/register/options', { leaderProfile });
+// passkeyApi 1.1.0 (2026-11-22): adding a passkey needs a Firebase sign-in (text code or passkey) for this leader.
+export const PASSKEY_SIGNIN_REQUIRED_MSG = "Sign in by text message first to add a passkey. Password sign-ins can't add one.";
+export async function enrollCloudPasskey(leaderProfile, { idToken = '' } = {}) {
+  if (!idToken) {
+    const err = new Error(PASSKEY_SIGNIN_REQUIRED_MSG);
+    err.code = 'passkey/signin-required';
+    throw err;
+  }
+  const { challengeId, options } = await postPasskeyJson('/register/options', { leaderProfile }, idToken);
 
   const publicKey = {
     ...options,
@@ -81,7 +91,18 @@ export async function enrollCloudPasskey(leaderProfile) {
       : {}
   };
 
-  return postPasskeyJson('/register/verify', { challengeId, attestationResponse });
+  return postPasskeyJson('/register/verify', { challengeId, attestationResponse }, idToken);
+}
+
+// v1.2.91 (passkeyApi 1.4.0, Duane 2026-11-23, #2): personal leader passwords are checked and stored only on the server
+// (salted scrypt in a collection no browser can read). The browser sends the typed password to the server and never
+// hashes or compares it. /password/login returns { ok, customToken, profile }; /password/set needs a Firebase ID token.
+export async function loginWithLeaderPassword({ leaderName = '', password = '', requiredRole = '' } = {}) {
+  return postPasskeyJson('/password/login', { leaderName, password, requiredRole });
+}
+
+export async function setLeaderPassword({ leaderId = '', password = '' } = {}, idToken = '') {
+  return postPasskeyJson('/password/set', { leaderId, password }, idToken);
 }
 
 export async function loginWithCloudPasskey({ leaderName = '', requiredRole = '', signal = undefined, mediation = undefined } = {}) {

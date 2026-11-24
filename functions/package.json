@@ -1,5 +1,6 @@
 {
   "name": "blackstone-ward-functions",
+  "version": "1.2.6",
   "description": "Shared Firebase Cloud Functions for Blackstone Ward Hubs (WebAuthn Passkeys)",
   "main": "index.js",
   "engines": {

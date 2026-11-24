@@ -3,23 +3,44 @@ import {
   getFirestore,
   collection,
   getDocs,
+  getDoc,
   setDoc,
   doc,
   deleteDoc,
   query,
   where,
   orderBy,
-  onSnapshot
+  onSnapshot,
+  runTransaction,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import {
   getAuth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
   signInWithCustomToken,
+  signInWithPopup,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { enrollCloudPasskey, loginWithCloudPasskey } from "../js/passkey-client.js?v=1.2.49";
+import { enrollCloudPasskey, loginWithCloudPasskey, loginWithLeaderPassword, setLeaderPassword, PASSKEY_SIGNIN_REQUIRED_MSG } from "../js/passkey-client.js?v=1.2.93";
+// v1.2.58: seats, labels, orgs and areas come from the vendored BW_Platform permissions module (generated from the
+// master sheet, copied in with a checksum check). Do not hand-edit public/js/permissions/.
+import * as Access from "../js/permissions/access.js?v=1.2.93";
+import {
+  catalogFromPermissions,
+  catalogFromFirestoreDocs,
+  isFirestoreCatalogValid,
+  buildCallingOptionList,
+  callingDefinitionsFromCatalog,
+  isV6Calling,
+  v6RcForCalling,
+  matrixRowsFromCatalog,
+  buildRoleDocFields,
+  recomputeGroups,
+  rcSeq
+} from "../js/permissions/calling-dropdown.js?v=1.2.93";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDrWB07WNqObtjiZb_NntJQZ0dhHyLRBas",
@@ -143,8 +164,10 @@ function getCategoryColor(cat) {
 
 // ================= ROLES & RBAC DEFINITIONS =================
 const ROLE_DEFINITIONS = {
-  admin: { label: "Ward Administrator", org: "All Ward", fullAccess: true },
+  admin: { label: "Web Administrator", org: "All Ward", fullAccess: true },
   bishopric: { label: "Bishopric", org: "All Ward", fullAccess: true },
+  // v1.2.57: Home seats without the Youth admin areas (e.g. RC1 Web Admin only, Ward Clerk, Exec Sec).
+  home_admin: { label: "Home Admin", org: "Ward", fullAccess: false },
   combined: { label: "Combined Youth Leader", org: "Youth", fullAccess: false },
   priests: { label: "Priests Quorum Leader", org: "Youth", fullAccess: false },
   teachers: { label: "Teachers Quorum Leader", org: "Youth", fullAccess: false },
@@ -160,28 +183,119 @@ const ROLE_DEFINITIONS = {
 };
 
 // ================= CALLING & ACCESS DEFINITIONS =================
-const CALLING_DEFINITIONS = [
-  { calling: "Bishopric", org: "bishopric", role: "bishopric", activeOnYouth: true, defaultAccess: ["Settings & Privacy", "Combined", "Priests", "Teachers", "Deacons", "Young Women", "Primary"] },
-  { calling: "Ward Activity", org: "bishopric", role: "bishopric", activeOnYouth: false, defaultAccess: [] },
-  { calling: "Ward Cleaning", org: "bishopric", role: "bishopric", activeOnYouth: false, defaultAccess: [] },
-  { calling: "Youth ADL Priest", org: "youth", role: "priests", activeOnYouth: true, defaultAccess: ["Priests"] },
-  { calling: "Youth Priest", org: "youth", role: "priests", activeOnYouth: true, defaultAccess: ["Priests"] },
-  { calling: "Youth ADL Teacher", org: "youth", role: "teachers", activeOnYouth: true, defaultAccess: ["Teachers"] },
-  { calling: "Youth Teacher", org: "youth", role: "teachers", activeOnYouth: true, defaultAccess: ["Teachers"] },
-  { calling: "Youth ADL Deacon", org: "youth", role: "deacons", activeOnYouth: true, defaultAccess: ["Deacons"] },
-  { calling: "Youth Deacon", org: "youth", role: "deacons", activeOnYouth: true, defaultAccess: ["Deacons"] },
-  { calling: "Youth YW Pres", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Combined", "Young Women"] },
-  { calling: "Youth ADL YW", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Young Women"] },
-  { calling: "Youth Builders", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Young Women"] },
-  { calling: "Youth Messengers", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Young Women"] },
-  { calling: "Youth Gatherers", org: "youth", role: "young_women", activeOnYouth: true, defaultAccess: ["Young Women"] },
-  { calling: "Youth Primary Pres", org: "youth", role: "primary", activeOnYouth: true, defaultAccess: ["Primary"] },
-  { calling: "EQ Pres", org: "elders_quorum", role: "elders_quorum", activeOnYouth: false, defaultAccess: [] },
-  { calling: "EQ Activity", org: "elders_quorum", role: "elders_quorum", activeOnYouth: false, defaultAccess: [] },
-  { calling: "RS Pres", org: "relief_society", role: "relief_society", activeOnYouth: false, defaultAccess: [] },
-  { calling: "RS Activity", org: "relief_society", role: "relief_society", activeOnYouth: false, defaultAccess: [] },
-  { calling: "SS Pres", org: "sunday_school", role: "sunday_school", activeOnYouth: false, defaultAccess: [] }
-];
+// v1.2.66: built from the calling catalog (Firestore at runtime, or the vendored
+// permissions.json fallback). Old Youth Hub names are retired from the dropdown.
+let callingCatalog = catalogFromPermissions(Access.PERMISSIONS, Access.roleForAreas);
+let CALLING_DEFINITIONS = callingDefinitionsFromCatalog(callingCatalog);
+
+const CALLING_CATALOG_TIMEOUT_MS = 4000;
+let callingCatalogLoadGen = 0;
+
+function withCallingCatalogTimeout(promise, ms) {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(Object.assign(new Error('timeout'), { code: 'timeout' })), ms);
+    promise.then((v) => { clearTimeout(t); resolve(v); }, (e) => { clearTimeout(t); reject(e); });
+  });
+}
+
+function applyCallingCatalog(catalog) {
+  callingCatalog = catalog;
+  CALLING_DEFINITIONS = callingDefinitionsFromCatalog(catalog);
+  if (catalog && Array.isArray(catalog.roles) && catalog.roles.length) {
+    PERMISSIONS_ROLES = matrixRowsFromCatalog(catalog);
+  }
+}
+
+async function fetchFirestoreCallingCatalog() {
+  const metaSnap = await getDoc(doc(db, 'ward_permissions_meta', 'current'));
+  if (!metaSnap.exists()) throw new Error('missing-meta');
+  const rolesSnap = await getDocs(collection(db, 'ward_permissions_roles'));
+  const meta = metaSnap.data();
+  const roleDocs = rolesSnap.docs.map((d) => {
+    const data = d.data() || {};
+    return { id: d.id, ...data, rc: data.rc || d.id };
+  });
+  if (!isFirestoreCatalogValid(meta, roleDocs)) throw new Error('invalid');
+  return catalogFromFirestoreDocs(meta, roleDocs);
+}
+
+async function loadCallingCatalog() {
+  const gen = ++callingCatalogLoadGen;
+  let sourceNote = 'bundled';
+  try {
+    const catalog = await withCallingCatalogTimeout(fetchFirestoreCallingCatalog(), CALLING_CATALOG_TIMEOUT_MS);
+    if (gen !== callingCatalogLoadGen) return;
+    applyCallingCatalog(catalog);
+    sourceNote = 'firestore';
+  } catch (err) {
+    if (gen !== callingCatalogLoadGen) return;
+    const code = err && (err.code || err.message);
+    let reason = 'failed';
+    if (code === 'permission-denied' || code === 'PERMISSION_DENIED') reason = 'denied';
+    else if (code === 'timeout' || (err && err.message === 'timeout')) reason = 'timeout';
+    else if (err && err.message === 'invalid') reason = 'invalid';
+    else if (err && err.message === 'missing-meta') reason = 'missing';
+    sourceNote = `bundled (${reason})`;
+  }
+  if (gen !== callingCatalogLoadGen) return;
+  console.info(`Calling dropdown source: ${sourceNote}`);
+  const select = document.getElementById('leader-calling');
+  const current = select ? (select.value || select.dataset.originalCalling || '') : '';
+  renderCallingOptions(current);
+  renderAccessMatrixTable();
+}
+
+function renderCallingOptions(currentValue) {
+  const select = document.getElementById('leader-calling');
+  if (!select) return;
+  const previous = currentValue !== undefined && currentValue !== null
+    ? currentValue
+    : (select.value || select.dataset.originalCalling || '');
+  const list = buildCallingOptionList(callingCatalog);
+
+  while (select.firstChild) select.removeChild(select.firstChild);
+
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Select a calling…';
+  select.appendChild(placeholder);
+
+  const retired = previous && !isV6Calling(callingCatalog, previous);
+  if (retired) {
+    const o = document.createElement('option');
+    o.value = previous;
+    o.textContent = `(retired: ${previous}) — pick a v6 calling`;
+    o.disabled = true;
+    select.appendChild(o);
+    select.dataset.originalCalling = previous;
+  } else if (select.dataset.originalCalling) {
+    delete select.dataset.originalCalling;
+  }
+
+  for (const group of list.groups) {
+    const og = document.createElement('optgroup');
+    og.label = group.label;
+    for (const opt of group.options) {
+      const o = document.createElement('option');
+      o.value = opt.value;
+      o.textContent = opt.text;
+      og.appendChild(o);
+    }
+    select.appendChild(og);
+  }
+
+  if (retired) {
+    select.value = previous;
+    if (select.value !== previous) {
+      const retiredOpt = Array.from(select.options).find((o) => o.disabled && o.value === previous);
+      if (retiredOpt) retiredOpt.selected = true;
+    }
+  } else if (previous && isV6Calling(callingCatalog, previous)) {
+    select.value = previous;
+  } else {
+    select.value = '';
+  }
+}
 
 const YOUTH_ADMIN_AREAS = [
   "Settings & Privacy",
@@ -192,6 +306,13 @@ const YOUTH_ADMIN_AREAS = [
   "Young Women",
   "Primary"
 ];
+
+// v1.2.58: calling definition for a Home seat row of the permissions module (uses only the module, so it is safe
+// while CALLING_DEFINITIONS is being built).
+function homeSeatCallingDef(row, extra = {}) {
+  const names = Object.entries(Access.PERMISSIONS.hubs.youth.areaNames).filter(([, id]) => row.areas.includes(id)).map(([n]) => n);
+  return { calling: row.name, org: "bishopric", role: Access.resolveAccess({ rcCodes: [row.rc] }).role, activeOnYouth: names.length > 0, defaultAccess: names, ...extra };
+}
 
 function getCallingDef(callingName) {
   return CALLING_DEFINITIONS.find(c => c.calling === callingName) || null;
@@ -227,6 +348,9 @@ function getLeaderOrg(leader) {
 }
 
 function getLeaderAccessAreas(leader) {
+  // v1.2.57/1.2.58: Home seat holders get the Youth areas of their master-sheet rows, not saved checkboxes.
+  const seatAreas = getHomeSeatAreas(leader);
+  if (seatAreas) return youthAreaNamesFromIds(seatAreas);
   if (Array.isArray(leader?.accessAreas)) return leader.accessAreas;
   const calling = getLeaderCalling(leader);
   const def = getCallingDef(calling);
@@ -240,18 +364,26 @@ function resolveLeaderRole(leader) {
   const def = getCallingDef(calling);
   const areas = getLeaderAccessAreas(leader);
 
+  // v1.2.57/1.2.58: Home seats (RC1-RC6, incl. the owner record and legacy 'Ward Administrator') and the
+  // master-password session take their role from their areas (permissions module); RC1 Web Admin alone is not 'admin'.
+  const seatRole = resolveSeatRole(leader);
+  if (seatRole) return seatRole;
+
   // Preserve primary Ward Administrator
   if (
     leader.id === 'leader_duane_harris' ||
     normalizePhone(leader.phoneNumber || '') === '+15084940905' ||
-    (rawRole === 'admin' && (!leader.calling || calling === 'Bishopric' || calling === 'Ward Administrator'))
+    (rawRole === 'admin' && (!leader.calling || calling === 'Bishopric' || calling === 'Web Administrator' || calling === 'Ward Administrator'))
   ) {
     return 'admin';
   }
 
   // Full 7-area Youth Hub access or Bishopric calling maps to bishopric
-  if (areas.length === 7 || calling === 'Bishopric') {
-    return rawRole === 'admin' ? 'admin' : 'bishopric';
+  // v1.2.55: the six spreadsheet seats behave exactly like legacy "Bishopric"; RC1 Ward Administrator resolves to admin.
+  // v1.2.56: RC1 'Web Administrator' (and its legacy name 'Ward Administrator') resolves to admin.
+  const isBishopricSeat = calling === 'Bishopric' || Object.values(HOME_ADMIN_SEATS).includes(calling) || !!HOME_ADMIN_LEGACY_CALLINGS[calling];
+  if (areas.length === 7 || isBishopricSeat) {
+    return (rawRole === 'admin' || calling === 'Web Administrator' || calling === 'Ward Administrator') ? 'admin' : 'bishopric';
   }
 
   // Derive specific Youth Hub role from assigned accessAreas and calling so Youth Hub RBAC restricts tabs accurately
@@ -302,31 +434,30 @@ function canUserAccessWardSettings(leader) {
 }
 
 // ================= RBAC PERMISSIONS =================
+// v1.2.60: record how this tab signed in. Add/edit/remove/onboard leaders
+// requires a passkey session. SMS, personal-password, Google, and master-password
+// sessions may view the list and may set passwords per D8, but cannot add or edit.
+function setSignInMethod(method) {
+  if (typeof sessionStorage === 'undefined') return;
+  if (method) sessionStorage.setItem('wardAdminSignInMethod', method);
+  else sessionStorage.removeItem('wardAdminSignInMethod');
+}
+
+function isPasskeySession() {
+  return typeof sessionStorage !== 'undefined' && sessionStorage.getItem('wardAdminSignInMethod') === 'passkey';
+}
+
 function canUserChangePassword(targetLeader) {
   if (!targetLeader) return false;
-  const currentRole = resolveLeaderRole(currentLeaderProfile);
-  const targetRole = resolveLeaderRole(targetLeader);
-
-  // 1. Ward Administrator can change all passwords
-  if (currentRole === 'admin') return true;
-
-  // 2. Bishopric can change Bishopric and all other users, but NOT Ward Administrator
-  if (currentRole === 'bishopric') {
-    return targetRole !== 'admin';
-  }
-
-  // 3. Other org users can only change passwords in their own specific org/role
-  if (targetRole === 'admin' || targetRole === 'bishopric') return false;
-  const currentOrg = getLeaderOrg(currentLeaderProfile);
-  const targetOrg = getLeaderOrg(targetLeader);
-  if (currentOrg === 'youth' || targetOrg === 'youth') {
-    return !!(currentRole && targetRole && currentRole === targetRole);
-  }
-  return !!(currentOrg && targetOrg && currentOrg === targetOrg && currentOrg !== 'bishopric');
+  // v1.2.58 (D8, Duane 2026-11-21): the master-password session and the Bishop (RC2) edit every password;
+  // RC3/RC4 edit their own and non-bishopric users' (no RC1-RC6 seat); everyone else only their own.
+  return Access.canEditPassword(currentLeaderProfile, targetLeader, { owner: HOME_ADMIN_OWNER, actorBreakGlass: isBreakGlassProfile(currentLeaderProfile) });
 }
 
 function canUserEditLeader(targetLeader) {
   if (!targetLeader) return false;
+  // v1.2.60: add/edit requires a passkey session (SMS / personal password / Google / master are view-only).
+  if (!isPasskeySession()) return false;
   const currentRole = resolveLeaderRole(currentLeaderProfile);
   const targetRole = resolveLeaderRole(targetLeader);
 
@@ -338,12 +469,17 @@ function canUserEditLeader(targetLeader) {
     return targetRole !== 'admin';
   }
 
+  // v1.2.57: Home-only seats manage only leaders whose every area they hold themselves.
+  if (currentRole === 'home_admin') return targetRole !== 'admin' && canGrantWithin(targetLeader);
+
   // 3. Other org users cannot edit leader profiles
   return false;
 }
 
 function canUserDeleteLeader(targetLeader) {
   if (!targetLeader) return false;
+  // v1.2.60: remove requires a passkey session.
+  if (!isPasskeySession()) return false;
   const currentRole = resolveLeaderRole(currentLeaderProfile);
   const targetRole = resolveLeaderRole(targetLeader);
 
@@ -357,17 +493,24 @@ function canUserDeleteLeader(targetLeader) {
     return targetRole !== 'admin';
   }
 
+  // v1.2.57: Home-only seats manage only leaders whose every area they hold themselves.
+  if (currentRole === 'home_admin') return targetRole !== 'admin' && canGrantWithin(targetLeader);
+
   // 3. Other org users cannot remove leaders
   return false;
 }
 
 function canUserAddLeader() {
+  // v1.2.60: add requires a passkey session.
+  if (!isPasskeySession()) return false;
   const currentRole = resolveLeaderRole(currentLeaderProfile);
-  return currentRole === 'admin' || currentRole === 'bishopric';
+  return currentRole === 'admin' || currentRole === 'bishopric' || currentRole === 'home_admin'; // v1.2.57: + home_admin (limited by area)
 }
 
 function canUserOnboardLeader(targetLeader) {
   if (!targetLeader) return false;
+  // v1.2.60: onboard requires a passkey session.
+  if (!isPasskeySession()) return false;
   const currentRole = resolveLeaderRole(currentLeaderProfile);
   const targetRole = resolveLeaderRole(targetLeader);
 
@@ -378,6 +521,9 @@ function canUserOnboardLeader(targetLeader) {
   if (currentRole === 'bishopric') {
     return targetRole !== 'admin';
   }
+
+  // v1.2.57: Home-only seats manage only leaders whose every area they hold themselves.
+  if (currentRole === 'home_admin') return targetRole !== 'admin' && canGrantWithin(targetLeader);
 
   // 3. Other org users cannot onboard leaders
   return false;
@@ -404,11 +550,19 @@ function getSSOCookieDomain() {
 
 function setSSOCookie(profile) {
   if (!profile) return;
+  if (isBreakGlassProfile(profile)) return; // v1.2.58 (D4): master password = Home area 1 only, never a shared session
   try {
     const resolvedRole = resolveLeaderRole(profile);
     const resolvedCalling = getLeaderCalling(profile);
     const resolvedOrg = getLeaderOrg(profile);
     const resolvedAreas = getLeaderAccessAreas(profile);
+    // v1.2.57: a Home seat holding none of the Bishopric/Youth areas (2, 3, 7-18), e.g. RC1 Web Admin only, gets no
+    // shared session from Home (Youth turns any cookie into a sign-in), and a stale cookie of their own is cleared.
+    const seatAreas = getHomeSeatAreas(profile);
+    if (seatAreas && !seatAreas.some(a => SHARED_SESSION_AREA_IDS.includes(a))) {
+      if (sharedCookieBelongsTo(profile)) clearSSOCookie();
+      return;
+    }
     const ssoPayload = {
       ...profile,
       name: profile.displayName || profile.name || 'Ward Leader',
@@ -421,6 +575,7 @@ function setSSOCookie(profile) {
       authenticatedAt: profile.authenticatedAt || new Date().toISOString()
     };
     delete ssoPayload.passwordHash; // Protect credentials from cookie storage
+    if (seatAreas) ssoPayload.areas = seatAreas; // v1.2.57: master-sheet area ids for hubs that read them
     const val = encodeURIComponent(JSON.stringify(ssoPayload));
     const domain = getSSOCookieDomain();
     const domainAttr = (domain === 'localhost' || domain === '127.0.0.1') ? '' : `; domain=${domain}`;
@@ -428,6 +583,20 @@ function setSSOCookie(profile) {
     document.cookie = `ward_auth_session=${val}; path=/; max-age=604800; SameSite=Lax${domainAttr}${secureAttr}`;
   } catch (err) {
     console.warn("SSO cookie set error:", err);
+  }
+}
+
+// v1.2.57: true when the current ward_auth_session cookie names this same leader.
+function sharedCookieBelongsTo(profile) {
+  try {
+    const match = document.cookie.match(/(?:^|;\s*)ward_auth_session=([^;]+)/);
+    if (!match) return false;
+    const c = JSON.parse(decodeURIComponent(match[1])) || {};
+    const uid = profile.phoneNumber || profile.email || profile.uid || profile.id || '';
+    const name = String(profile.displayName || profile.name || '').trim().toLowerCase();
+    return (!!uid && c.uid === uid) || (!!name && String(c.displayName || c.name || '').trim().toLowerCase() === name);
+  } catch (_) {
+    return false;
   }
 }
 
@@ -448,12 +617,285 @@ function clearSSOCookie() {
 }
 
 // ================= AUTHENTICATION =================
-const AUTHORIZED_MASTER_HASHES = [
-  "103a9f4c69d7331576e1a7b7f96ce781e3336f7b304424373aea1f263c581a3d", // yutehub!1830 (Youth Hub master)
-  "7ca8ae40ffb835bcc16f1de3fc4f27e3e6b3c709bc5d300f932cd019f86e488b", // YuteHub!1830 (exact)
-  "4b465598d5fd124a3856acff035f025315f798faf08049ee57409e3045c72e37", // YuteHub!830 (exact)
-  "7f39e9e47d673293ede2907b955e989ab9188e35c39684c95eff536bb5b3e542"  // yutehub!830 (lower)
-];
+// v1.2.91 (Duane 2026-11-23, #3): the temporary master password (break-glass) is retired; its hash and check are removed.
+
+// 2026-11-21 (Duane, v1.2.60): personal leader passwords (ward_leaders.passwordHash) are enabled.
+// v1.2.91 (#2): they are checked and stored only on the server (passkeyApi /password/login and /password/set).
+const PERSONAL_LEADER_PASSWORDS_DISABLED = false;
+
+// v1.2.63: one message for SMS/password sign-in failures so a wrong name, phone, code, or password is not distinguished.
+const GENERIC_SIGNIN_FAILED_MSG = "Sign-in failed. Please check your details and try again.";
+
+// 2026-11-20 (Duane, v1.2.53): friendly messages for the CANDIDATE ward_leaders rules
+// (BW_Platform/prod-rules/firestore.rules.candidate, NOT deployed). With the current open
+// live rules these never trigger.
+const LEADERS_EDIT_DENIED_MSG = "You don't have permission to edit leaders. Sign in with your passkey to make changes. Your change was not saved.";
+const LEADERS_REMOVE_DENIED_MSG = "Leaders can't be deleted from here. To remove someone's access, edit the leader and turn off Active (passkey sign-in required). Nothing was removed.";
+const LEADERS_LOAD_DENIED_MSG = "The leader list can't be shown with this sign-in. Sign in with your passkey, or with a text-message code if you hold a Home admin seat, to view leaders."; // v1.2.69
+// v1.2.54 (Duane, 2026-11-21): shown if the leader list can't be read AFTER phone sign-in; the user is signed out.
+const LEADERS_POSTAUTH_CHECK_FAILED_MSG = "Your phone was verified, but the leader list couldn't be checked, so you weren't signed in. Please try again or use your passkey.";
+let leadersTableDenied = false;
+let leadersPreAuthFailed = false; // pre-sign-in leader-list read failed (denied/unavailable): skip the SMS name pre-check
+let leadersDeniedAlertAt = 0;
+function isPermissionDenied(err) { return !!err && err.code === 'permission-denied'; }
+// v1.2.69 (2026-11-22): Home content saves need a passkey or a text-message sign-in once the tightened rules are live.
+const CONTENT_WRITE_DENIED_MSG = "Saved on this device only. Saving to the website needs a passkey (Touch ID) or text-message sign-in; master-password and personal-password sign-ins can't save site content.";
+function alertContentWriteDenied(err) { if (isPermissionDenied(err)) alertLeadersDenied(CONTENT_WRITE_DENIED_MSG); }
+// v1.2.69 (2026-11-22): tightened rules draft (BW_Platform prod-rules/firestore.rules.draft-20261122-tighten) let an
+// SMS session read only ward_leaders records whose phoneNumber is its verified number, and treat it as a leader only
+// after it binds leader_sessions/{uid}. Also works under the live rules (the bind is simply refused there).
+function leaderPhoneVariants(e164) {
+  const m = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(String(e164 || ''));
+  if (!m) return e164 ? [String(e164)] : [];
+  const [, a, b, c] = m;
+  const d = a + b + c;
+  return [`+1${d}`, d, `1${d}`, `(${a}) ${b}-${c}`, `(${a})${b}-${c}`, `${a}-${b}-${c}`, `${a}.${b}.${c}`, `${a} ${b} ${c}`,
+    `+1 ${a} ${b} ${c}`, `+1 (${a}) ${b}-${c}`, `+1-${a}-${b}-${c}`, `+1 ${a}-${b}-${c}`, `1-${a}-${b}-${c}`, `1 (${a}) ${b}-${c}`];
+}
+async function findLeadersByVerifiedPhone(e164) {
+  if (!leaderPhoneVariants(e164).length) return [];
+  const snap = await getDocs(query(collection(db, "ward_leaders"), where("phoneNumber", "in", leaderPhoneVariants(e164))));
+  const list = [];
+  snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+  return list;
+}
+async function bindLeaderSession(leaderId, hub) {
+  const user = auth.currentUser;
+  if (!user || !leaderId) return false;
+  try {
+    await setDoc(doc(db, "leader_sessions", user.uid), { leaderId: String(leaderId), boundAt: new Date().toISOString(), hub });
+    return true;
+  } catch (e) {
+    console.info("leader_sessions bind not saved:", e && e.code ? e.code : e);
+    return false;
+  }
+}
+function alertLeadersDenied(msg) {
+  const now = Date.now();
+  if (now - leadersDeniedAlertAt < 3000) return;
+  leadersDeniedAlertAt = now;
+  alert(msg);
+}
+// v1.2.76 (Duane voice 11:40 PM ET): a denied full ward_leaders read (password, authenticator app or Google session)
+// now opens one pop-up per denial instead of red table text. The table keeps a short neutral line so it never looks empty.
+const LEADERS_DENIED_POPUP_MSG = "You have logged in successfully. In order to see the list of authorized users, you need to log out and log back in with your Touch ID that you've enabled."; // Duane's dictated wording, voice 11:41 PM ET
+const LEADERS_DENIED_TABLE_MSG = "Leader list not shown for this sign-in.";
+let leadersDeniedPopupShown = false;
+function openLeadersDeniedModal() {
+  if (leadersDeniedPopupShown) return;
+  const modal = document.getElementById('leaders-denied-modal');
+  if (!modal) { leadersDeniedPopupShown = true; alert(LEADERS_DENIED_POPUP_MSG); return; }
+  const msg = document.getElementById('leaders-denied-msg');
+  if (msg) msg.textContent = LEADERS_DENIED_POPUP_MSG;
+  leadersDeniedPopupShown = true;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function showLeadersLoadDenied() {
+  const tbody = document.getElementById('leaders-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const tr = document.createElement('tr');
+  const td = document.createElement('td');
+  td.colSpan = 8;
+  td.className = 'px-4 py-6 text-center text-sm text-[#536484]';
+  td.textContent = LEADERS_DENIED_TABLE_MSG; // v1.2.76: the pop-up carries the instructions
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+  openLeadersDeniedModal();
+}
+
+// v1.2.55 (Duane, 2026-11-21): Home /admin is limited to area 1 of Permissions-v3.xlsx (Roles tab, column E):
+// exactly RC1-RC6. This is the single source for the Home sign-in gate (SMS, passkey, stored session).
+// Calling strings are the spreadsheet "Roles & Callings" rows verbatim. A ward_leaders record qualifies by an
+// `rcCodes` field (e.g. ["RC3"]) or by an exact calling below; Youth ignores both.
+// v1.2.58: the Home gate seats = master-sheet rows holding the Home gate area (area 1: RC1-RC6), from the module.
+const HOME_ADMIN_SEATS = Object.fromEntries(Access.PERMISSIONS.roles.filter(r => r.areas.includes(Access.PERMISSIONS.hubs.home.gateArea)).map(r => [r.rc, r.name]));
+// v1.2.56 (Duane, 2026-11-21): RC1 was renamed in the sheet; records saved with the old calling still qualify.
+// v1.2.58: legacy names come from the module (legacyNames), limited to gate seats.
+const HOME_ADMIN_LEGACY_CALLINGS = Object.fromEntries(Object.entries(Access.PERMISSIONS.legacyNames).filter(([, rc]) => HOME_ADMIN_SEATS[rc]));
+// Owner record holds RC2 + RC1 (seats confirmed by Duane 2026-11-20, BW_Platform seat manifest).
+// v1.2.58 (D3, Duane 2026-11-21): these seats are only a backup, used when the owner record has no seats of its own
+// (no rcCodes and no sheet calling); otherwise the owner record is read by its rcCodes like everyone else.
+const HOME_ADMIN_OWNER = { id: "leader_duane_harris", phone: "+15084940905", seats: ["RC2", "RC1"] };
+const HOME_ADMIN_DENIED_MSG = "Home admin is limited to the bishopric. Youth leaders can sign in at youth.blackstoneward.org/admin.";
+function getHomeAdminSeats(leader) {
+  if (!leader) return [];
+  return Access.rcCodesFor(leader, { owner: HOME_ADMIN_OWNER }).filter(rc => HOME_ADMIN_SEATS[rc]);
+}
+function isHomeAdminAllowed(leader) {
+  // v1.2.58: gate = the Home gate area (area 1 = RC1-RC6 seats, or the master-password break-glass session).
+  return !!leader && leader.active !== false && Access.canEnterHub(accessOf(leader), 'home');
+}
+// Signs out of Firebase Auth on this site only and clears this tab's Home session. The shared
+// ward_auth_session cookie is neither set nor cleared here, so Youth sessions are unaffected.
+async function refuseHomeAdmin(errEl) {
+  try { await signOut(auth); } catch (_) { }
+  sessionStorage.removeItem('wardAdminAuth');
+  sessionStorage.removeItem('wardLeaderProfile');
+  sessionStorage.removeItem('wardAdminBreakGlass'); // v1.2.58
+  sessionStorage.removeItem('wardAdminSignInMethod'); // v1.2.60
+  if (errEl) {
+    errEl.textContent = HOME_ADMIN_DENIED_MSG;
+    errEl.classList.remove('hidden');
+  } else {
+    alert(HOME_ADMIN_DENIED_MSG);
+  }
+}
+
+// v1.2.56: Access Matrix reference data. v1.2.58: no longer embedded here; it comes from the vendored permissions
+// module (BW_Platform scripts/build-permissions.js from the master sheet; Current User column never included).
+// Roles rows, in sheet order: [RC code, Roles & Callings, Calling Label, Org codes, restricted area ids].
+let PERMISSIONS_ROLES = Access.PERMISSIONS.roles.map(r => [r.rc, r.name, r.label, r.orgText, [...r.areas]]);
+const PERMISSIONS_ORGS = { ...Access.PERMISSIONS.orgs };
+// Restricted Areas tab: id -> [Restricted Areas, Specific Regions in Restricted Areas, Status].
+const PERMISSIONS_AREAS = Object.fromEntries(Access.PERMISSIONS.areas.map(a => [a.id, [a.site, a.region, a.status]]));
+// v1.2.56: old full names (before the sheet renames) on saved records still map to their RC row.
+const PERMISSIONS_LEGACY_NAMES = { ...Access.PERMISSIONS.legacyNames };
+// v1.2.56: RC rows a leader holds, in sheet order: rcCodes (any sheet row), an exact full-name calling
+// (current or legacy name) and the Home seats/owner record.
+function getLeaderRcCodes(leader) {
+  if (!leader) return [];
+  // v1.2.58: module rcCodesFor (rcCodes + exact/legacy sheet calling; owner seats only as the D3 backup).
+  return Access.rcCodesFor(leader, { owner: HOME_ADMIN_OWNER });
+}
+// v1.2.56: Authorized Users "Calling" text is bare (no RC prefix).
+// v1.2.62: visible text is the sheet Roles & Callings name(s) (col B) from resolved seats
+// (rcCodes or an exact/legacy calling match via Access.rcCodesFor). The stored calling
+// string is shown only when there are no resolved seats.
+function getLeaderCallingLabels(leader) {
+  const rcs = getLeaderRcCodes(leader);
+  if (!rcs.length) {
+    const c = getLeaderCalling(leader);
+    return { text: c, title: c };
+  }
+  const rows = rcs.map(rc => PERMISSIONS_ROLES.find(r => r[0] === rc)).filter(Boolean);
+  const names = rows.map(r => r[1]);
+  return { text: names.join(', '), title: names.join(', ') };
+}
+// ================= v1.2.57 AREA-BASED ACCESS (Duane, 2026-11-21 4:03 PM ET) =================
+// v1.2.58: all area data and the role rule come from the vendored permissions module (no wildcards, D2).
+const ALL_AREA_IDS = Access.PERMISSIONS.areas.map(a => a.id);
+const YOUTH_ADMIN_AREA_IDS = [...Access.PERMISSIONS.hubs.youth.adminAreas];
+// Youth Hub admin area names (YOUTH_ADMIN_AREAS) -> Restricted Areas ids.
+const YOUTH_AREA_IDS_BY_NAME = { ...Access.PERMISSIONS.hubs.youth.areaNames };
+// Areas served by the other hubs that read the shared ward_auth_session cookie (Bishopric hub 2-3, Youth admin 7-18).
+const SHARED_SESSION_AREA_IDS = [...Access.PERMISSIONS.hubs.sharedSessionAreas];
+// v1.2.58 (D4): the master-password session is a fixed break-glass profile (area 1 only), recognised by its id AND
+// this tab's session flag, never by a field on a leader record.
+const BREAK_GLASS_ID = "break_glass_master";
+function isBreakGlassProfile(leader) {
+  return !!leader && leader.id === BREAK_GLASS_ID && typeof sessionStorage !== 'undefined' && sessionStorage.getItem('wardAdminBreakGlass') === 'true';
+}
+function accessOf(leader) {
+  return Access.resolveAccess(leader, { owner: HOME_ADMIN_OWNER, breakGlass: isBreakGlassProfile(leader) });
+}
+function getRcAreaUnion(rcs) {
+  return Access.areasForRcCodes(rcs);
+}
+// Areas of a Home seat holder (null when the leader holds no RC1-RC6 seat: older calling/role logic applies).
+function getHomeSeatAreas(leader) {
+  if (!leader) return null;
+  if (isBreakGlassProfile(leader)) return accessOf(leader).areas;
+  if (!getHomeAdminSeats(leader).length) return null;
+  return getRcAreaUnion(getLeaderRcCodes(leader));
+}
+function youthAreaNamesFromIds(ids) {
+  return YOUTH_ADMIN_AREAS.filter(n => ids.includes(YOUTH_AREA_IDS_BY_NAME[n]));
+}
+// Role for a Home seat holder, from areas (module roleForAreas): every area -> admin (Bishop RC2, owner); the gate
+// area + Youth admin areas 7-18 -> bishopric (RC3/RC4); otherwise 'home_admin' (RC1 alone, RC5, RC6, break-glass).
+function resolveSeatRole(leader) {
+  const areas = getHomeSeatAreas(leader);
+  if (!areas) return null;
+  return Access.roleForAreas(areas);
+}
+// Every area a leader record holds or would give (seat areas, else role and Youth checkboxes).
+function getLeaderGrantedAreas(leader) {
+  const seat = getHomeSeatAreas(leader);
+  if (seat) return seat;
+  const set = new Set(getRcAreaUnion(getLeaderRcCodes(leader)));
+  const role = resolveLeaderRole(leader);
+  if (role === 'admin' || role === 'bishopric') ALL_AREA_IDS.forEach(a => set.add(a));
+  const roleArea = { combined: 7, priests: 8, teachers: 9, deacons: 10, young_women: 11, yw: 11, primary: 12, elders_quorum: 19, relief_society: 20, sunday_school: 21 }[role];
+  if (roleArea) set.add(roleArea);
+  getLeaderAccessAreas(leader).forEach(n => { const id = YOUTH_AREA_IDS_BY_NAME[n]; if (id) set.add(id); });
+  return [...set].sort((a, b) => a - b);
+}
+// A 'home_admin' may manage a leader (or save a record) only when every area involved is one they hold.
+function canGrantWithin(leader) {
+  const mine = getLeaderGrantedAreas(currentLeaderProfile);
+  return getLeaderGrantedAreas(leader).every(a => mine.includes(a));
+}
+
+function splitOrgCodes(s) {
+  return String(s || '').split(',').map(c => c.trim()).filter(Boolean);
+}
+function renderOrgCodes(codes) {
+  if (!codes || !codes.length) return '<span class="text-slate-300 font-mono">—</span>';
+  return codes.map(c => `<span class="cursor-help" title="${escapeHtml(PERMISSIONS_ORGS[c] || c)}">${escapeHtml(c)}</span>`).join(', ');
+}
+// v1.2.62: Org column comes only from resolved seats (rcCodes or an exact/legacy calling
+// match via Access.rcCodesFor / getLeaderRcCodes), union of each row's sheet Org codes
+// in sheet order. No fallback to a stored org string (e.g. "bishopric" -> BI only), which
+// hid YM for bishopric counselors who have not picked a seat yet.
+function getLeaderOrgCodes(leader) {
+  const rcs = getLeaderRcCodes(leader);
+  if (!rcs.length) return [];
+  const set = new Set();
+  PERMISSIONS_ROLES.forEach(([rc, , , org]) => { if (rcs.includes(rc)) splitOrgCodes(org).forEach(c => set.add(c)); });
+  return [...set];
+}
+
+// Org-code legend popover for the (i) buttons in the Organization headers (keyboard, Esc, click-outside, tap).
+let orgLegendEl = null;
+let orgLegendBtn = null;
+function closeOrgLegend(returnFocus) {
+  if (!orgLegendEl || orgLegendEl.classList.contains('hidden')) return;
+  orgLegendEl.classList.add('hidden');
+  if (orgLegendBtn) {
+    orgLegendBtn.setAttribute('aria-expanded', 'false');
+    if (returnFocus) orgLegendBtn.focus();
+  }
+  orgLegendBtn = null;
+}
+function openOrgLegend(btn) {
+  if (!orgLegendEl) {
+    orgLegendEl = document.createElement('div');
+    orgLegendEl.id = 'org-legend-popover';
+    orgLegendEl.setAttribute('role', 'dialog');
+    orgLegendEl.setAttribute('aria-label', 'Organization codes');
+    orgLegendEl.tabIndex = -1;
+    orgLegendEl.className = 'hidden absolute z-50 w-56 rounded-xl border border-[#E9DECE] bg-white p-3 shadow-xl text-xs text-[#152548] outline-none';
+    const rows = Object.entries(PERMISSIONS_ORGS).map(([code, name]) =>
+      `<div class="flex gap-2 py-0.5"><span class="w-8 font-mono font-bold">${escapeHtml(code)}</span><span>${escapeHtml(name)}</span></div>`).join('');
+    orgLegendEl.innerHTML = `<p class="font-bold mb-1.5">Organization codes</p>${rows}`;
+    document.body.appendChild(orgLegendEl);
+  }
+  closeOrgLegend(false);
+  const r = btn.getBoundingClientRect();
+  const maxLeft = window.scrollX + document.documentElement.clientWidth - 232;
+  orgLegendEl.style.top = `${r.bottom + window.scrollY + 6}px`;
+  orgLegendEl.style.left = `${Math.max(window.scrollX + 8, Math.min(r.left + window.scrollX, maxLeft))}px`;
+  orgLegendEl.classList.remove('hidden');
+  orgLegendBtn = btn;
+  btn.setAttribute('aria-expanded', 'true');
+  orgLegendEl.focus();
+}
+document.addEventListener('click', (e) => {
+  const btn = e.target && e.target.closest ? e.target.closest('.org-legend-btn') : null;
+  if (btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (orgLegendBtn === btn) closeOrgLegend(true); else openOrgLegend(btn);
+    return;
+  }
+  if (orgLegendEl && !orgLegendEl.contains(e.target)) closeOrgLegend(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeOrgLegend(true);
+});
 
 async function computeSha256(text) {
   const encoder = new TextEncoder();
@@ -494,7 +936,7 @@ async function handleSendPhoneCode(e) {
 
   const nameParts = enteredName.split(/\s+/).filter(Boolean);
   if (nameParts.length < 2) {
-    err.textContent = "Please type both your first and last name (e.g. Duane Harris).";
+    err.textContent = "Please type both your first and last name.";
     err.classList.remove('hidden');
     nameInput?.focus();
     return;
@@ -517,31 +959,26 @@ async function handleSendPhoneCode(e) {
   }
 
   // 3. Verify entered name and phone against authorized leaders
-  const pool = [...leadersCache];
-  if (!pool.some(l => l.displayName === 'Duane Harris')) {
-    pool.unshift({
-      displayName: "Duane Harris",
-      phoneNumber: "+15084940905",
-      role: "admin",
-      active: true
-    });
-  }
+  const pool = [...leadersCache]; // v1.2.93 (cleanup item 2): no hard-coded owner entry; the owner's real ward_leaders record is in the list
 
+  // v1.2.54: if the leader list couldn't be read before sign-in (candidate rules or offline), skip this
+  // name pre-check and send the code; access is decided after sign-in from the verified phone only.
+  const skipPreCheck = leadersPreAuthFailed;
   const cleanName = enteredName.toLowerCase();
-  const leaderMatch = pool.find(l => (l.displayName || '').toLowerCase() === cleanName) ||
-    pool.find(l => (l.displayName || '').toLowerCase().includes(cleanName));
+  const leaderMatch = skipPreCheck ? null : (pool.find(l => (l.displayName || '').toLowerCase() === cleanName) ||
+    pool.find(l => (l.displayName || '').toLowerCase().includes(cleanName)));
 
-  if (!leaderMatch) {
-    err.textContent = `Leader "${enteredName}" was not found among authorized ward leaders. Please verify your first and last name.`;
+  if (!leaderMatch && !skipPreCheck) {
+    err.textContent = GENERIC_SIGNIN_FAILED_MSG;
     err.classList.remove('hidden');
     nameInput?.focus();
     return;
   }
 
-  if (leaderMatch.phoneNumber) {
+  if (leaderMatch && leaderMatch.phoneNumber) {
     const regPhone = normalizePhone(leaderMatch.phoneNumber);
     if (regPhone && regPhone !== phone) {
-      err.textContent = `The phone number entered does not match the registered phone on file for ${leaderMatch.displayName}. Please verify your phone number.`;
+      err.textContent = GENERIC_SIGNIN_FAILED_MSG;
       err.classList.remove('hidden');
       phoneInput?.focus();
       return;
@@ -623,25 +1060,21 @@ async function handleVerifyPhoneCode(e) {
     const phone = user.phoneNumber;
 
     // Check ward_leaders collection in Firestore
-    const leadersSnap = await getDocs(collection(db, "ward_leaders"));
-
-    // Auto-bootstrap: If collection is completely empty, register Duane Harris as Ward Admin
-    if (leadersSnap.empty) {
-      const initialAdmin = {
-        displayName: "Duane Harris",
-        email: "tueini@gmail.com",
-        phoneNumber: phone,
-        role: "admin",
-        active: true,
-        createdAt: new Date().toISOString()
-      };
-      await setDoc(doc(db, "ward_leaders", "leader_duane_harris"), initialAdmin);
-      sessionStorage.setItem('wardLeaderProfile', JSON.stringify(initialAdmin));
-      sessionStorage.setItem('wardAdminAuth', 'true');
-      setSSOCookie(initialAdmin);
-      checkAuth();
+    // v1.2.54: if this check can't run, never grant access: sign out and say so.
+    // v1.2.69: read only this phone's own record(s) (phone-scoped query), never the whole roster.
+    let leadersSnap;
+    try {
+      leadersSnap = (await findLeadersByVerifiedPhone(phone)).map(x => ({ id: x.id, data: () => x }));
+    } catch (listErr) {
+      console.error("Leader check after phone sign-in failed:", listErr);
+      try { await signOut(auth); } catch (_) { }
+      err.textContent = LEADERS_POSTAUTH_CHECK_FAILED_MSG;
+      err.classList.remove('hidden');
       return;
     }
+
+    // v1.2.69: the empty-collection auto-bootstrap is removed: a phone-scoped result is empty for any unknown
+    // phone, and SMS sessions can't write ward_leaders (live rules since 2026-11-21). Owner fallback below remains.
 
     // Match leader by phone
     let matchedLeader = null;
@@ -665,19 +1098,27 @@ async function handleVerifyPhoneCode(e) {
       };
     }
 
+    // v1.2.55: only RC1-RC6 (spreadsheet area 1) may enter Home admin.
+    if (matchedLeader && !isHomeAdminAllowed(matchedLeader)) {
+      await refuseHomeAdmin(err);
+      return;
+    }
     if (matchedLeader) {
+      await bindLeaderSession(matchedLeader.id, 'home'); // v1.2.69: lets the tightened rules see this SMS session as this leader
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(matchedLeader));
       sessionStorage.setItem('wardAdminAuth', 'true');
+      setSignInMethod('sms');
       setSSOCookie(matchedLeader);
+      resetSubscriptions(); // v1.2.71: re-attach listeners with this (now tied) text session
       checkAuth();
     } else {
-      err.textContent = `Phone ${phone} verified, but not found in registered ward leaders. Please contact an administrator.`;
+      err.textContent = GENERIC_SIGNIN_FAILED_MSG;
       err.classList.remove('hidden');
       await signOut(auth);
     }
   } catch (errCatch) {
     console.error("Code verification error:", errCatch);
-    err.textContent = "Incorrect or expired verification code. Please try again.";
+    err.textContent = GENERIC_SIGNIN_FAILED_MSG;
     err.classList.remove('hidden');
   } finally {
     btn.disabled = false;
@@ -716,14 +1157,72 @@ function getPlatformBiometricName() {
   return "Passkey / Biometrics";
 }
 
+// v1.2.61: keep the dashboard enroll button visible after sign-in so a leader can
+// re-enroll or refresh even when localStorage already has wardPasskeyRegistered.
+function isSignedInLeaderSession() {
+  return sessionStorage.getItem('wardAdminAuth') === 'true' && !isBreakGlassProfile(currentLeaderProfile);
+}
+
+// v1.2.63: after any leader sign-in (passkey, SMS, personal password, Google) show the header
+// Enable/Refresh button. Do not require PublicKeyCredential to un-hide it (a missing API is
+// handled on click). Hide it only when logged out or in the master-password break-glass session.
+// A full-width banner under the header is shown once when this device has no passkey, so the
+// control cannot be clipped off-screen by the sticky header row.
+// v1.2.65: never consult isUserVerifyingPlatformAuthenticatorAvailable() here. Chrome incognito
+// may report that as false even when window.PublicKeyCredential exists; still show the button
+// and, when there is no wardPasskeyRegistered and the banner has not been dismissed, the banner.
+function updatePasskeyEnrollButton() {
+  const enrollBtn = document.getElementById('btn-enroll-passkey');
+  const banner = document.getElementById('passkey-enroll-banner');
+  const showForLeader = isSignedInLeaderSession();
+  // v1.2.72: a passkey sign-in proves a passkey works here; remember it (fresh/incognito storage) so Enable/banner stop nagging.
+  if (isPasskeySession() && !localStorage.getItem('wardPasskeyRegistered')) localStorage.setItem('wardPasskeyRegistered', JSON.stringify({ rpId: getWebAuthnRpId(), source: 'passkey-sign-in', seenAt: new Date().toISOString() }));
+  const hasPasskey = !!localStorage.getItem('wardPasskeyRegistered');
+  const bioName = getPlatformBiometricName();
+  const label = document.getElementById('passkey-enroll-label');
+  if (label) label.textContent = hasPasskey ? `Refresh ${bioName}` : `Enable ${bioName}`;
+  if (enrollBtn) {
+    if (showForLeader) {
+      enrollBtn.classList.remove('hidden');
+      enrollBtn.classList.add('inline-flex');
+      enrollBtn.style.display = 'inline-flex';
+      enrollBtn.hidden = false;
+    } else {
+      enrollBtn.classList.add('hidden');
+      enrollBtn.classList.remove('inline-flex', 'flex');
+      enrollBtn.style.display = '';
+      enrollBtn.hidden = true;
+    }
+  }
+  const bannerLabel = document.getElementById('btn-enroll-passkey-banner-label');
+  const bannerText = document.getElementById('passkey-enroll-banner-text');
+  if (bannerText) {
+    bannerText.textContent = hasPasskey
+      ? `${bioName} is enabled on this device. Use Refresh if you need to set it up again.`
+      : `Enable ${bioName} on this device so you can sign in without a text code.`;
+  }
+  if (bannerLabel) bannerLabel.textContent = hasPasskey ? `Refresh ${bioName}` : `Enable ${bioName}`;
+  if (banner) {
+    const showBanner = showForLeader && !hasPasskey && !localStorage.getItem('wardPasskeyBannerDismissed');
+    if (showBanner) {
+      banner.classList.remove('hidden');
+      banner.style.display = '';
+      banner.hidden = false;
+    } else {
+      banner.classList.add('hidden');
+      banner.style.display = '';
+      banner.hidden = true;
+    }
+  }
+}
+
 async function initBiometricUI() {
   const bioName = getPlatformBiometricName();
 
   const loginLabel = document.getElementById('passkey-login-label');
   if (loginLabel) loginLabel.textContent = `Sign In with ${bioName}`;
 
-  const enrollLabel = document.getElementById('passkey-enroll-label');
-  if (enrollLabel) enrollLabel.textContent = `Enable ${bioName}`;
+  updatePasskeyEnrollButton();
 
   const promptDesc = document.getElementById('passkey-prompt-desc');
   if (promptDesc) {
@@ -733,19 +1232,26 @@ async function initBiometricUI() {
   const promptBtnLabel = document.getElementById('passkey-prompt-btn-label');
   if (promptBtnLabel) promptBtnLabel.textContent = `Enable ${bioName} Now`;
 
-  // Hardware check: if platform authenticator is not available, gracefully hide the biometric login button
+  // v1.2.65: Chrome incognito (and some desktop browsers) may report
+  // isUserVerifyingPlatformAuthenticatorAvailable() as false even when
+  // window.PublicKeyCredential exists and a passkey can still be created.
+  // Do not hide #passkey-login-container, #btn-enroll-passkey, or
+  // #passkey-enroll-banner based on that check or if it throws.
+  // The login passkey button stays gated only on PublicKeyCredential in checkAuth.
+  // Re-assert enroll button/banner after the async check so a late return cannot
+  // leave them at the default HTML hidden state.
   if (window.PublicKeyCredential && typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
     try {
-      const isAvailable = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-      const container = document.getElementById('passkey-login-container');
-      if (!isAvailable && container) {
-        container.classList.add('hidden');
-      }
+      await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
     } catch (_) { }
   }
+  updatePasskeyEnrollButton();
 }
 
 async function initPasskeyAutofill() {
+  // v1.2.63: passkeys stay on the green Sign In button only. Do not start conditional
+  // mediation (autocomplete=webauthn) on the name field.
+  return;
   if (!window.PublicKeyCredential || typeof PublicKeyCredential.isConditionalMediationAvailable !== 'function') {
     return;
   }
@@ -769,16 +1275,53 @@ async function initPasskeyAutofill() {
       if (result.customToken) {
         await signInWithCustomToken(auth, result.customToken).catch(() => { });
       }
-      const profile = result.profile;
+      let profile = result.profile;
+      // v1.2.55: the passkey API returns only some fields; read this leader's rcCodes/calling/active, then gate.
+      try {
+        const leaderSnap = await getDoc(doc(db, "ward_leaders", String(profile.id || '')));
+        if (leaderSnap.exists()) {
+          const d = leaderSnap.data() || {};
+          profile = { ...profile, rcCodes: d.rcCodes, calling: d.calling || profile.calling, active: d.active };
+        }
+      } catch (_) { }
+      if (!isHomeAdminAllowed(profile)) {
+        await refuseHomeAdmin(null);
+        return;
+      }
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
       sessionStorage.setItem('wardAdminAuth', 'true');
+      setSignInMethod('passkey');
       setSSOCookie(profile);
+      resetSubscriptions(); // v1.2.71: re-attach listeners with this passkey session
       checkAuth();
     }
   } catch (err) {
     if (err && err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
       console.warn("Passkey autofill:", err);
     }
+  }
+}
+
+// v1.2.65: visible working state for the whole enrollCloudPasskey() call
+// (options + browser prompt + server verify). Labels are restored in finally.
+function setPasskeyEnrollWorking(isWorking) {
+  const ids = ['btn-enroll-passkey', 'btn-enroll-passkey-banner', 'btn-prompt-enable-passkey'];
+  const labelIds = ['passkey-enroll-label', 'btn-enroll-passkey-banner-label', 'passkey-prompt-btn-label'];
+  for (const id of ids) {
+    const btn = document.getElementById(id);
+    if (!btn) continue;
+    btn.disabled = !!isWorking;
+    btn.setAttribute('aria-busy', isWorking ? 'true' : 'false');
+  }
+  if (isWorking) {
+    for (const id of labelIds) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = 'Saving passkey to server…';
+    }
+  } else {
+    updatePasskeyEnrollButton();
+    const promptBtnLabel = document.getElementById('passkey-prompt-btn-label');
+    if (promptBtnLabel) promptBtnLabel.textContent = `Enable ${getPlatformBiometricName()} Now`;
   }
 }
 
@@ -791,10 +1334,20 @@ async function handleEnrollPasskey() {
   try {
     profile = JSON.parse(sessionStorage.getItem('wardLeaderProfile') || 'null');
   } catch (_) { }
-  if (!profile) profile = { displayName: "Ward Leader", role: "admin", phoneNumber: "admin" };
+  // v1.2.65: enroll only from a real signed-in leader session; never the generic Ward Leader fallback.
+  if (!profile || !isSignedInLeaderSession() || isBreakGlassProfile(profile) || profile.displayName === 'Master Admin') {
+    alert("Please sign in as a leader (phone text code, password or Google) before enabling Touch ID / Face ID.");
+    return;
+  }
 
+  // v1.2.70: the passkey server (passkeyApi 1.1.0) needs this browser's Firebase sign-in (text code or passkey) for this leader.
+  if (!auth.currentUser) {
+    alert(PASSKEY_SIGNIN_REQUIRED_MSG);
+    return;
+  }
+  setPasskeyEnrollWorking(true);
   try {
-    const result = await enrollCloudPasskey(profile);
+    const result = await enrollCloudPasskey(profile, { idToken: await auth.currentUser.getIdToken() });
 
     if (result?.verified) {
       localStorage.setItem('wardPasskeyRegistered', JSON.stringify({
@@ -804,21 +1357,34 @@ async function handleEnrollPasskey() {
         enrolledAt: new Date().toISOString()
       }));
       alert(`${getPlatformBiometricName()} successfully enabled for all Blackstone Ward hubs!`);
-      const btn = document.getElementById('btn-enroll-passkey');
-      if (btn) btn.classList.add('hidden');
+      updatePasskeyEnrollButton();
       const promptModal = document.getElementById('passkey-prompt-modal');
       if (promptModal) promptModal.classList.add('hidden');
+      checkAuth();
     }
   } catch (e) {
     if (e.name !== 'NotAllowedError') {
       console.error("Passkey error:", e);
-      alert("Could not register passkey: " + e.message);
+      const msg = String((e && e.message) || '');
+      const alreadyRegistered = e.name === 'InvalidStateError' || /already registered|authenticator that contains one of the credentials already registered/i.test(msg);
+      if (alreadyRegistered) {
+        localStorage.removeItem('wardPasskeyRegistered');
+        localStorage.removeItem('wardPasskeyPromptDismissed');
+        localStorage.removeItem('wardPasskeyBannerDismissed');
+        updatePasskeyEnrollButton();
+        alert("This device already has your passkey, so there is nothing to set up. Just sign in with Touch ID."); // v1.2.75 (Duane voice 11:34 PM ET): InvalidStateError means this authenticator already holds one of this leader's ward_passkeys credentials
+      } else {
+        alert("Could not register passkey: " + e.message);
+      }
     }
+  } finally {
+    setPasskeyEnrollWorking(false);
   }
 }
 
 function maybeShowPasskeyOnboardingPrompt(profile) {
-  if (!window.PublicKeyCredential) return;
+  if (isPasskeySession()) return; // v1.2.72 (Duane, voice 9:56 PM ET): a passkey sign-in already has a passkey; never offer to enable one
+  if (isBreakGlassProfile(profile) || !isSignedInLeaderSession()) return;
   if (localStorage.getItem('wardPasskeyRegistered')) return;
   if (localStorage.getItem('wardPasskeyPromptDismissed')) return;
 
@@ -830,7 +1396,7 @@ function maybeShowPasskeyOnboardingPrompt(profile) {
   if (nameEl) nameEl.textContent = firstName;
 
   setTimeout(() => {
-    if (sessionStorage.getItem('wardAdminAuth') === 'true' && !localStorage.getItem('wardPasskeyRegistered')) {
+    if (sessionStorage.getItem('wardAdminAuth') === 'true' && !localStorage.getItem('wardPasskeyRegistered') && !isPasskeySession()) { // v1.2.72
       modal.classList.remove('hidden');
     }
   }, 700);
@@ -860,20 +1426,69 @@ async function handlePasskeyLogin() {
     const result = await loginWithCloudPasskey({ leaderName: typedName });
 
     if (result?.verified && result.profile) {
-      if (result.customToken) {
-        await signInWithCustomToken(auth, result.customToken).catch(() => { });
+      // v1.2.68: do not mark a passkey session unless Firebase custom-token sign-in succeeded.
+      if (!result.customToken) {
+        const short = 'missing-custom-token';
+        console.info('Passkey Firebase sign-in failed', { code: short });
+        const msg = `Passkey verified, but Firebase sign-in failed (${short}). Please try again.`;
+        if (hintEl) {
+          hintEl.textContent = msg;
+          hintEl.classList.remove('hidden');
+        }
+        alert(msg);
+        return;
       }
-      const profile = result.profile;
+      try {
+        await signInWithCustomToken(auth, result.customToken);
+      } catch (tokenErr) {
+        const raw = String((tokenErr && (tokenErr.code || tokenErr.message)) || 'sign-in-failed');
+        const m = raw.match(/auth\/[a-z0-9_-]+/i);
+        const short = m ? m[0] : (tokenErr && tokenErr.code ? String(tokenErr.code) : raw.split(/[\s:]/)[0] || 'sign-in-failed');
+        console.info('Passkey Firebase sign-in failed', { code: short });
+        const msg = `Passkey verified, but Firebase sign-in failed (${short}). Please try again.`;
+        if (hintEl) {
+          hintEl.textContent = msg;
+          hintEl.classList.remove('hidden');
+        }
+        alert(msg);
+        return;
+      }
+      let profile = result.profile;
+      // v1.2.55: the passkey API returns only some fields; read this leader's rcCodes/calling/active, then gate.
+      try {
+        const leaderSnap = await getDoc(doc(db, "ward_leaders", String(profile.id || '')));
+        if (leaderSnap.exists()) {
+          const d = leaderSnap.data() || {};
+          profile = { ...profile, rcCodes: d.rcCodes, calling: d.calling || profile.calling, active: d.active };
+        }
+      } catch (_) { }
+      if (!isHomeAdminAllowed(profile)) {
+        await refuseHomeAdmin(null);
+        return;
+      }
       sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
       sessionStorage.setItem('wardAdminAuth', 'true');
+      setSignInMethod('passkey');
       setSSOCookie(profile);
+      resetSubscriptions(); // v1.2.71: re-attach listeners with this passkey session
       checkAuth();
     }
   } catch (e) {
     const bioName = getPlatformBiometricName();
     if (e.name !== 'NotAllowedError') {
       console.error("Passkey login error:", e);
-      alert(`${bioName} verification failed. Please sign in with phone text first to set up or refresh your passkey.`);
+      // v1.2.64: drop the stale local passkey flag so Enable/Refresh and the banner can show after a later SMS/password/Google sign-in.
+      localStorage.removeItem('wardPasskeyRegistered');
+      localStorage.removeItem('wardPasskeyPromptDismissed');
+      localStorage.removeItem('wardPasskeyBannerDismissed');
+      updatePasskeyEnrollButton();
+      const detail = (e && e.message) ? ` ${e.message}` : '';
+      const msg = String((e && e.message) || '');
+      const unrecognized = /not found|not recognised|not recognized|directory|no passkey|404/i.test(msg);
+      const why = unrecognized
+        ? " This passkey is not recognized for your account."
+        : "";
+      alert(`${bioName} verification failed.${why}${detail} Sign in with a phone text code, then click Refresh ${bioName} to set it up again on this device. If an old passkey is saved, delete it in Chrome or in Apple Passwords, then refresh.`);
     } else {
       const saved = localStorage.getItem('wardPasskeyRegistered');
       if (!saved && hintEl) {
@@ -889,6 +1504,21 @@ async function handlePasskeyLogin() {
 
 function checkAuth() {
   const isAuth = sessionStorage.getItem('wardAdminAuth') === 'true';
+  // v1.2.55: refuse a stored non-RC1-RC6 profile (the no-profile/'Master Admin' owner fallback below is unchanged).
+  if (isAuth) {
+    let storedProfile = null;
+    try { storedProfile = JSON.parse(sessionStorage.getItem('wardLeaderProfile') || 'null'); } catch (_) { }
+    if (storedProfile && storedProfile.displayName && storedProfile.displayName !== 'Master Admin' && !isHomeAdminAllowed(storedProfile)) {
+      refuseHomeAdmin(null).finally(() => checkAuth());
+      return;
+    }
+    // v1.2.91 (#3): the master-password break-glass session is retired. A tab with no leader profile (or an old
+    // 'Master Admin' / break-glass session) is signed out instead of being opened as break-glass.
+    if (!storedProfile || !storedProfile.displayName || storedProfile.displayName === 'Master Admin' || sessionStorage.getItem('wardAdminBreakGlass') === 'true') {
+      refuseHomeAdmin(null).finally(() => checkAuth());
+      return;
+    }
+  }
   const loginView = document.getElementById('login-view');
   const dashView = document.getElementById('dashboard-view');
   if (isAuth) {
@@ -905,13 +1535,10 @@ function checkAuth() {
       profile = JSON.parse(sessionStorage.getItem('wardLeaderProfile') || 'null');
     } catch (_) { }
     if (!profile || profile.displayName === 'Master Admin' || !profile.displayName) {
-      profile = {
-        id: "leader_duane_harris",
-        displayName: "Duane Harris",
-        email: "tueini@gmail.com",
-        phoneNumber: "(508) 494-0905",
-        role: "admin"
-      };
+      // v1.2.58 (D4): a signed-in tab without a leader profile is the master-password break-glass session
+      // (Home area 1 only), no longer the owner record.
+      sessionStorage.setItem('wardAdminBreakGlass', 'true');
+      profile = { id: BREAK_GLASS_ID, displayName: "Master Admin", breakGlass: true };
     }
     profile.role = resolveLeaderRole(profile);
     profile.calling = getLeaderCalling(profile);
@@ -928,12 +1555,16 @@ function checkAuth() {
     const initialsEl = document.getElementById('leader-avatar-initials');
 
     if (badge && nameEl) {
-      nameEl.textContent = profile.displayName || 'Duane Harris';
-      if (emailEl) emailEl.textContent = profile.email || profile.phoneNumber || 'tueini@gmail.com';
+      nameEl.textContent = profile.displayName || 'Leader'; // v1.2.93: no hard-coded name/email fallback
+      if (emailEl) emailEl.textContent = profile.email || profile.phoneNumber || '';
       if (roleEl) {
         const roleDef = ROLE_DEFINITIONS[profile.role] || { label: 'Ward Leader', fullAccess: false };
         const areas = getLeaderAccessAreas(profile);
-        if (profile.role === 'admin' || profile.role === 'bishopric') {
+        if (isBreakGlassProfile(profile)) {
+          roleEl.textContent = 'Master password: Home admin only'; // v1.2.58 (D4)
+        } else if (getHomeAdminSeats(profile).length) {
+          roleEl.textContent = getLeaderCallingLabels(profile).title; // v1.2.58: seat callings, e.g. "Bishop"
+        } else if (profile.role === 'admin' || profile.role === 'bishopric') {
           roleEl.textContent = roleDef.label;
         } else if (areas.length > 0 && areas.length < 7) {
           roleEl.textContent = `${roleDef.label} • ${areas.join(', ')}`;
@@ -942,7 +1573,7 @@ function checkAuth() {
         }
       }
       if (initialsEl) {
-        const parts = (profile.displayName || 'Duane Harris').trim().split(/\s+/);
+        const parts = (profile.displayName || 'Leader').trim().split(/\s+/);
         const initials = parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : parts[0].slice(0, 2).toUpperCase();
         initialsEl.textContent = initials;
         initialsEl.style.color = '#ffffff';
@@ -951,17 +1582,8 @@ function checkAuth() {
       badge.classList.add('flex');
     }
 
-    // Passkey enroll button
-    const enrollBtn = document.getElementById('btn-enroll-passkey');
-    if (enrollBtn && window.PublicKeyCredential) {
-      const hasPasskey = !!localStorage.getItem('wardPasskeyRegistered');
-      if (!hasPasskey) {
-        enrollBtn.classList.remove('hidden');
-        enrollBtn.classList.add('flex');
-      } else {
-        enrollBtn.classList.add('hidden');
-      }
-    }
+    // Passkey enroll button (v1.2.61: always shown after sign-in; label is Enable or Refresh)
+    updatePasskeyEnrollButton();
 
     maybeShowPasskeyOnboardingPrompt(profile);
 
@@ -1011,6 +1633,7 @@ function checkAuth() {
   } else {
     loginView.classList.remove('hidden');
     dashView.classList.add('hidden');
+    updatePasskeyEnrollButton();
 
     // Show biometric button if browser supports biometrics/WebAuthn and initialize platform labels
     const passkeyBox = document.getElementById('passkey-login-container');
@@ -1024,6 +1647,98 @@ function checkAuth() {
     }
 
     initPasskeyAutofill();
+  }
+}
+
+async function handleGoogleSignIn() {
+  const err = document.getElementById('google-login-error');
+  const btn = document.getElementById('btn-google-signin');
+  const showErr = (msg) => {
+    if (!err) { alert(msg); return; }
+    err.textContent = msg;
+    err.classList.remove('hidden');
+  };
+  if (err) {
+    err.textContent = '';
+    err.classList.add('hidden');
+  }
+
+  try {
+    if (btn) btn.disabled = true;
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const googleEmail = String(user?.email || '').trim();
+    if (!googleEmail) {
+      try { await signOut(auth); } catch (_) { }
+      showErr("This Google account has no email address, so it can't be matched to a ward leader.");
+      return;
+    }
+    if (user.emailVerified === false) {
+      try { await signOut(auth); } catch (_) { }
+      showErr("This Google account's email is not verified. Please verify it with Google and try again.");
+      return;
+    }
+
+    // v1.2.74 (Duane voice 11:06 PM ET): read only this leader's record, by the lower-cased Google email. The rules
+    // (google draft 2026-11-22) let a Google-verified session read just the ward_leaders doc whose email equals its
+    // lower-cased token email; stored leader emails are lower-case, so no as-typed fallback is needed.
+    const want = googleEmail.toLowerCase();
+    let leadersSnap;
+    try {
+      leadersSnap = await getDocs(query(collection(db, "ward_leaders"), where("email", "==", want)));
+    } catch (listErr) {
+      console.error("Leader check after Google sign-in failed:", listErr);
+      try { await signOut(auth); } catch (_) { }
+      showErr("Google sign-in succeeded, but the leader list couldn't be checked, so you weren't signed in. Please try again.");
+      return;
+    }
+
+    const matches = [];
+    leadersSnap.forEach(d => {
+      const data = d.data() || {};
+      if (data.active === false) return;
+      if (String(data.email || '').trim().toLowerCase() === want) {
+        matches.push({ id: d.id, ...data });
+      }
+    });
+
+    if (matches.length === 0) {
+      try { await signOut(auth); } catch (_) { }
+      showErr("No active ward leader is registered with this Google email. Please contact an administrator.");
+      return;
+    }
+    if (matches.length > 1) {
+      try { await signOut(auth); } catch (_) { }
+      showErr("More than one active leader is registered with this Google email. Please contact an administrator.");
+      return;
+    }
+
+    const matchedLeader = matches[0];
+    if (!isHomeAdminAllowed(matchedLeader)) {
+      await refuseHomeAdmin(err);
+      return;
+    }
+    sessionStorage.setItem('wardLeaderProfile', JSON.stringify(matchedLeader));
+    sessionStorage.setItem('wardAdminAuth', 'true');
+    setSignInMethod('google');
+    setSSOCookie(matchedLeader);
+    checkAuth();
+  } catch (e) {
+    const code = e && e.code;
+    if (code === 'auth/operation-not-allowed') {
+      showErr("Google sign-in is not enabled for this site yet. An administrator needs to enable the Google provider in Firebase Authentication.");
+    } else if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      // The user closed the popup; no error banner.
+    } else if (code === 'auth/popup-blocked') {
+      showErr("The Google sign-in popup was blocked. Please allow popups for this site and try again.");
+    } else {
+      console.error("Google sign-in error:", e);
+      showErr((e && e.message) || "Google sign-in failed. Please try again.");
+    }
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -1051,7 +1766,7 @@ async function handleLogin(e) {
   const nameParts = leaderName.split(/\s+/).filter(Boolean);
   if (nameParts.length < 2) {
     if (err) {
-      err.textContent = "Please type both your first and last name (e.g. Duane Harris).";
+      err.textContent = "Please type both your first and last name.";
       err.classList.remove('hidden');
     }
     nameLookup?.focus();
@@ -1070,102 +1785,51 @@ async function handleLogin(e) {
   if (btn) btn.textContent = 'Verifying...';
 
   try {
-    const rawHash = await computeSha256(val);
-    const lowerHash = await computeSha256(val.toLowerCase());
-
-    const validHashes = new Set([
-      window.SECURE_AUTH_HASHES?.MASTER,
-      window.SECURE_AUTH_HASHES?.WARD,
-      ...(window.MASTER_APPROVED_HASHES || []),
-      ...AUTHORIZED_MASTER_HASHES
-    ]);
-
-    // 1. Check Master Passwords
-    if (validHashes.has(rawHash) || validHashes.has(lowerHash)) {
-      let profile = {
-        displayName: "Duane Harris",
-        email: "tueini@gmail.com",
-        phoneNumber: "+15084940905",
-        role: "admin"
-      };
-      if (leaderName) {
-        const match = leadersCache.find(l => (l.displayName || '').toLowerCase().includes(leaderName.toLowerCase()));
-        if (match) profile = { ...match };
+    // v1.2.91 (Duane 2026-11-23, #2/#3): the temporary master password (break-glass) is retired, and personal leader
+    // passwords are checked only on the server (passkeyApi 1.4.0 /password/login, salted scrypt). The browser sends the
+    // typed name and password to the server and never hashes or compares passwords. A name is required (it is above).
+    if (PERSONAL_LEADER_PASSWORDS_DISABLED) {
+      if (err) {
+        err.textContent = GENERIC_SIGNIN_FAILED_MSG;
+        err.classList.remove('hidden');
       }
-      sessionStorage.setItem('wardLeaderProfile', JSON.stringify(profile));
-      sessionStorage.setItem('wardAdminAuth', 'true');
-      setSSOCookie(profile);
-      input.value = '';
       if (btn) btn.textContent = 'Sign In with Password';
-      checkAuth();
       return;
     }
-
-    // 2. Check Personal Leader Passwords
-    let matchedLeader = null;
-    if (leaderName) {
-      const cleanName = leaderName.toLowerCase();
-      matchedLeader = leadersCache.find(l => (l.displayName || '').toLowerCase() === cleanName) ||
-        leadersCache.find(l => (l.displayName || '').toLowerCase().includes(cleanName));
-    }
-
-    if (matchedLeader) {
-      if (!matchedLeader.passwordHash) {
-        if (err) {
-          err.textContent = `No personal password has been set for ${matchedLeader.displayName} yet. Please sign in via phone text code or click "Forgot password?" to set one.`;
-          err.classList.remove('hidden');
-        }
-        if (btn) btn.textContent = 'Sign In with Password';
-        return;
+    let pwResult = null;
+    try {
+      pwResult = await loginWithLeaderPassword({ leaderName, password: val });
+    } catch (pwErr) {
+      if (err) {
+        // 429 (too many tries) and 5xx (unavailable) carry the server's own message; anything else stays generic.
+        err.textContent = (pwErr?.status === 429 || pwErr?.status >= 500) ? pwErr.message : GENERIC_SIGNIN_FAILED_MSG;
+        err.classList.remove('hidden');
       }
-      if (matchedLeader.passwordHash === rawHash || matchedLeader.passwordHash === lowerHash) {
-        if (matchedLeader.active === false) {
-          if (err) {
-            err.textContent = "This leader account is currently deactivated. Please contact an administrator.";
-            err.classList.remove('hidden');
-          }
-          if (btn) btn.textContent = 'Sign In with Password';
-          return;
-        }
-        sessionStorage.setItem('wardLeaderProfile', JSON.stringify(matchedLeader));
-        sessionStorage.setItem('wardAdminAuth', 'true');
-        setSSOCookie(matchedLeader);
-        input.value = '';
-        if (btn) btn.textContent = 'Sign In with Password';
-        checkAuth();
-        return;
-      } else {
-        if (err) {
-          err.textContent = `Incorrect password for ${matchedLeader.displayName}. Please try again or click "Forgot password?".`;
-          err.classList.remove('hidden');
-        }
-        if (btn) btn.textContent = 'Sign In with Password';
-        if (input) { input.select(); input.focus(); }
-        return;
-      }
-    }
-
-    // If no leader name was specified, check if the password matches any active leader's personal password
-    const matchingLeader = leadersCache.find(l => l.active !== false && (l.passwordHash === rawHash || l.passwordHash === lowerHash));
-    if (matchingLeader) {
-      sessionStorage.setItem('wardLeaderProfile', JSON.stringify(matchingLeader));
-      sessionStorage.setItem('wardAdminAuth', 'true');
-      setSSOCookie(matchingLeader);
-      input.value = '';
       if (btn) btn.textContent = 'Sign In with Password';
-      checkAuth();
+      if (input) { input.select(); input.focus(); }
       return;
     }
-
-    if (err) {
-      err.textContent = "Incorrect password. If you don't have a personal password, sign in via phone text or click 'Forgot password?'.";
-      err.classList.remove('hidden');
+    // passkeyApi 1.4.0 returns the leader's profile; with 1.3.0 (until the function deploy) use the cached record by name.
+    const pwOk = !!(pwResult && pwResult.ok);
+    const cachedByName = pwOk ? leadersCache.find(l => (l.displayName || '').trim().toLowerCase().replace(/\s+/g, ' ') === leaderName.toLowerCase().replace(/\s+/g, ' ')) : null;
+    const serverProfile = pwOk && pwResult.profile && pwResult.profile.id ? pwResult.profile : (cachedByName || null);
+    if (!serverProfile) {
+      if (err) {
+        err.textContent = GENERIC_SIGNIN_FAILED_MSG;
+        err.classList.remove('hidden');
+      }
+      if (btn) btn.textContent = 'Sign In with Password';
+      if (input) { input.select(); input.focus(); }
+      return;
     }
+    const { passwordHash: _droppedHash, ...matchedLeader } = leadersCache.find(l => l.id === serverProfile.id) || serverProfile;
+    sessionStorage.setItem('wardLeaderProfile', JSON.stringify(matchedLeader));
+    sessionStorage.setItem('wardAdminAuth', 'true');
+    setSignInMethod('password');
+    setSSOCookie(matchedLeader);
+    input.value = '';
     if (btn) btn.textContent = 'Sign In with Password';
-    if (input) {
-      input.select();
-      input.focus();
-    }
+    checkAuth();
   } catch (errCatch) {
     console.error("Auth error", errCatch);
     if (err) {
@@ -1180,10 +1844,13 @@ async function handleLogout() {
   clearSSOCookie();
   sessionStorage.removeItem('wardAdminAuth');
   sessionStorage.removeItem('wardLeaderProfile');
+  sessionStorage.removeItem('wardAdminBreakGlass'); // v1.2.58
+  sessionStorage.removeItem('wardAdminSignInMethod'); // v1.2.60
   currentLeaderProfile = null;
   try {
     await signOut(auth);
   } catch (_) { }
+  resetSubscriptions(); // v1.2.71
 
   // Thoroughly wipe all inputs so no prior data is displayed
   const nameLookup = document.getElementById('admin-name-lookup');
@@ -1372,6 +2039,14 @@ let unsubEvents = null;
 let unsubAnn = null;
 let unsubSpot = null;
 let unsubLead = null;
+// v1.2.71 (Duane, chat 9:39 PM ET): initSubscriptions() runs once per page (guard below), and a listener that got
+// permission-denied stays dead. Stop and forget all four listeners on logout and on each successful text/passkey
+// sign-in so the next checkAuth() re-attaches them with the CURRENT Firebase session (e.g. after the leader_sessions tie).
+function resetSubscriptions() {
+  for (const u of [unsubEvents, unsubAnn, unsubSpot, unsubLead]) { try { if (u) u(); } catch (_) { } }
+  unsubEvents = unsubAnn = unsubSpot = unsubLead = null;
+  leadersTableDenied = false;
+}
 
 function initSubscriptions() {
   if (unsubEvents) return; // already initialized
@@ -1462,6 +2137,8 @@ function initSubscriptions() {
 
   // 4. ward_leaders (RBAC Leader Roster)
   unsubLead = onSnapshot(collection(db, "ward_leaders"), (snapshot) => {
+    leadersTableDenied = false;
+    leadersDeniedPopupShown = false; // v1.2.76
     leadersCache = [];
     snapshot.forEach(docSnap => {
       const data = docSnap.data();
@@ -1476,20 +2153,7 @@ function initSubscriptions() {
       leadersCache.push(item);
     });
 
-    // Ensure Duane Harris is always present in the leaders registry
-    const hasDuane = leadersCache.some(l => l.phoneNumber === '+15084940905' || l.id === 'leader_duane_harris' || l.displayName === 'Duane Harris');
-    if (!hasDuane) {
-      const duaneData = {
-        displayName: "Duane Harris",
-        email: "tueini@gmail.com",
-        phoneNumber: "+15084940905",
-        role: "admin",
-        active: true,
-        createdAt: new Date().toISOString()
-      };
-      leadersCache.unshift({ id: 'leader_duane_harris', ...duaneData });
-      setDoc(doc(db, "ward_leaders", "leader_duane_harris"), duaneData, { merge: true }).catch(() => { });
-    }
+    // v1.2.93 (cleanup item 2): the owner record is no longer auto-created/re-seeded from the browser; it lives in ward_leaders.
 
     // Sync active session profile if current logged-in leader's role/accessAreas were updated
     if (currentLeaderProfile) {
@@ -1498,7 +2162,7 @@ function initSubscriptions() {
         (currentLeaderProfile.id && l.id === currentLeaderProfile.id) ||
         (cleanName && (l.displayName || '').toLowerCase().trim() === cleanName)
       );
-      if (matched) {
+      if (matched && !isBreakGlassProfile(currentLeaderProfile)) { // v1.2.58: break-glass never merges into a leader
         currentLeaderProfile = { ...currentLeaderProfile, ...matched, role: resolveLeaderRole(matched) };
         sessionStorage.setItem('wardLeaderProfile', JSON.stringify(currentLeaderProfile));
         setSSOCookie(currentLeaderProfile);
@@ -1506,7 +2170,11 @@ function initSubscriptions() {
         if (roleEl) {
           const roleDef = ROLE_DEFINITIONS[currentLeaderProfile.role] || { label: 'Ward Leader', fullAccess: false };
           const areas = getLeaderAccessAreas(currentLeaderProfile);
-          if (currentLeaderProfile.role === 'admin' || currentLeaderProfile.role === 'bishopric') {
+          if (isBreakGlassProfile(currentLeaderProfile)) {
+            roleEl.textContent = 'Master password: Home admin only'; // v1.2.58 (D4)
+          } else if (getHomeAdminSeats(currentLeaderProfile).length) {
+            roleEl.textContent = getLeaderCallingLabels(currentLeaderProfile).title; // v1.2.58: seat callings, e.g. "Bishop"
+          } else if (currentLeaderProfile.role === 'admin' || currentLeaderProfile.role === 'bishopric') {
             roleEl.textContent = roleDef.label;
           } else if (areas.length > 0 && areas.length < 7) {
             roleEl.textContent = `${roleDef.label} • ${areas.join(', ')}`;
@@ -1521,6 +2189,8 @@ function initSubscriptions() {
     renderLeadersTable();
   }, (err) => {
     console.error("Firestore ward_leaders error:", err);
+    if (isPermissionDenied(err)) { leadersTableDenied = true; showLeadersLoadDenied(); }
+    unsubLead = null; // v1.2.71: this listener is dead after an error; resetSubscriptions() + the next sign-in re-create it
   });
 }
 
@@ -2349,6 +3019,7 @@ async function saveAnnouncement() {
   });
   setDoc(doc(db, "home_announcements", id), { ...payload, org: 'Ward' }, { merge: true }).catch(err => {
     console.warn("home_announcements cloud warning:", err);
+    alertContentWriteDenied(err); // v1.2.69
   });
 }
 
@@ -2362,7 +3033,7 @@ async function deleteAnnouncement(id) {
   closeModals();
 
   deleteDoc(doc(db, "ward_announcements", id)).catch(() => { });
-  deleteDoc(doc(db, "home_announcements", id)).catch(() => { });
+  deleteDoc(doc(db, "home_announcements", id)).catch((e) => { alertContentWriteDenied(e); }); // v1.2.69
 }
 
 // ================= SPOTLIGHTS CRUD =================
@@ -2499,6 +3170,7 @@ async function saveSpotlight() {
   });
   setDoc(doc(db, "home_spotlights", id), { ...payload, org: 'Ward' }, { merge: true }).catch(err => {
     console.warn("home_spotlights cloud warning:", err);
+    alertContentWriteDenied(err); // v1.2.69
   });
 }
 
@@ -2512,7 +3184,7 @@ async function deleteSpotlight(id) {
   closeModals();
 
   deleteDoc(doc(db, "ward_spotlights", id)).catch(() => { });
-  deleteDoc(doc(db, "home_spotlights", id)).catch(() => { });
+  deleteDoc(doc(db, "home_spotlights", id)).catch((e) => { alertContentWriteDenied(e); }); // v1.2.69
 }
 
 // ================= LEADERS (RBAC) CONTROLS =================
@@ -2553,58 +3225,385 @@ function updateLeadersBulkBar() {
 let currentLeaderOrgTab = 'all'; // 'all', 'bishopric', 'youth', 'eq', 'rs', 'ss'
 let isAccessMatrixVisible = false;
 
+// v1.2.56 (Duane, 2026-11-21): Access Matrix = one row per Permissions-v3.xlsx Roles row with a single
+// "Accessible Areas" column (area ids joined by " • ") instead of one icon column per area.
+const MATRIX_AREA_SEP = ' • ';
+function getPermissionAreaLabel(id) {
+  const a = PERMISSIONS_AREAS[id];
+  if (!a) return `Area ${id}`;
+  return `Area ${id}: ${a[0]}${a[1] ? ' — ' + a[1] : ''}${a[2] && a[2] !== 'Active' ? ' (' + a[2] + ')' : ''}`;
+}
+function formatAccessibleAreas(areaIds) {
+  return areaIds && areaIds.length ? areaIds.join(MATRIX_AREA_SEP) : '—';
+}
+
+// v1.2.56: Add Calling / Edit is limited to RC1 (Web Administrator) and RC2 (Bishop).
+// v1.2.61: only those two seats, resolved from rcCodes through the Access module
+// (Access.rcCodesFor, including the D3 owner fallback). No admin-role shortcut.
+function canManageCallings() {
+  if (!currentLeaderProfile) return false;
+  const seats = Access.rcCodesFor(currentLeaderProfile, { owner: HOME_ADMIN_OWNER });
+  return seats.includes('RC1') || seats.includes('RC2');
+}
+
 function renderAccessMatrixTable() {
   const tbody = document.getElementById('access-matrix-table-body');
   if (!tbody) return;
   tbody.innerHTML = '';
+  const canManage = canManageCallings();
+  const addBtn = document.getElementById('btn-add-calling');
+  if (addBtn) addBtn.classList.toggle('hidden', !canManage);
 
-  const orgLabels = {
-    bishopric: 'Bishopric',
-    youth: 'Youth',
-    elders_quorum: 'EQ',
-    relief_society: 'RS',
-    sunday_school: 'SS'
-  };
-
-  CALLING_DEFINITIONS.forEach(item => {
+  // One row per Roles row (RC1-RC52, sheet order); a reference, independent of users.
+  PERMISSIONS_ROLES.forEach(([rc, name, label, orgCodes, areaIds]) => {
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-slate-50/80 transition';
-
-    const youthStatusBadge = item.activeOnYouth
-      ? '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Active</span>'
-      : '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500">Ward Portal</span>';
-
-    let cellsHtml = '';
-    YOUTH_ADMIN_AREAS.forEach(area => {
-      const hasAccess = item.defaultAccess.includes(area);
-      if (hasAccess) {
-        cellsHtml += `<td class="px-2.5 py-2 text-center"><span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">✓ Yes</span></td>`;
-      } else {
-        cellsHtml += `<td class="px-2.5 py-2 text-center text-slate-300 text-xs font-mono">—</td>`;
-      }
-    });
-
+    const areasTitle = areaIds.map(getPermissionAreaLabel).join('\n');
+    const actionHtml = canManage
+      ? `<button type="button" class="btn-edit-calling px-2.5 py-1 bg-white border border-[#E9DECE] hover:border-[#152548] rounded-lg text-[11px] font-semibold text-[#152548] inline-flex items-center gap-1 shadow-2xs transition cursor-pointer" data-rc="${escapeHtml(rc)}" aria-label="Edit ${escapeHtml(label)}"><svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg><span>Edit</span></button>`
+      : '<span class="text-slate-300">—</span>';
     tr.innerHTML = `
-      <td class="px-3.5 py-2 font-semibold text-[#152548] text-xs">${escapeHtml(item.calling)}</td>
-      <td class="px-3 py-2 text-[11px] text-slate-600 font-medium">${escapeHtml(orgLabels[item.org] || item.org)}</td>
-      <td class="px-2.5 py-2 text-center">${youthStatusBadge}</td>
-      ${cellsHtml}
+      <td class="w-14 min-w-[3.5rem] px-3 py-2 font-mono text-[11px] text-slate-600">${escapeHtml(rc)}</td>
+      <td class="px-3 py-2 font-semibold text-[#152548] text-xs whitespace-nowrap"><span class="cursor-help" title="${escapeHtml(name)}">${escapeHtml(label)}</span></td>
+      <td class="w-px px-2 py-2 text-[11px] text-slate-600 font-medium whitespace-nowrap">${renderOrgCodes(splitOrgCodes(orgCodes))}</td>
+      <td class="px-3 py-2 font-mono text-[11px] text-slate-700" title="${escapeHtml(areasTitle)}">${escapeHtml(formatAccessibleAreas(areaIds))}</td>
+      <td class="px-3 py-2 text-right">${actionHtml}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
+// v1.2.56: "i" next to "Accessible Areas" opens the Restricted Areas tab of the sheet (id, site, section, status).
+function renderRestrictedAreasTable() {
+  const tbody = document.getElementById('restricted-areas-body');
+  if (!tbody) return;
+  tbody.innerHTML = Object.entries(PERMISSIONS_AREAS).map(([id, [site, region, status]]) => `
+    <tr>
+      <td class="px-3 py-1.5 font-mono text-slate-600">${escapeHtml(id)}</td>
+      <td class="px-3 py-1.5 text-[#152548] font-medium">${escapeHtml(site)}</td>
+      <td class="px-3 py-1.5 text-slate-600">${escapeHtml(region || '—')}</td>
+      <td class="px-3 py-1.5"><span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold ${status === 'Active' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">${escapeHtml(status)}</span></td>
+    </tr>`).join('');
+}
+function openRestrictedAreasModal() {
+  renderRestrictedAreasTable();
+  const modal = document.getElementById('restricted-areas-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+// v1.2.67: Add Calling / Edit window. Save writes ward_permissions_roles/<RC> (and meta/history)
+// in a transaction. Copy row / Download CSV stay available if the write is denied (rules not deployed).
+let callingModalRc = null; // null = adding a new calling
+function nextCallingRc() {
+  const max = Math.max(0, ...PERMISSIONS_ROLES.map(r => Number(String(r[0]).replace(/^RC/, '')) || 0));
+  return `RC${max + 1}`;
+}
+function buildCallingModalChoices() {
+  const orgBox = document.getElementById('calling-orgs');
+  if (orgBox && !orgBox.dataset.built) {
+    orgBox.innerHTML = Object.entries(PERMISSIONS_ORGS).map(([code, orgName]) => `
+      <label class="flex items-center gap-1.5 text-xs text-[#152548] cursor-pointer" title="${escapeHtml(orgName)}">
+        <input type="checkbox" class="calling-org-check rounded border-[#E9DECE] text-[#152548] focus:ring-0" value="${escapeHtml(code)}">
+        <span><span class="font-mono font-bold">${escapeHtml(code)}</span> ${escapeHtml(orgName)}</span>
+      </label>`).join('');
+    orgBox.dataset.built = '1';
+  }
+  const areaBox = document.getElementById('calling-areas');
+  if (areaBox && !areaBox.dataset.built) {
+    areaBox.innerHTML = Object.keys(PERMISSIONS_AREAS).map(id => `
+      <label class="flex items-center gap-1.5 text-xs text-[#152548] cursor-pointer" title="${escapeHtml(getPermissionAreaLabel(Number(id)))}">
+        <input type="checkbox" class="calling-area-check rounded border-[#E9DECE] text-[#152548] focus:ring-0" value="${escapeHtml(id)}">
+        <span class="font-mono">${escapeHtml(id)}</span>
+      </label>`).join('');
+    areaBox.dataset.built = '1';
+  }
+}
+function setCallingModalStatus(msg, isError) {
+  const el = document.getElementById('calling-modal-status');
+  if (!el) return;
+  el.textContent = msg || '';
+  el.className = `text-[11px] font-medium min-h-[1rem] ${isError ? 'text-red-600' : 'text-emerald-700'}`;
+}
+function openCallingModal(rc) {
+  if (!canManageCallings()) {
+    alert('Only the Web Administrator or the Bishop can add or edit callings.');
+    return;
+  }
+  buildCallingModalChoices();
+  const row = rc ? PERMISSIONS_ROLES.find(r => r[0] === rc) : null;
+  callingModalRc = row ? row[0] : null;
+  const title = document.getElementById('calling-modal-title');
+  if (title) title.textContent = row ? `Edit Calling: ${row[2]}` : 'Add Calling';
+  const rcInput = document.getElementById('calling-rc');
+  if (rcInput) {
+    rcInput.value = row ? row[0] : nextCallingRc();
+    rcInput.readOnly = !!row;
+  }
+  document.getElementById('calling-name').value = row ? row[1] : '';
+  document.getElementById('calling-label').value = row ? row[2] : '';
+  const orgs = row ? splitOrgCodes(row[3]) : [];
+  document.querySelectorAll('.calling-org-check').forEach(chk => { chk.checked = orgs.includes(chk.value); });
+  const areas = row ? row[4] : [];
+  document.querySelectorAll('.calling-area-check').forEach(chk => { chk.checked = areas.includes(Number(chk.value)); });
+  setCallingModalStatus('', false);
+  const modal = document.getElementById('calling-modal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+// Reads and checks the form. Returns { row } shaped like PERMISSIONS_ROLES, or { error }.
+function readCallingForm() {
+  const rc = (document.getElementById('calling-rc')?.value || '').trim().toUpperCase();
+  const name = (document.getElementById('calling-name')?.value || '').trim();
+  const label = (document.getElementById('calling-label')?.value || '').trim();
+  const orgs = [...document.querySelectorAll('.calling-org-check:checked')].map(chk => chk.value);
+  const areas = [...document.querySelectorAll('.calling-area-check:checked')].map(chk => Number(chk.value)).sort((a, b) => a - b);
+  if (!/^RC\d+$/.test(rc)) return { error: 'RC code must look like RC53.' };
+  if (!callingModalRc && PERMISSIONS_ROLES.some(r => r[0] === rc)) return { error: `${rc} already exists. Use Edit on that row instead.` };
+  if (!name) return { error: 'Enter the full calling name (Roles & Callings).' };
+  if (!label) return { error: 'Enter the short Calling Label.' };
+  if (!orgs.length) return { error: 'Pick at least one organization.' };
+  return { row: [rc, name, label, orgs.join(', '), areas] };
+}
+function csvCell(v) {
+  const t = String(v === null || v === undefined ? '' : v);
+  return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+}
+// Same columns as the Roles tab without Current User (no member names): ID, Roles & Callings, Calling Label, Org, Areas.
+const CALLING_EXPORT_HEADER = ['ID', 'Roles & Callings', 'Calling Label', 'Org', 'Access to following restricted areas'];
+function callingRowToCsv(row) {
+  return [row[0], row[1], row[2], row[3], row[4].join(', ')].map(csvCell).join(',');
+}
+function buildCallingsCsv(edited) {
+  const rows = PERMISSIONS_ROLES.map(r => (edited && r[0] === edited[0]) ? edited : r);
+  if (edited && !PERMISSIONS_ROLES.some(r => r[0] === edited[0])) rows.push(edited);
+  return [CALLING_EXPORT_HEADER.map(csvCell).join(','), ...rows.map(callingRowToCsv)].join('\n') + '\n';
+}
+async function copyCallingRow() {
+  if (!canManageCallings()) {
+    setCallingModalStatus('Only the Web Administrator or the Bishop can add or edit callings.', true);
+    return;
+  }
+  const res = readCallingForm();
+  if (res.error) { setCallingModalStatus(res.error, true); return; }
+  const text = callingRowToCsv(res.row);
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (_) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (_e) { }
+    ta.remove();
+  }
+  setCallingModalStatus(`Copied ${res.row[0]} (not saved online). Paste it into Permissions_v6.xlsx.`, false);
+}
+function downloadCallingsCsv() {
+  if (!canManageCallings()) {
+    setCallingModalStatus('Only the Web Administrator or the Bishop can add or edit callings.', true);
+    return;
+  }
+  const res = readCallingForm();
+  if (res.error) { setCallingModalStatus(res.error, true); return; }
+  const blob = new Blob([buildCallingsCsv(res.row)], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Permissions-Roles-${res.row[0]}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setCallingModalStatus(`Downloaded the Roles CSV with ${res.row[0]} (not saved online).`, false);
+}
+
+const CALLING_SAVE_NOT_SIGNED_IN_MSG = "You're not signed in to Firebase. Use Sign In with Touch ID / Face ID, then try Save again.";
+const CALLING_SAVE_NEEDS_PASSKEY_MSG = "Saving the Access Matrix requires a passkey session. Sign in with Touch ID / Face ID, then try again.";
+const CALLING_SAVE_NOT_PERMITTED_MSG = "You don't have permission to save callings (need an active Web Administrator or Bishop passkey). This was not a missing rules deploy.";
+
+function callingSaveDeniedMessage(reason) {
+  if (reason === 'no-auth') return CALLING_SAVE_NOT_SIGNED_IN_MSG;
+  if (reason === 'needs-passkey') return CALLING_SAVE_NEEDS_PASSKEY_MSG;
+  return CALLING_SAVE_NOT_PERMITTED_MSG;
+}
+
+async function callingSaveAuthState() {
+  const user = auth.currentUser;
+  if (!user) {
+    console.info('Calling save auth', { uid: '', provider: '' });
+    return { ok: false, reason: 'no-auth', uid: '', provider: '' };
+  }
+  let provider = '';
+  try {
+    const tokenResult = await user.getIdTokenResult();
+    provider = tokenResult.signInProvider
+      || (tokenResult.claims && tokenResult.claims.firebase && tokenResult.claims.firebase.sign_in_provider)
+      || '';
+  } catch (_) {
+    console.info('Calling save auth', { uid: user.uid || '', provider: '' });
+    return { ok: false, reason: 'no-auth', uid: user.uid || '', provider: '' };
+  }
+  const profileId = (currentLeaderProfile && currentLeaderProfile.id) || '';
+  console.info('Calling save auth', { uid: user.uid, provider });
+  if (provider !== 'custom') {
+    return { ok: false, reason: 'needs-passkey', uid: user.uid, provider };
+  }
+  if (!profileId || user.uid !== profileId) {
+    return { ok: false, reason: 'not-permitted', uid: user.uid, provider };
+  }
+  return { ok: true, reason: '', uid: user.uid, provider };
+}
+
+
+function upsertCatalogRole(fields) {
+  const roles = (callingCatalog?.roles || []).filter((r) => r && r.rc !== fields.rc);
+  roles.push({
+    rc: fields.rc,
+    name: fields.name,
+    label: fields.label,
+    org: fields.org,
+    dropdownOrgs: fields.dropdownOrgs || fields.org,
+    displayOrder: fields.displayOrder,
+    areas: fields.areas,
+    homeSeat: !!fields.homeSeat,
+    youthAreaNames: fields.youthAreaNames || [],
+    legacyRole: fields.legacyRole,
+    legacyOrg: fields.legacyOrg,
+    active: fields.active !== false
+  });
+  const groups = recomputeGroups(PERMISSIONS_ORGS, roles);
+  applyCallingCatalog({ ...(callingCatalog || {}), groups, roles, source: (callingCatalog && callingCatalog.source) || 'bundled' });
+}
+
+async function writeCallingToFirestore(edit, isNew) {
+  const roleRef = doc(db, 'ward_permissions_roles', edit.rc);
+  const metaRef = doc(db, 'ward_permissions_meta', 'current');
+  const historyRef = doc(collection(db, 'ward_permissions_history'));
+  const editorId = (currentLeaderProfile && currentLeaderProfile.id) || (auth.currentUser && auth.currentUser.uid) || '';
+  let savedFields = null;
+  await runTransaction(db, async (tx) => {
+    const roleSnap = await tx.get(roleRef);
+    const metaSnap = await tx.get(metaRef);
+    if (isNew && roleSnap.exists()) {
+      throw new Error(`${edit.rc} already exists. Use Edit on that row instead.`);
+    }
+    if (!isNew && !roleSnap.exists()) {
+      throw new Error(`${edit.rc} was not found online. Try Download CSV.`);
+    }
+    const existing = roleSnap.exists() ? roleSnap.data() : null;
+    const fields = buildRoleDocFields(edit, Access.PERMISSIONS, Access.roleForAreas, existing);
+    savedFields = fields;
+    const payload = {
+      ...fields,
+      updatedAt: serverTimestamp(),
+      updatedBy: editorId
+    };
+    if (isNew) payload.createdAt = serverTimestamp();
+    const meta = metaSnap.exists() ? (metaSnap.data() || {}) : {};
+    const roleIds = Array.isArray(meta.roleIds) ? [...meta.roleIds] : (callingCatalog?.roles || []).map((r) => r.rc);
+    if (!roleIds.includes(edit.rc)) roleIds.push(edit.rc);
+    roleIds.sort((a, b) => rcSeq(a) - rcSeq(b));
+    const catalogRoles = (callingCatalog?.roles || []).filter((r) => r && r.rc !== fields.rc).concat([{ ...fields, active: fields.active !== false }]);
+    const metaPatch = {
+      roleIds,
+      roleCount: roleIds.length,
+      groups: recomputeGroups(meta.orgs || PERMISSIONS_ORGS, catalogRoles),
+      updatedAt: serverTimestamp(),
+      updatedBy: editorId
+    };
+    tx.set(roleRef, payload, { merge: true });
+    tx.set(metaRef, metaPatch, { merge: true });
+    tx.set(historyRef, {
+      schemaVersion: 1,
+      action: isNew ? 'add' : 'update',
+      rc: edit.rc,
+      before: existing || null,
+      after: fields,
+      by: editorId,
+      at: serverTimestamp()
+    });
+  });
+  return savedFields;
+}
+
+async function saveCallingOnline() {
+  if (!canManageCallings()) {
+    setCallingModalStatus('Only the Web Administrator or the Bishop can add or edit callings.', true);
+    return;
+  }
+  const res = readCallingForm();
+  if (res.error) { setCallingModalStatus(res.error, true); return; }
+  const [rc, name, label, orgText, areas] = res.row;
+  const orgs = splitOrgCodes(orgText);
+  const isNew = !callingModalRc;
+  const btn = document.getElementById('calling-save-btn');
+  if (btn) btn.disabled = true;
+  const authState = await callingSaveAuthState();
+  if (!authState.ok) {
+    setCallingModalStatus(callingSaveDeniedMessage(authState.reason), true);
+    if (btn) btn.disabled = false;
+    return;
+  }
+  setCallingModalStatus('Saving…', false);
+  try {
+    const fields = await writeCallingToFirestore({ rc, name, label, org: orgs, areas }, isNew);
+    callingModalRc = rc;
+    const rcInput = document.getElementById('calling-rc');
+    if (rcInput) rcInput.readOnly = true;
+    upsertCatalogRole(fields);
+    const title = document.getElementById('calling-modal-title');
+    if (title) title.textContent = `Edit Calling: ${label}`;
+    renderAccessMatrixTable();
+    const select = document.getElementById('leader-calling');
+    const current = select ? (select.value || select.dataset.originalCalling || '') : '';
+    renderCallingOptions(current);
+    setCallingModalStatus(`Saved ${rc} online.`, false);
+    loadCallingCatalog();
+  } catch (err) {
+    if (isPermissionDenied(err)) {
+      const user = auth.currentUser;
+      let reason = 'no-auth';
+      if (!user) {
+        console.info('Calling save denied', { uid: '', provider: '' });
+      } else {
+        let provider = '';
+        try {
+          const tokenResult = await user.getIdTokenResult();
+          provider = tokenResult.signInProvider
+            || (tokenResult.claims && tokenResult.claims.firebase && tokenResult.claims.firebase.sign_in_provider)
+            || '';
+        } catch (_) { }
+        console.info('Calling save denied', { uid: user.uid, provider });
+        reason = (provider === 'custom') ? 'not-permitted' : 'needs-passkey';
+      }
+      setCallingModalStatus(callingSaveDeniedMessage(reason), true);
+    } else {
+      setCallingModalStatus((err && err.message) || 'Could not save the calling online.', true);
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 function syncCallingAccessModal(callingName, customAccess = null) {
   const def = getCallingDef(callingName);
-  const targetAreas = customAccess !== null ? customAccess : (def ? def.defaultAccess : []);
+  // v1.2.57: a Home seat pre-selects the Youth areas of its master-sheet row.
+  const seatRc = Object.keys(HOME_ADMIN_SEATS).find(rc => HOME_ADMIN_SEATS[rc] === callingName) || HOME_ADMIN_LEGACY_CALLINGS[callingName];
+  const seatYouth = seatRc ? youthAreaNamesFromIds(getRcAreaUnion([seatRc])) : null;
+  const targetAreas = customAccess !== null ? customAccess : (seatYouth || (def ? def.defaultAccess : []));
   const checks = document.querySelectorAll('.youth-area-check');
   checks.forEach(chk => {
     chk.checked = targetAreas.includes(chk.value);
   });
   const hint = document.getElementById('youth-access-hint');
   if (hint) {
-    if (callingName === 'Bishopric') {
-      hint.textContent = 'Bishopric has full read/write access to all 7 Youth Hub admin areas.';
+    if (seatYouth && seatYouth.length < YOUTH_ADMIN_AREAS.length) {
+      hint.textContent = `${callingName} has no Youth Hub admin access in the master sheet (areas ${getRcAreaUnion([seatRc]).join(', ')}).`;
+      hint.className = 'text-[11px] text-slate-500 italic mt-1';
+    } else if (callingName === 'Bishopric' || Object.values(HOME_ADMIN_SEATS).includes(callingName)) {
+      hint.textContent = 'Bishopric seats have full read/write access to all 7 Youth Hub admin areas.';
       hint.className = 'text-[11px] text-emerald-700 font-medium italic mt-1';
     } else if (def && def.activeOnYouth) {
       hint.textContent = `Active on Youth Hub: Default read/write access for ${callingName} pre-selected.`;
@@ -2614,6 +3613,26 @@ function syncCallingAccessModal(callingName, customAccess = null) {
       hint.className = 'text-[11px] text-slate-500 italic mt-1';
     }
   }
+}
+
+// v1.2.56: switch the Users & Access section between its two tabs.
+const LEADERS_VIEW_TAB_ON = 'leaders-view-tab px-4 py-2 -mb-px border-b-2 border-[#152548] text-[#152548] font-bold text-xs flex items-center gap-1.5 transition cursor-pointer';
+const LEADERS_VIEW_TAB_OFF = 'leaders-view-tab px-4 py-2 -mb-px border-b-2 border-transparent text-slate-500 hover:text-[#152548] font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer';
+function setLeadersView(view) {
+  isAccessMatrixVisible = view === 'matrix';
+  const usersPanel = document.getElementById('leaders-users-panel');
+  const matrixPanel = document.getElementById('leaders-access-matrix-panel');
+  if (usersPanel) usersPanel.classList.toggle('hidden', isAccessMatrixVisible);
+  if (matrixPanel) matrixPanel.classList.toggle('hidden', !isAccessMatrixVisible);
+  const addLeaderBtn = document.getElementById('btn-add-leader');
+  if (addLeaderBtn) addLeaderBtn.classList.toggle('hidden', isAccessMatrixVisible || !canUserAddLeader());
+  [['tab-view-users', !isAccessMatrixVisible], ['btn-toggle-access-matrix', isAccessMatrixVisible]].forEach(([id, on]) => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.className = on ? LEADERS_VIEW_TAB_ON : LEADERS_VIEW_TAB_OFF;
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  if (isAccessMatrixVisible) renderAccessMatrixTable();
 }
 
 function initLeaderOrgTabs() {
@@ -2641,44 +3660,45 @@ function initLeaderOrgTabs() {
     });
   });
 
+  // v1.2.56 (Duane, 2026-11-21): two-tab interface (Authorized Users | Access Matrix) replaces the matrix show/hide toggle.
+  const usersViewBtn = document.getElementById('tab-view-users');
   const matrixToggleBtn = document.getElementById('btn-toggle-access-matrix');
-  const matrixPanel = document.getElementById('leaders-access-matrix-panel');
-  const matrixBtnText = document.getElementById('btn-toggle-matrix-text');
-  if (matrixToggleBtn && matrixPanel) {
-    matrixToggleBtn.addEventListener('click', () => {
-      isAccessMatrixVisible = !isAccessMatrixVisible;
-      if (isAccessMatrixVisible) {
-        matrixPanel.classList.remove('hidden');
-        matrixToggleBtn.classList.add('bg-blue-50', 'border-blue-300', 'text-blue-800');
-        if (matrixBtnText) matrixBtnText.textContent = 'Hide Access Matrix';
-        renderAccessMatrixTable();
-      } else {
-        matrixPanel.classList.add('hidden');
-        matrixToggleBtn.classList.remove('bg-blue-50', 'border-blue-300', 'text-blue-800');
-        if (matrixBtnText) matrixBtnText.textContent = 'Website Access Matrix';
-      }
+  if (usersViewBtn) usersViewBtn.addEventListener('click', () => setLeadersView('users'));
+  if (matrixToggleBtn) matrixToggleBtn.addEventListener('click', () => setLeadersView('matrix'));
+  const addCallingBtn = document.getElementById('btn-add-calling');
+  if (addCallingBtn) addCallingBtn.addEventListener('click', () => openCallingModal(null));
+  const areasInfoBtn = document.getElementById('btn-restricted-areas-info');
+  if (areasInfoBtn) areasInfoBtn.addEventListener('click', (e) => { e.preventDefault(); openRestrictedAreasModal(); });
+  const matrixBody = document.getElementById('access-matrix-table-body');
+  if (matrixBody) {
+    matrixBody.addEventListener('click', (e) => {
+      const btn = e.target && e.target.closest ? e.target.closest('.btn-edit-calling') : null;
+      if (btn) openCallingModal(btn.dataset.rc);
     });
   }
+  const callingCopyBtn = document.getElementById('calling-copy-btn');
+  if (callingCopyBtn) callingCopyBtn.addEventListener('click', copyCallingRow);
+  const callingCsvBtn = document.getElementById('calling-csv-btn');
+  if (callingCsvBtn) callingCsvBtn.addEventListener('click', downloadCallingsCsv);
+  const callingSaveBtn = document.getElementById('calling-save-btn');
+  if (callingSaveBtn) callingSaveBtn.addEventListener('click', () => saveCallingOnline());
+}
 
-  const callingSelect = document.getElementById('leader-calling');
-  if (callingSelect) {
-    callingSelect.addEventListener('change', () => {
-      syncCallingAccessModal(callingSelect.value);
-    });
-  }
-
-  const btnResetAccess = document.getElementById('btn-reset-calling-access');
-  if (btnResetAccess) {
-    btnResetAccess.addEventListener('click', () => {
-      const calling = document.getElementById('leader-calling')?.value || 'Bishopric';
-      syncCallingAccessModal(calling);
-    });
-  }
+function hideLeaderActionMenus() {
+  document.querySelectorAll('.leader-action-menu').forEach(m => {
+    m.classList.add('hidden');
+    m.style.position = '';
+    m.style.top = '';
+    m.style.bottom = '';
+    m.style.left = '';
+    m.style.right = '';
+  });
 }
 
 function renderLeadersTable() {
   const tbody = document.getElementById('leaders-table-body');
   if (!tbody) return;
+  if (leadersTableDenied) { showLeadersLoadDenied(); return; }
   tbody.innerHTML = '';
   selectedLeaderIds.clear();
   updateLeadersBulkBar();
@@ -2744,6 +3764,8 @@ function renderLeadersTable() {
     tr.className = 'hover:bg-slate-50 transition';
 
     const calling = getLeaderCalling(leader);
+    // v1.2.62: the Calling column shows the sheet Roles & Callings name(s), e.g. 'Web Administrator, Bishop'.
+    const callingLabels = getLeaderCallingLabels(leader);
     const accessAreas = getLeaderAccessAreas(leader);
 
     let statusBadge = '';
@@ -2842,13 +3864,11 @@ function renderLeadersTable() {
       <td class="px-4 py-3 text-slate-600">${escapeHtml(leader.email || '—')}</td>
       <td class="px-4 py-3 font-mono text-slate-600">${escapeHtml(leader.phoneNumber || '')}</td>
       <td class="px-4 py-3">
-        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-[#152548] border border-slate-200">
-          ${escapeHtml(calling)}
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-[#152548] border border-slate-200 cursor-help" title="${escapeHtml(callingLabels.title)}">
+          ${escapeHtml(callingLabels.text)}
         </span>
       </td>
-      <td class="px-4 py-3">
-        ${accessBadge}
-      </td>
+      <td class="w-px px-2 py-3 text-[11px] font-semibold text-slate-600 whitespace-nowrap">${renderOrgCodes(getLeaderOrgCodes(leader))}</td>
       <td class="px-4 py-3">${statusBadge}</td>
       <td class="px-4 py-3 text-right">
         ${actionCellHtml}
@@ -2876,8 +3896,26 @@ function renderLeadersTable() {
       actionBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const isHidden = actionMenu.classList.contains('hidden');
-        document.querySelectorAll('.leader-action-menu').forEach(m => m.classList.add('hidden'));
-        if (isHidden) actionMenu.classList.remove('hidden');
+        hideLeaderActionMenus();
+        if (isHidden) {
+          // v1.2.59: position fixed so the Authorized Users overflow container cannot
+          // clip the menu; open upward when there is not enough space below the button.
+          actionMenu.classList.remove('hidden');
+          const btnRect = actionBtn.getBoundingClientRect();
+          const menuH = actionMenu.offsetHeight || 160;
+          const spaceBelow = window.innerHeight - btnRect.bottom;
+          const openUp = spaceBelow < menuH + 8 && btnRect.top > spaceBelow;
+          actionMenu.style.position = 'fixed';
+          actionMenu.style.left = 'auto';
+          actionMenu.style.right = `${Math.max(8, window.innerWidth - btnRect.right)}px`;
+          if (openUp) {
+            actionMenu.style.top = 'auto';
+            actionMenu.style.bottom = `${Math.max(8, window.innerHeight - btnRect.top + 4)}px`;
+          } else {
+            actionMenu.style.top = `${btnRect.bottom + 4}px`;
+            actionMenu.style.bottom = 'auto';
+          }
+        }
       });
 
       const editBtn = tr.querySelector('.btn-action-edit');
@@ -2992,7 +4030,7 @@ function openOnboardModal(leader) {
     try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
     renderLeadersTable();
     if (markText) markText.textContent = "✓ Marked Onboarded!";
-    setDoc(doc(db, "ward_leaders", leader.id), { onboarded: true, onboardedAt: leader.onboardedAt }, { merge: true }).catch(() => { });
+    setDoc(doc(db, "ward_leaders", leader.id), { onboarded: true, onboardedAt: leader.onboardedAt }, { merge: true }).catch((e) => { if (isPermissionDenied(e)) alertLeadersDenied(LEADERS_EDIT_DENIED_MSG); });
   }
 
   if (smsLink) {
@@ -3108,7 +4146,7 @@ function openBulkOnboardModal(leadersList) {
     leadersList.forEach(l => {
       l.onboarded = true;
       l.onboardedAt = now;
-      setDoc(doc(db, "ward_leaders", l.id), { onboarded: true, onboardedAt: now }, { merge: true }).catch(() => { });
+      setDoc(doc(db, "ward_leaders", l.id), { onboarded: true, onboardedAt: now }, { merge: true }).catch((e) => { if (isPermissionDenied(e)) alertLeadersDenied(LEADERS_EDIT_DENIED_MSG); });
     });
     try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
     renderLeadersTable();
@@ -3176,18 +4214,17 @@ function openLeaderModal(leader = null) {
   document.getElementById('leader-phone').value = leader?.phoneNumber || '';
 
   const callingSelect = document.getElementById('leader-calling');
-  const callingVal = leader ? getLeaderCalling(leader) : 'Bishopric';
+  // v1.2.55: new leaders start with no calling picked (no 'Bishopric' default).
+  const callingVal = leader ? getLeaderCalling(leader) : '';
   if (callingSelect) {
-    callingSelect.value = callingVal;
+    // v1.2.66: render org-grouped v6 options; select the first matching option.
+    // A stored calling that is not a v6 name gets a disabled retired placeholder.
+    renderCallingOptions(callingVal);
   }
   const roleHidden = document.getElementById('leader-role');
   if (roleHidden) {
-    roleHidden.value = leader ? resolveLeaderRole(leader) : (getCallingDef(callingVal)?.role || getCallingDef(callingVal)?.org || 'bishopric');
+    roleHidden.value = leader ? resolveLeaderRole(leader) : (getCallingDef(callingVal)?.role || getCallingDef(callingVal)?.org || '');
   }
-
-  // Pre-fill or restore access areas
-  const accessAreas = leader ? getLeaderAccessAreas(leader) : (getCallingDef('Bishopric')?.defaultAccess || []);
-  syncCallingAccessModal(callingVal, accessAreas);
 
   document.getElementById('leader-active').checked = leader ? leader.active !== false : true;
 
@@ -3195,7 +4232,7 @@ function openLeaderModal(leader = null) {
   const pwStatus = document.getElementById('leader-password-status');
   if (pwInput) pwInput.value = '';
   if (pwStatus) {
-    if (leader && leader.passwordHash) {
+    if (leader && (leader.hasPassword || leader.passwordHash)) { // v1.2.91: hasPassword is set by the server
       pwStatus.textContent = '✓ Password set';
       pwStatus.className = 'text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200';
     } else {
@@ -3226,19 +4263,46 @@ async function saveLeader() {
   const name = document.getElementById('leader-name').value.trim();
   const email = (document.getElementById('leader-email')?.value || '').trim();
   const rawPhone = document.getElementById('leader-phone').value.trim();
-  const calling = document.getElementById('leader-calling')?.value || 'Bishopric';
+  const selectedCalling = document.getElementById('leader-calling')?.value || '';
+  const originalCalling = document.getElementById('leader-calling')?.dataset.originalCalling || '';
   const active = document.getElementById('leader-active').checked;
   const newPw = (document.getElementById('leader-password')?.value || '').trim();
 
-  // Read checked youth access areas
-  const accessAreas = [];
-  document.querySelectorAll('.youth-area-check:checked').forEach(chk => {
-    accessAreas.push(chk.value);
-  });
-
-  const def = getCallingDef(calling);
-  const org = def ? def.org : 'bishopric';
   const existing = idInput ? leadersCache.find(l => l.id === idInput) : null;
+  // v1.2.66: if an existing record still holds a retired (non-v6) calling and the
+  // editor has not picked a v6 calling, keep calling, accessAreas, role and org as stored.
+  let calling = selectedCalling;
+  let preserveRetired = false;
+  if (existing && !isV6Calling(callingCatalog, selectedCalling)) {
+    const stored = existing.calling || getLeaderCalling(existing);
+    if (stored && !isV6Calling(callingCatalog, stored) && (selectedCalling === '' || selectedCalling === stored || selectedCalling === originalCalling)) {
+      calling = stored;
+      preserveRetired = true;
+    }
+  }
+  const def = getCallingDef(calling);
+  const org = preserveRetired ? (existing.org || getLeaderOrg(existing) || 'bishopric') : (def ? def.org : 'bishopric');
+  // v1.2.59: Youth Hub access checkboxes removed. Keep a saved accessAreas list on
+  // edit when the calling is unchanged so custom values are not wiped; otherwise
+  // derive from the calling / master-sheet defaults.
+  let accessAreas;
+  if (preserveRetired) {
+    accessAreas = Array.isArray(existing.accessAreas) ? existing.accessAreas : [];
+  } else if (existing && Array.isArray(existing.accessAreas) && existing.calling === calling) {
+    accessAreas = existing.accessAreas;
+  } else {
+    const seatRc = Object.keys(HOME_ADMIN_SEATS).find(rc => HOME_ADMIN_SEATS[rc] === calling) || HOME_ADMIN_LEGACY_CALLINGS[calling];
+    accessAreas = seatRc ? youthAreaNamesFromIds(getRcAreaUnion([seatRc])) : (def ? [...def.defaultAccess] : []);
+  }
+  // v1.2.55: a calling is required; new leaders can't use the legacy 'Bishopric' (pick the specific seat).
+  if (!calling) {
+    alert("Please pick a calling. Bishopric members pick their specific seat (for example Bishopric 1st Counselor).");
+    return;
+  }
+  if (calling === 'Bishopric' && !existing) {
+    alert("Please pick the specific bishopric seat (for example Bishopric 1st Counselor) instead of the legacy 'Bishopric'.");
+    return;
+  }
 
   if (idInput) {
     if (existing && !canUserEditLeader(existing)) {
@@ -3252,26 +4316,84 @@ async function saveLeader() {
     }
   }
 
-  if (!name || !rawPhone) {
-    alert("Please provide both the leader's name and cell phone number.");
+  if (!name) {
+    alert("Please provide the leader's name.");
     return;
   }
 
-  const phone = normalizePhone(rawPhone);
-  if (phone.length < 11) {
-    alert("Please enter a valid 10-digit mobile phone number.");
+  // v1.2.60: phone is optional. If one is entered, it must still be a valid 10-digit number.
+  let phone = '';
+  if (rawPhone) {
+    phone = normalizePhone(rawPhone);
+    if (phone.length < 11) {
+      alert("Please enter a valid 10-digit mobile phone number.");
+      return;
+    }
+  }
+
+  // v1.2.60 (Duane): at least one sign-in method is required — a valid phone, a personal
+  // password (set now or already saved), or an email for Google sign-in.
+  const hasPassword = !!newPw || !!(existing && (existing.hasPassword || existing.passwordHash)); // v1.2.91
+  if (!phone && !hasPassword && !email) {
+    alert("Please provide at least one sign-in method: a mobile phone, a personal password, or an email for Google sign-in.");
     return;
   }
 
   const id = idInput || `leader_${Date.now()}`;
-  const role = resolveLeaderRole({
+
+  // v1.2.60: reject a duplicate phone or email against other active leaders.
+  if (phone && phone.length >= 11) {
+    const dupPhone = leadersCache.find(l => l && l.active !== false && l.id !== id && normalizePhone(l.phoneNumber || '') === phone);
+    if (dupPhone) {
+      alert(`Another active leader (${dupPhone.displayName || 'a leader'}) already uses this phone number. Each leader needs a unique phone.`);
+      return;
+    }
+  }
+  if (email) {
+    const wantEmail = email.toLowerCase();
+    const dupEmail = leadersCache.find(l => l && l.active !== false && l.id !== id && String(l.email || '').trim().toLowerCase() === wantEmail);
+    if (dupEmail) {
+      alert(`Another active leader (${dupEmail.displayName || 'a leader'}) already uses this email. Each leader needs a unique email for Google sign-in.`);
+      return;
+    }
+  }
+
+  const role = preserveRetired
+    ? (existing.role || resolveLeaderRole({
+      id,
+      phoneNumber: phone,
+      calling,
+      org,
+      accessAreas,
+      role: existing?.role,
+      rcCodes: Array.isArray(existing?.rcCodes) ? existing.rcCodes : undefined
+    }))
+    : resolveLeaderRole({
     id,
     phoneNumber: phone,
     calling,
     org,
     accessAreas,
-    role: existing?.role
+    role: existing?.role,
+    rcCodes: calling === 'Bishopric' && Array.isArray(existing?.rcCodes) ? existing.rcCodes : undefined // v1.2.57: area-based role
   });
+  // v1.2.55: rcCodes come from the picked seat (single source HOME_ADMIN_SEATS). Legacy 'Bishopric' keeps what the
+  // record already had. v1.2.60: owner seats (RC2 + RC1) are forced only on the owner document itself, not on
+  // any other record that happens to share the owner phone.
+  // v1.2.66: a v6 calling that is not one of the Home gate seats still gets its RC code from the catalog.
+  let rcCodes;
+  if (preserveRetired) {
+    rcCodes = Array.isArray(existing?.rcCodes) ? existing.rcCodes : [];
+  } else if (calling === 'Bishopric') {
+    rcCodes = Array.isArray(existing?.rcCodes) ? existing.rcCodes : [];
+  } else {
+    const seatCodes = Object.keys(HOME_ADMIN_SEATS).filter(rc => HOME_ADMIN_SEATS[rc] === calling);
+    const catalogRc = v6RcForCalling(callingCatalog, calling);
+    rcCodes = seatCodes.length ? seatCodes : (catalogRc ? [catalogRc] : []);
+  }
+  if (id === HOME_ADMIN_OWNER.id) {
+    rcCodes = [...new Set([...HOME_ADMIN_OWNER.seats, ...rcCodes])];
+  }
   const payload = {
     displayName: name,
     email: email,
@@ -3280,9 +4402,15 @@ async function saveLeader() {
     role: role,
     org: org,
     accessAreas: accessAreas,
+    rcCodes: rcCodes,
     active: active,
     updatedAt: new Date().toISOString()
   };
+  // v1.2.57: a Home-only seat (home_admin) can't give access it doesn't hold (e.g. pick Bishop or add Youth areas).
+  if (resolveLeaderRole(currentLeaderProfile) === 'home_admin' && !canGrantWithin({ id, ...payload })) {
+    alert("You can only give access you hold yourself. Please ask the Bishop to set this calling or these areas.");
+    return;
+  }
 
   const existingIdx = leadersCache.findIndex(l => l.id === id);
   if (newPw) {
@@ -3292,9 +4420,8 @@ async function saveLeader() {
         return;
       }
     }
-    payload.passwordHash = await computeSha256(newPw);
-  } else if (existingIdx >= 0 && leadersCache[existingIdx].passwordHash) {
-    payload.passwordHash = leadersCache[existingIdx].passwordHash;
+    // v1.2.91 (#2): the new password goes only to the server (after the record is saved below); no hash is made here,
+    // and the stored hash is no longer copied back into ward_leaders.
   }
 
   // Immediate local update so the UI updates with zero lag
@@ -3312,6 +4439,36 @@ async function saveLeader() {
     await setDoc(doc(db, "ward_leaders", id), payload, { merge: true });
   } catch (err) {
     console.warn("Save leader cloud warning:", err);
+    if (isPermissionDenied(err)) alertLeadersDenied(LEADERS_EDIT_DENIED_MSG);
+    return;
+  }
+  if (newPw) await saveLeaderPasswordOnServer(id, newPw, payload.displayName); // v1.2.91 (#2)
+}
+
+// v1.2.91 (Duane 2026-11-23, #2): personal passwords are set only through the server (passkeyApi /password/set), which
+// stores a salted scrypt hash where no browser can read it and marks the leader record hasPassword. It needs this tab's
+// Firebase sign-in: an admin/bishopric passkey sign-in for anyone, or the leader's own passkey / text / Google sign-in.
+async function saveLeaderPasswordOnServer(leaderId, password, displayName) {
+  const who = displayName || 'this leader';
+  try {
+    const idToken = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+    if (!idToken) {
+      alert(`The password for ${who} was not saved. Sign in with your passkey first, then set it again.`);
+      return false;
+    }
+    await setLeaderPassword({ leaderId, password }, idToken);
+    const idx = leadersCache.findIndex(l => l.id === leaderId);
+    if (idx >= 0) {
+      const { passwordHash: _droppedHash, ...rest } = leadersCache[idx];
+      leadersCache[idx] = { ...rest, hasPassword: true };
+      try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
+      renderLeadersTable();
+    }
+    return true;
+  } catch (e) {
+    console.warn("Set password server warning:", (e && e.status) || 'error');
+    alert(`The password for ${who} was not saved: ${(e && e.message) || 'please try again.'}`);
+    return false;
   }
 }
 
@@ -3359,26 +4516,10 @@ async function saveAdminSetPassword() {
     return;
   }
 
-  const hash = await computeSha256(password);
-  leader.passwordHash = hash;
-  leader.updatedAt = new Date().toISOString();
-
-  const idx = leadersCache.findIndex(l => l.id === leaderId);
-  if (idx >= 0) leadersCache[idx] = leader;
-  try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
-
-  renderLeadersTable();
+  // v1.2.91 (#2): sent only to the server; nothing is hashed or stored in the browser.
   closeModals();
-
-  try {
-    await setDoc(doc(db, "ward_leaders", leaderId), {
-      passwordHash: hash,
-      updatedAt: leader.updatedAt
-    }, { merge: true });
+  if (await saveLeaderPasswordOnServer(leaderId, password, leader.displayName)) {
     alert(`Personal password for ${leader.displayName} has been saved!`);
-  } catch (err) {
-    console.warn("Set password cloud warning:", err);
-    alert(`Personal password for ${leader.displayName} saved locally.`);
   }
 }
 
@@ -3397,12 +4538,15 @@ async function deleteLeader(id) {
   try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
   renderLeadersTable();
   closeModals();
-  deleteDoc(doc(db, "ward_leaders", id)).catch(err => console.warn("Delete leader cloud sync:", err));
+  deleteDoc(doc(db, "ward_leaders", id)).catch(err => {
+    console.warn("Delete leader cloud sync:", err);
+    if (isPermissionDenied(err)) alertLeadersDenied(LEADERS_REMOVE_DENIED_MSG);
+  });
 }
 
 // ================= MODAL CONTROLS =================
 function closeModals() {
-  document.querySelectorAll('#youth-import-modal, #event-modal, #announcement-modal, #spotlight-modal, #day-modal, #leader-modal, #onboard-modal, #admin-set-pw-modal, #reset-password-modal').forEach(m => {
+  document.querySelectorAll('#youth-import-modal, #event-modal, #announcement-modal, #spotlight-modal, #day-modal, #leader-modal, #onboard-modal, #admin-set-pw-modal, #reset-password-modal, #calling-modal, #restricted-areas-modal, #leaders-denied-modal').forEach(m => {
     m.classList.add('hidden');
     m.classList.remove('flex');
   });
@@ -3475,6 +4619,8 @@ function setupModalTriggers() {
 document.addEventListener('DOMContentLoaded', () => {
   setupNavigation();
   setupModalTriggers();
+  renderCallingOptions('');
+  loadCallingCatalog();
 
   // Phone Login Events
   const phoneForm = document.getElementById('phone-login-form');
@@ -3546,16 +4692,26 @@ document.addEventListener('DOMContentLoaded', () => {
   initBiometricUI();
   const passkeyBtn = document.getElementById('passkey-login-btn');
   if (passkeyBtn) passkeyBtn.addEventListener('click', handlePasskeyLogin);
+  const googleBtn = document.getElementById('btn-google-signin');
+  if (googleBtn) googleBtn.addEventListener('click', handleGoogleSignIn);
 
   const enrollPasskeyBtn = document.getElementById('btn-enroll-passkey');
   if (enrollPasskeyBtn) enrollPasskeyBtn.addEventListener('click', handleEnrollPasskey);
+  const enrollBannerBtn = document.getElementById('btn-enroll-passkey-banner');
+  if (enrollBannerBtn) enrollBannerBtn.addEventListener('click', handleEnrollPasskey);
+  const dismissBannerBtn = document.getElementById('btn-dismiss-passkey-banner');
+  if (dismissBannerBtn) {
+    dismissBannerBtn.addEventListener('click', () => {
+      localStorage.setItem('wardPasskeyBannerDismissed', 'true');
+      const banner = document.getElementById('passkey-enroll-banner');
+      if (banner) banner.classList.add('hidden');
+    });
+  }
 
   // TouchID / Passkey First-Login Onboarding Prompt Listeners
   const btnPromptEnable = document.getElementById('btn-prompt-enable-passkey');
   if (btnPromptEnable) {
     btnPromptEnable.addEventListener('click', async () => {
-      const modal = document.getElementById('passkey-prompt-modal');
-      if (modal) modal.classList.add('hidden');
       await handleEnrollPasskey();
     });
   }
@@ -3789,7 +4945,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
       renderLeadersTable();
       toRemoveIds.forEach(id => {
-        deleteDoc(doc(db, "ward_leaders", id)).catch(() => { });
+        deleteDoc(doc(db, "ward_leaders", id)).catch((e) => { if (isPermissionDenied(e)) alertLeadersDenied(LEADERS_REMOVE_DENIED_MSG); });
       });
     });
   }
@@ -3798,12 +4954,15 @@ document.addEventListener('DOMContentLoaded', () => {
   if (passcodeForm) passcodeForm.addEventListener('submit', handleLogin);
   document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
-  // Close leader action menus when clicking outside
+  // Close leader action menus when clicking outside or when the page/table scrolls
+  // (v1.2.59: menus are position:fixed, so they must not stay put after a scroll).
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.leader-action-dropdown-wrap')) {
-      document.querySelectorAll('.leader-action-menu').forEach(m => m.classList.add('hidden'));
+      hideLeaderActionMenus();
     }
   });
+  window.addEventListener('scroll', hideLeaderActionMenus, true);
+  window.addEventListener('resize', hideLeaderActionMenus);
 
   initLoginLeaderLookup();
   checkAuth();
@@ -3990,32 +5149,27 @@ async function handleSelfResetSubmit() {
       leader = leadersCache.find(l => normalizePhone(l.phoneNumber || '') === phoneVal);
     }
 
-    const hash = await computeSha256(pw);
+    // v1.2.91 (Duane 2026-11-23, #2): the new password goes only to the server (passkeyApi /password/set) with this
+    // text-message sign-in; the server picks the active leader whose phone matches the verified number. No hash here.
     const now = new Date().toISOString();
 
     if (leader) {
-      leader.passwordHash = hash;
       leader.updatedAt = now;
-      const idx = leadersCache.findIndex(l => l.id === leader.id);
-      if (idx >= 0) leadersCache[idx] = leader;
-      try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
-      setDoc(doc(db, "ward_leaders", leader.id), { passwordHash: hash, updatedAt: now }, { merge: true }).catch(() => { });
-    } else if (phoneVal === '+15084940905') {
-      const duaneId = "leader_duane_harris";
-      const duane = {
-        displayName: "Duane Harris",
-        email: "tueini@gmail.com",
-        phoneNumber: "+15084940905",
-        role: "admin",
-        active: true,
-        passwordHash: hash,
-        updatedAt: now
-      };
-      const idx = leadersCache.findIndex(l => l.id === duaneId || l.phoneNumber === '+15084940905');
-      if (idx >= 0) leadersCache[idx] = { ...leadersCache[idx], ...duane };
-      else leadersCache.unshift({ id: duaneId, ...duane });
-      try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
-      setDoc(doc(db, "ward_leaders", duaneId), duane, { merge: true }).catch(() => { });
+    } // v1.2.93 (cleanup item 2): no owner re-seed here; the server matches the verified phone to the leader's record.
+    try {
+      const resetIdToken = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+      await setLeaderPassword({ leaderId: '', password: pw }, resetIdToken);
+      if (leader) {
+        const { passwordHash: _droppedHash, ...rest } = leader;
+        const idx = leadersCache.findIndex(l => l.id === leader.id);
+        if (idx >= 0) leadersCache[idx] = { ...rest, hasPassword: true };
+        try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
+      }
+    } catch (setErr) {
+      console.warn("Reset password server warning:", (setErr && setErr.status) || 'error');
+      err.textContent = (setErr && setErr.message) || "Your password could not be saved. Please try again.";
+      err.classList.remove('hidden');
+      return;
     }
 
     document.getElementById('reset-step-2')?.classList.add('hidden');
@@ -4032,69 +5186,10 @@ async function handleSelfResetSubmit() {
 
 function initLoginLeaderLookup() {
   const nameInput = document.getElementById('admin-name-lookup');
-  const matchIndicator = document.getElementById('leader-match-indicator');
-  const matchText = document.getElementById('leader-match-text');
-
   if (!nameInput) return;
 
-  function handleNameMatch(val) {
-    if (!val) {
-      if (matchIndicator) {
-        matchIndicator.classList.add('hidden');
-        matchIndicator.classList.remove('flex');
-      }
-      return;
-    }
-    const pool = [...leadersCache];
-    if (!pool.some(l => l.displayName === 'Duane Harris')) {
-      pool.unshift({
-        displayName: "Duane Harris",
-        phoneNumber: "(508) 494-0905",
-        role: "admin",
-        active: true
-      });
-    }
-    const cleanVal = val.trim().toLowerCase();
-    const match = pool.find(l => (l.displayName || '').toLowerCase() === cleanVal) ||
-      pool.find(l => (l.displayName || '').toLowerCase().includes(cleanVal));
-
-    if (match) {
-      const resolvedRole = resolveLeaderRole(match);
-      const roleInfo = ROLE_DEFINITIONS[resolvedRole] || { label: getLeaderCalling(match) || 'Leader' };
-      if (matchText) matchText.textContent = `${match.displayName} (${roleInfo.label})`;
-      if (matchIndicator) {
-        matchIndicator.classList.remove('hidden');
-        matchIndicator.classList.add('flex');
-      }
-    } else {
-      if (matchIndicator) {
-        matchIndicator.classList.add('hidden');
-        matchIndicator.classList.remove('flex');
-      }
-    }
-  }
-
-  nameInput.addEventListener('input', () => handleNameMatch(nameInput.value));
-  nameInput.addEventListener('change', () => handleNameMatch(nameInput.value));
-
-  const pwLookup = document.getElementById('password-leader-lookup');
-  if (pwLookup) {
-    pwLookup.addEventListener('input', () => handleNameMatch(pwLookup.value));
-    pwLookup.addEventListener('change', () => handleNameMatch(pwLookup.value));
-  }
-
-  function updateDatalist() {
-    const datalist = document.getElementById('authorized-leaders-datalist');
-    if (!datalist) return;
-    datalist.innerHTML = '';
-    leadersCache.forEach(l => {
-      if (l.displayName) {
-        const opt = document.createElement('option');
-        opt.value = l.displayName;
-        datalist.appendChild(opt);
-      }
-    });
-  }
+  // v1.2.63: no live name lookup, verified badge, or datalist. Matching runs only at submit.
+  function updateDatalist() { /* authorized-leaders-datalist removed */ }
 
   // Pre-load leaders from localStorage if available
   try {
@@ -4120,18 +5215,55 @@ function initLoginLeaderLookup() {
         }
         leadersCache.push(item);
       });
-      if (!leadersCache.some(l => l.displayName === 'Duane Harris')) {
-        leadersCache.unshift({
-          id: 'leader_duane_harris',
-          displayName: "Duane Harris",
-          email: "tueini@gmail.com",
-          phoneNumber: "(508) 494-0905",
-          role: "admin",
-          active: true
-        });
-      }
+      // v1.2.93 (cleanup item 2): no hard-coded owner entry added to the pre-sign-in list.
       try { localStorage.setItem('local_ward_leaders', JSON.stringify(leadersCache)); } catch (_) { }
       updateDatalist();
     }
-  }).catch(() => { });
+  }).catch((e) => { console.warn("Pre-sign-in leader list unavailable:", e); leadersPreAuthFailed = true; });
+}
+
+
+// 2026-11-20: Bishopric Hub-style sign-in tabs (Phone Text (SMS) | Password Sign-In).
+// Wiring only: each tab clicks the existing phone/password toggle button, and the active tab
+// follows whichever form is visible (logout and password-reset flows also switch forms).
+function initLoginTabs() {
+  const tabBtns = Array.from(document.querySelectorAll('[data-login-tab]'));
+  const phoneFormEl = document.getElementById('phone-login-form');
+  const passcodeFormEl = document.getElementById('login-form');
+  const toPasswordBtn = document.getElementById('toggle-passcode-view-btn');
+  const toPhoneBtn = document.getElementById('toggle-phone-view-btn');
+  if (!tabBtns.length || !phoneFormEl || !passcodeFormEl || !toPasswordBtn || !toPhoneBtn) return;
+  const syncTabs = () => {
+    const pwActive = !passcodeFormEl.classList.contains('hidden');
+    tabBtns.forEach(btn => {
+      const active = (btn.dataset.loginTab === 'password') === pwActive;
+      btn.classList.toggle('active-tab', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      btn.tabIndex = active ? 0 : -1;
+    });
+  };
+  const selectTab = (mode) => {
+    const pwActive = !passcodeFormEl.classList.contains('hidden');
+    if (mode === 'password' && !pwActive) toPasswordBtn.click();
+    if (mode !== 'password' && pwActive) toPhoneBtn.click();
+    syncTabs();
+  };
+  tabBtns.forEach((btn, idx) => {
+    btn.addEventListener('click', () => selectTab(btn.dataset.loginTab));
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const nextBtn = tabBtns[(idx + 1) % tabBtns.length];
+        nextBtn.focus();
+        selectTab(nextBtn.dataset.loginTab);
+      }
+    });
+  });
+  new MutationObserver(syncTabs).observe(passcodeFormEl, { attributes: true, attributeFilter: ['class'] });
+  syncTabs();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLoginTabs);
+} else {
+  initLoginTabs();
 }
