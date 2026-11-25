@@ -1,6 +1,7 @@
 # Blackstone Ward homepage project state
 
-**Functions:** 1.2.6 / passkeyApi 1.4.1 (LIVE 2026-11-23 9:51 PM ET, Duane t449u): /password/login also accepts a one-time `sha256-legacy` record in ward_leader_credentials, then rehashes to scrypt.
+**Functions:** 1.3.0 / changeRequestNotify (LIVE 2026-11-24 3:15:26 PM ET, Duane t478u): emails the Clerk on a new change request and the requester on close, via the existing Trigger Email extension. Deployed `--only functions:changeRequestNotify`. ACTIVE, us-central1. Home site remains 1.2.95.
+**Functions (prior):** 1.2.6 / passkeyApi 1.4.1 (LIVE 2026-11-23 9:51 PM ET, Duane t449u): /password/login also accepts a one-time `sha256-legacy` record in ward_leader_credentials, then rehashes to scrypt.
 **Version:** 1.2.95 (Code Complete 2026-11-23 ~10:42 PM ET; test (hosting:staging) 10:39 PM ET, test now serves Bish 1.1.78; PRODUCTION 2026-11-23 11:25 PM ET (Duane approved 11:24 PM ET). Duane 10:23-10:27 PM ET: Music Planner four meeting types, Special musical slots / closing music / Program Run by, No Ward reason; same code as Bish 1.1.78)
 **1.2.94:** (PRODUCTION is still 1.2.94; PRODUCTION 2026-11-23 10:07 PM ET, test 10:06 PM ET, Duane t450u: leader edit form email/phone example text uses Mahonri sample values instead of the owner's real email/phone)
 **1.2.93:** (PRODUCTION 2026-11-23 9:45 PM ET; Code Complete 2026-11-23 ~9:45 PM ET, Duane approved test + production (t449u): Home /admin hard-coded owner fallbacks removed (no browser auto-create/re-seed of the owner record; no owner name/email/phone display fallbacks); owner lockout safety checks kept)

@@ -1,5 +1,8 @@
 # Blackstone Ward homepage changelog
 
+## Functions 1.3.0 — LIVE 2026-11-24 3:15:26 PM ET (Duane t478u 3:11 PM ET "Approved to go live.")
+- `functions/changeRequestNotify.js` (and export from `functions/index.js`): emails the Ward Clerk when a change request is opened, and the requester when it is closed, by writing a `mail` doc for the existing Trigger Email extension. Deployed `--only functions:changeRequestNotify --project blackstoneward-b861c` (nothing else). ACTIVE, us-central1, nodejs22, Firestore written trigger on `change_requests/{requestId}`. Home site remains 1.2.95.
+
 ## 1.2.95 — November 23, 2026 (Code Complete ~10:42 PM ET; test (hosting:staging) 10:39 PM ET, test now serves Bish 1.1.78; PRODUCTION 2026-11-23 11:25 PM ET (Duane approved 11:24 PM ET). Duane chat 10:23 / 10:24 / 10:27 PM ET)
 - **Music Planner** (`public/js/music-coordinator.js`, same code as Bish 1.1.78 apart from the known prefill-helper spot and version comments): four meeting types.
 - **Four meeting types** (Duane 10:23 PM ET): Standard, Fast & Testimony, Special, No Ward Sacrament. Older stored types are mapped when read, nothing is bulk-rewritten: Stake Conference / General Conference / Special Stake Meeting -> No Ward Sacrament (reason = old name); Ward Conference / Primary Program / Christmas Program / Easter Program (or any other name) -> Special (description = old name); Fast Sunday stays the stored value for Fast & Testimony. A Sunday's record only changes when someone saves it, and the old name moves into the new reason/description field. Shared helper block `// BEGIN meeting-kind helpers` is identical in Bish `bishopric-hub.js` and both `music-coordinator.js` copies (BW_Platform test 21).
