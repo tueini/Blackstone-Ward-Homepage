@@ -12,7 +12,12 @@
         ]},
         {"source": "/data/ward.json", "headers": [{"key": "Cache-Control", "value": "public, max-age=60"}]},
         {"source": "/data/tithing-declaration.json", "headers": [{"key": "Cache-Control", "value": "public, max-age=60"}]},
-        {"source": "/security-config.js", "headers": [{"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"}]}
+        {"source": "/security-config.js", "headers": [{"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"}]},
+        {"source": "/activities{,/**}", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}
+      ],
+      "rewrites": [
+        { "source": "/api/signup/**", "function": { "functionId": "signupApi", "region": "us-central1" } },
+        { "source": "/signup/**", "destination": "/signup/index.html" }
       ],
       "redirects": [
         { "source": "/YW{,/**}", "destination": "https://youth.blackstoneward.org/YW", "type": 301 },
@@ -35,7 +40,12 @@
         ]},
         {"source": "/data/ward.json", "headers": [{"key": "Cache-Control", "value": "public, max-age=60"}]},
         {"source": "/data/tithing-declaration.json", "headers": [{"key": "Cache-Control", "value": "public, max-age=60"}]},
-        {"source": "/security-config.js", "headers": [{"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"}]}
+        {"source": "/security-config.js", "headers": [{"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"}]},
+        {"source": "/activities{,/**}", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}
+      ],
+      "rewrites": [
+        { "source": "/api/signup/**", "function": { "functionId": "signupApi", "region": "us-central1" } },
+        { "source": "/signup/**", "destination": "/signup/index.html" }
       ],
       "redirects": [
         { "source": "/YW{,/**}", "destination": "https://youth.blackstoneward.org/YW", "type": 301 },
@@ -56,6 +66,17 @@
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log"
+      ]
+    },
+    {
+      "source": "functions-signup",
+      "codebase": "signup",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
       ]
     }
   ]

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#FAF6EF">
+  <title>Blackstone Ward — Ward Activities Sign-ups (Restricted Area 22)</title>
+  <link rel="icon" href="/assets/ward-logo.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/signup.css?v=1.2.96">
+</head>
+<body>
+  <header class="su-header">
+    <a href="/" class="su-brand"><img src="/assets/ward-logo.png" alt="" width="32" height="32"> Blackstone Ward</a>
+    <button type="button" id="act-signout" class="su-btn small secondary su-hidden">Sign out</button>
+  </header>
+  <main class="su-main">
+    <section id="act-gate" class="su-card su-hidden" aria-labelledby="act-gate-title">
+      <h1 id="act-gate-title">Ward Activities sign-ups</h1>
+      <p class="su-muted">Restricted Area 22. For the Ward Activity Committee Leader and ward admins (bishopric, clerks, executive secretary, web admin).</p>
+      <div class="su-actions"><button type="button" id="act-passkey" class="su-btn">Sign in with Touch ID / passkey</button></div>
+      <p id="act-passkey-hint" class="su-muted su-hidden"></p>
+      <h3>Or sign in with a text message</h3>
+      <form id="act-sms-form" novalidate>
+        <div id="act-sms-step-1">
+          <div class="su-field"><label for="act-phone">Mobile phone on your leader record</label><input type="text" id="act-phone" inputmode="tel" autocomplete="tel" placeholder="(555) 000-0000"></div>
+          <div class="su-actions"><button type="submit" class="su-btn" id="act-send">Send 6-digit code</button></div>
+        </div>
+        <div id="act-sms-step-2" class="su-hidden">
+          <p id="act-sms-sent" class="su-muted"></p>
+          <div class="su-field"><label for="act-code">6-digit code</label><input type="text" id="act-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+          <div class="su-actions"><button type="submit" class="su-btn">Verify</button><button type="button" id="act-sms-back" class="su-btn secondary">Back</button></div>
+        </div>
+        <div id="act-recaptcha"></div>
+      </form>
+      <div id="act-gate-status"></div>
+    </section>
+    <section id="act-app" class="su-hidden" aria-live="polite"></section>
+    <p id="act-loading" class="su-muted">Checking your sign-in…</p>
+  </main>
+  <footer class="su-footer">Ward Activities sign-ups · <span id="act-version">Version 1.2.96</span></footer>
+  <script type="module" src="/js/activities-admin.js?v=1.2.96"></script>
+</body>
+</html>

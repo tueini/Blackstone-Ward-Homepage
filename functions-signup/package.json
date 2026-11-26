@@ -1,0 +1,13 @@
+{
+  "name": "bw-signup-functions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Blackstone Ward sign-up / RSVP Functions (codebase 'signup', Phase 1: ward_activities). Separate from the 'default' codebase so a deploy here can never delete passkeyApi, sendFeedbackEmail or the other default functions.",
+  "main": "index.js",
+  "engines": { "node": "22" },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.1.0"
+  }
+}
