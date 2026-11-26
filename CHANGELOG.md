@@ -1,5 +1,8 @@
 # Blackstone Ward homepage changelog
 
+## Functions 1.3.1 — LIVE 2026-11-25 10:13:17 PM ET (Duane 10:09 PM ET "approve email fix")
+- `functions/changeRequestNotify.js` (`buildMailsForEvent` create branch): the Clerk email subject is `after.mailSubject` only when `after.handoff === 'callings'` and the subject is exactly `Calling change (sustained)` or `Calling change (released)`; otherwise it stays `Directory change request (open)`. Closed-request subjects are unchanged. Deployed `--only functions:changeRequestNotify --project blackstoneward-b861c` from BW_Home (nothing else created, updated or deleted). The function is ACTIVE, us-central1, nodejs22, Gen2. `functions/package.json` 1.3.1. Home site remains 1.2.95 (no site-code change, no hosting deploy). Tests: BW_Platform `tests/24-change-request-notify.test.js` 5/5 (new unit cases for the two exact subjects, rejected near-misses, and the unchanged close path). Backup `.bw_home_functions_1.3.1_20261125-221119/` (SHA256SUMS). Cherry-picked onto `chuck/2026-11-25-callings-email-fix` from `8584a32` / `785383a` (signup work not included).
+
 ## Functions 1.3.0 — LIVE 2026-11-24 3:15:26 PM ET (Duane t478u 3:11 PM ET "Approved to go live.")
 - `functions/changeRequestNotify.js` (and export from `functions/index.js`): emails the Ward Clerk when a change request is opened, and the requester when it is closed, by writing a `mail` doc for the existing Trigger Email extension. Deployed `--only functions:changeRequestNotify --project blackstoneward-b861c` (nothing else). ACTIVE, us-central1, nodejs22, Firestore written trigger on `change_requests/{requestId}`. Home site remains 1.2.95.
 
