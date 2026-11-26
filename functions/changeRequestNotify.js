@@ -47,10 +47,14 @@ function buildMailsForEvent(kind, after, before, ctx, requestId) {
   if (!after) return mails;
   if (kind === 'create') {
     const clerks = (ctx.clerks || []).filter((c) => c && c.email);
+    const allowed = ['Calling change (sustained)', 'Calling change (released)'];
+    const subject = (after.handoff === 'callings' && allowed.includes(after.mailSubject))
+      ? after.mailSubject
+      : 'Directory change request (open)';
     for (const c of clerks) {
       mails.push(mailDoc(
         c.email,
-        'Directory change request (open)',
+        subject,
         requestBody(after, requestId)
       ));
     }
