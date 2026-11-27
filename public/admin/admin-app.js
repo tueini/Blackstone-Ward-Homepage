@@ -24,10 +24,10 @@ import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { enrollCloudPasskey, loginWithCloudPasskey, loginWithLeaderPassword, setLeaderPassword, PASSKEY_SIGNIN_REQUIRED_MSG } from "../js/passkey-client.js?v=1.2.95";
+import { enrollCloudPasskey, loginWithCloudPasskey, loginWithLeaderPassword, setLeaderPassword, PASSKEY_SIGNIN_REQUIRED_MSG } from "../js/passkey-client.js?v=1.2.97";
 // v1.2.58: seats, labels, orgs and areas come from the vendored BW_Platform permissions module (generated from the
 // master sheet, copied in with a checksum check). Do not hand-edit public/js/permissions/.
-import * as Access from "../js/permissions/access.js?v=1.2.95";
+import * as Access from "../js/permissions/access.js?v=1.2.97";
 import {
   catalogFromPermissions,
   catalogFromFirestoreDocs,
@@ -40,7 +40,7 @@ import {
   buildRoleDocFields,
   recomputeGroups,
   rcSeq
-} from "../js/permissions/calling-dropdown.js?v=1.2.95";
+} from "../js/permissions/calling-dropdown.js?v=1.2.97";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDrWB07WNqObtjiZb_NntJQZ0dhHyLRBas",
@@ -2697,6 +2697,7 @@ async function importSelectedYouthEvents() {
     // Write to Ward_events in Firestore
     setDoc(doc(db, "Ward_events", newId), wardEvent, { merge: true }).catch(err => {
       console.warn("Ward_events write error:", err);
+      alertContentWriteDenied(err); // v1.2.97
     });
   });
 
@@ -2873,6 +2874,7 @@ async function saveEvent() {
   // 3. Cloud Firestore persistence (Ward_events only)
   setDoc(doc(db, "Ward_events", id), payload, { merge: true }).catch(err => {
     console.warn("Ward_events cloud sync warning:", err);
+    alertContentWriteDenied(err); // v1.2.97
   });
 }
 
@@ -2886,7 +2888,7 @@ async function deleteEvent(id) {
   renderCalendarList();
   closeModals();
 
-  deleteDoc(doc(db, "Ward_events", id)).catch(() => { });
+  deleteDoc(doc(db, "Ward_events", id)).catch((e) => { alertContentWriteDenied(e); }); // v1.2.97
   // NOTE: Original Youth Hub events in Combined_events are NEVER deleted
 }
 
