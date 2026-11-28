@@ -1,0 +1,293 @@
+{
+ "builtAt": "2026-11-27T23:55:00-05:00",
+ "source": "Written by hand from each hub's public HTML/JS (Bish 1.3.16, Home 1.2.97, Youth 7.19.15, Auction 1.15.13). No member data, names, phones or emails.",
+ "note": "Private Horus site-help index (blackstoneward.org and all hubs). Functions bundle only; never host publicly. Add a hub by appending a hubs[] block; ids are <HUBCODE>-<n> and are never reused.",
+ "hubs": [
+  {
+   "hub": "bish",
+   "code": "BISH",
+   "name": "Bishopric Hub",
+   "baseUrl": "https://bish.blackstoneward.org",
+   "version": "1.3.17",
+   "entries": [
+    {
+     "id": "BISH-1",
+     "title": "Moving between tabs",
+     "tab": "sacrament",
+     "anchor": "hub-sections-bar",
+     "path": "/",
+     "text": "The Bishopric Workspace bar under the header lists the tabs: Sacrament Mtg, Bishopric Schedule, Directory, Callings Planner (General Bishopric) and Interview Mgr (bishop and executive secretary only). The top menu has the same buttons plus Home and Ward Admin links. Click a card or a menu button to switch tabs."
+    },
+    {
+     "id": "BISH-2",
+     "title": "Plan a Sunday sacrament meeting program",
+     "tab": "sacrament",
+     "anchor": "btn-save-sunday",
+     "path": "/",
+     "text": "Open the Sacrament Mtg tab, pick the year and month, then the Sunday. Fill in conducting, speakers, prayers, hymns, music and announcements, then click Save Sunday Program. The Up Next card on the main page has Open Program Planner to jump to the next Sunday."
+    },
+    {
+     "id": "BISH-3",
+     "title": "Speakers and the Speaker Bank",
+     "tab": "sacrament",
+     "anchor": "btn-open-speaker-bank",
+     "path": "/",
+     "text": "On a Sunday in Sacrament Mtg, use Set # Slots to choose how many speakers that Sunday has (0 to 12). Speaker Bank opens the list of possible speakers; use Add New Speaker to Database to add one. Pick names with the name pickers on the Sunday form."
+    },
+    {
+     "id": "BISH-4",
+     "title": "Prayers and the Prayer Bank",
+     "tab": "sacrament",
+     "anchor": "btn-open-prayer-bank",
+     "path": "/",
+     "text": "Prayer Bank (Sacrament Mtg tab) lists members available to pray. Use Add New Member to Prayer Bank to add one, then choose the invocation and benediction on the Sunday form."
+    },
+    {
+     "id": "BISH-5",
+     "title": "Hymns, accompanists, choristers and start times",
+     "tab": "sacrament",
+     "anchor": "btn-open-hymns-bank",
+     "path": "/",
+     "text": "In Sacrament Mtg, the Hymns button opens the hymn table (Add New Hymn to Table). Accompanists and Choristers open their lists (Add Accompanist, Add Chorister). Start Times sets the meeting start time for each year (Add Year Start Time). The Ward Music Page button opens the music coordinator page."
+    },
+    {
+     "id": "BISH-6",
+     "title": "Conducting script and printing the program",
+     "tab": "sacrament",
+     "anchor": "btn-open-conducting-sheet",
+     "path": "/",
+     "text": "Print Sunday Conducting Sheet (or View Conducting Script on the Sunday card) opens the conducting script for that Sunday. In the dialog you can switch between the PDF and text tabs, Download PDF, Print, or Copy Text."
+    },
+    {
+     "id": "BISH-7",
+     "title": "Announcements",
+     "tab": "sacrament",
+     "anchor": "sunday-announcements",
+     "path": "/",
+     "text": "Announcements are typed in the multi-line Announcements box on the Sunday form in Sacrament Mtg. Press Enter for a new line; the bullet button adds a bullet. Save Sunday Program saves them."
+    },
+    {
+     "id": "BISH-8",
+     "title": "Themes and speaker rotation",
+     "tab": "sacrament",
+     "anchor": "btn-toggle-themes-panel",
+     "path": "/",
+     "text": "In Sacrament Mtg, the Themes panel holds monthly themes and Rotation shows which bishopric member conducts. Open them with the Themes and Rotation buttons."
+    },
+    {
+     "id": "BISH-10",
+     "title": "Bishopric Schedule (availability, meetings, councils)",
+     "tab": "schedule",
+     "anchor": "section-schedule",
+     "path": "/",
+     "text": "The Bishopric Schedule tab shows each bishopric member's availability and the bishopric meetings and ward and youth councils. Use it to see who is out on a given Sunday and to plan meetings."
+    },
+    {
+     "id": "BISH-11",
+     "title": "Directory: find members and households",
+     "tab": "directory",
+     "anchor": "section-directory",
+     "path": "/",
+     "text": "The Directory tab has Members, Households and Change requests views and a Search box. The list comes from the ward list and is read-only here."
+    },
+    {
+     "id": "BISH-12",
+     "title": "Ask the Ward Clerk to change a record (Request a change)",
+     "tab": "directory",
+     "anchor": "section-directory",
+     "path": "/",
+     "text": "In Directory, open a member or household and use Request a change to ask the Ward Clerk to update LCR. The clerk takes point; the bishop and his counselors can also close a request. Open requests are under Change requests."
+    },
+    {
+     "id": "BISH-13",
+     "title": "Callings Planner overview",
+     "tab": "callings",
+     "anchor": "section-callings",
+     "path": "/",
+     "text": "Callings Planner (General Bishopric only) has tabs: Callings Tree (read-only snapshot of the LCR callings list), Scenarios (try changes, up to three), Compare, Recommendations, Assignments and Import Log. Nothing here changes LCR or Member Tools; no notes are stored."
+    },
+    {
+     "id": "BISH-14",
+     "title": "Try calling changes in a scenario",
+     "tab": "callings",
+     "anchor": "section-callings",
+     "path": "/",
+     "text": "In Callings Planner open Scenarios, create a scenario and move members into or out of callings. Compare shows scenarios side by side and the impacts of each change. You can keep up to three scenarios."
+    },
+    {
+     "id": "BISH-15",
+     "title": "Track a calling or release recommendation",
+     "tab": "callings",
+     "anchor": "section-callings",
+     "path": "/",
+     "text": "Recommendations tracks each approved call or release through the steps Agreed, Extended, Accepted (calls only) and Over the pulpit, then a hand-off to the Ward Clerk. Correct dates fixes recorded dates while a recommendation is open; Archive and then Delete removes one."
+    },
+    {
+     "id": "BISH-16",
+     "title": "Hand off a calling change to the Ward Clerk",
+     "tab": "callings",
+     "anchor": "section-callings",
+     "path": "/",
+     "text": "When a recommendation reaches the last step, generate the clerk hand-off from its card. It opens a change request titled Calling change (sustained) or Calling change (released) so the clerk can record it in LCR."
+    },
+    {
+     "id": "BISH-17",
+     "title": "Interview Mgr (tithing declaration schedule)",
+     "tab": "tithing",
+     "anchor": "section-tithing",
+     "path": "/",
+     "text": "Interview Mgr is shown only to the bishop and the executive secretary. It schedules tithing declaration and other interviews: Add Slot, Tools for move, swap, add or delete dates, Add Household, and Share Interviews to print, download a PDF or text a summary to the bishop."
+    },
+    {
+     "id": "BISH-18",
+     "title": "Message households about interview times",
+     "tab": "tithing",
+     "anchor": "btn-td-hhlist-toggle-send-message",
+     "path": "/",
+     "text": "In Interview Mgr, the household list has Send Message: check the households, then copy the emails, copy the message, or open a BCC email. Export CSV or XLSX and Import are in the same list tools."
+    },
+    {
+     "id": "BISH-19",
+     "title": "Sign in, Touch ID / Face ID and Lock Door",
+     "tab": "sacrament",
+     "anchor": "btn-enroll-passkey",
+     "path": "/",
+     "text": "Sign in with Touch ID / Face ID (passkey) or a text-message code. A personal password alone never opens the hub; it asks for Touch ID or a text code too. Enable Touch ID / Face ID in the header adds a passkey for faster sign-in. Lock Door locks the hub on this device."
+    },
+    {
+     "id": "BISH-20",
+     "title": "Using Horus",
+     "tab": "sacrament",
+     "anchor": "horus-launcher",
+     "path": "/",
+     "text": "Horus \u2022 Website Guide is the assistant button at the top right of the Bishopric Workspace (a floating Horus head appears when you scroll down). Ask a General Handbook question or how to find or do something on blackstoneward.org or any of its hubs. Answers cite the Handbook section or link to the page or tab. Use the Sound button in its window to turn the sounds on or off. Conversations are not saved; Clear conversation or reloading clears them. Do not type names or private details."
+    },
+    {
+     "id": "BISH-21",
+     "title": "Go to the ward home page or Ward Admin",
+     "tab": "sacrament",
+     "anchor": "hub-sections-bar",
+     "path": "/",
+     "text": "The Home link in the top menu opens blackstoneward.org. Ward Admin opens blackstoneward.org/admin for ward content, calendars and leader access."
+    }
+   ]
+  },
+  {
+   "hub": "home",
+   "code": "HOME",
+   "name": "Ward Home (blackstoneward.org)",
+   "baseUrl": "https://blackstoneward.org",
+   "version": "1.2.97",
+   "entries": [
+    {
+     "id": "HOME-1",
+     "title": "Ward home page",
+     "path": "/",
+     "text": "The ward home page (blackstoneward.org) has Find your organization (links to each organization's hub), Coming up (upcoming ward events, with a link to the ward calendar), Announcements for the whole ward, and Contact us. The top menu links Calendar, Spotlights, Music and Admin."
+    },
+    {
+     "id": "HOME-2",
+     "title": "Ward activity calendar",
+     "path": "/calendar/",
+     "text": "The Calendar page (blackstoneward.org/calendar/) shows the ward activity calendar. Events are added by leaders in Ward Admin under Ward Calendar."
+    },
+    {
+     "id": "HOME-3",
+     "title": "Ward spotlights",
+     "path": "/spotlights/",
+     "text": "The Spotlights page shows ward spotlights. Leaders add them in Ward Admin under Ward Announcements & Spotlights with Add Ward Spotlight."
+    },
+    {
+     "id": "HOME-4",
+     "title": "Sacrament meeting music planner",
+     "path": "/music/",
+     "text": "The Music page (Sacrament Meeting Music Planner) lets the music coordinator plan hymns and music for each Sunday. The Bishopric Hub has the same planner under its Ward Music Page button."
+    },
+    {
+     "id": "HOME-5",
+     "title": "Tithing declaration schedule page",
+     "path": "/td/",
+     "text": "The /td page lists Interview Dates and an Alphabetical Household Directory (A to Z). A family can use Request a Schedule Change to move to an open time; it checks the family name and the email on file. The bishopric manages the schedule in the Bishopric Hub Interview Mgr."
+    },
+    {
+     "id": "HOME-6",
+     "title": "Ward Admin: calendar, announcements and spotlights",
+     "path": "/admin/",
+     "text": "Ward Admin (blackstoneward.org/admin/) is for signed-in leaders. Ward Calendar has Add Ward Event and Transfer Youth Activities to Ward Calendar. Ward Announcements & Spotlights has Homepage Announcements (Add Ward Announcement) and Ward Spotlights (Add Ward Spotlight)."
+    },
+    {
+     "id": "HOME-7",
+     "title": "Ward Admin: leaders, callings and access",
+     "path": "/admin/",
+     "text": "In Ward Admin, Authorized Users lists leaders and the Access Matrix shows what each calling can open. Onboard Leader and Add Ward Leader add a leader; Add Calling sets a leader's calling; Restricted Areas shows protected areas."
+    },
+    {
+     "id": "HOME-8",
+     "title": "Sign in to Ward Admin and leader passwords",
+     "path": "/admin/",
+     "text": "Ward Admin sign-in uses a text-message code, Touch ID / Face ID (passkey), Google, or a personal leader password. Set Leader Password sets a password; Reset Personal Password resets it after a text-message code."
+    }
+   ]
+  },
+  {
+   "hub": "youth",
+   "code": "YOUTH",
+   "name": "Youth Hub",
+   "baseUrl": "https://youth.blackstoneward.org",
+   "version": "7.19.15",
+   "entries": [
+    {
+     "id": "YOUTH-1",
+     "title": "Youth hub organization pages",
+     "path": "/",
+     "text": "The Youth Hub (youth.blackstoneward.org) has pages for Young Women, Priests, Teachers, Deacons, Primary and Combined. Each page has an Activity calendar, Coming up, Good to know, and Help & Feedback."
+    },
+    {
+     "id": "YOUTH-2",
+     "title": "Youth Admin portal",
+     "path": "/admin/",
+     "text": "Youth Hub Admin (youth.blackstoneward.org/admin/) is for signed-in leaders: Activities Manager, Lessons Manager, Birthdays Manager, Announcements Manager, Spotlights Manager, Teacher Roster, Leaders Management, Youth Theme & Scripture, and Database Backup & Sync."
+    },
+    {
+     "id": "YOUTH-3",
+     "title": "Youth Hub help and feedback",
+     "path": "/",
+     "text": "Each Youth Hub page has a Help & Feedback form. Submissions go to the ward web team by email."
+    }
+   ]
+  },
+  {
+   "hub": "auction",
+   "code": "AUCT",
+   "name": "Youth Camp Auction",
+   "baseUrl": "https://auction.blackstoneward.org",
+   "version": "1.15.13",
+   "entries": [
+    {
+     "id": "AUCT-1",
+     "title": "Youth camp auction home",
+     "path": "/",
+     "text": "The Youth Camp Auction site (auction.blackstoneward.org) shows the Silent Auction Rules, Bidder Registration and the Venue."
+    },
+    {
+     "id": "AUCT-2",
+     "title": "Auction items catalog",
+     "path": "/items.html",
+     "text": "The Auction Items Catalog (items.html) lists the auction items."
+    },
+    {
+     "id": "AUCT-3",
+     "title": "Submit an auction item",
+     "path": "/submit-item.html",
+     "text": "Submit Auction Item (submit-item.html) is the form to donate an item; a Thank You page confirms it."
+    },
+    {
+     "id": "AUCT-4",
+     "title": "Auction admin and bid sheets",
+     "path": "/admin.html",
+     "text": "The Auction Admin Portal (admin.html, admin sign-in) has Registered Bidders, Manage Auction Items and Uploaded Auction Items. Print Bid Sheets (print.html) prints the bid sheets."
+    }
+   ]
+  }
+ ]
+}
