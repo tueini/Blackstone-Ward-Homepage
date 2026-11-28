@@ -1,5 +1,7 @@
 # Blackstone Ward homepage project state
 
+**Functions (pending):** 1.4.0 / handbookAssistant (Horus) — Code Complete 2026-11-27 ~10:45 PM ET, NOT deployed, local branch `chuck/2026-11-27-handbook-assistant`. Deploy only `--only functions:handbookAssistant`. Needs config doc `handbook_assistant_config/main` to enable.
+
 **Functions:** 1.3.1 / changeRequestNotify (LIVE 2026-11-25 10:13:17 PM ET, Duane 10:09 PM ET "approve email fix"): Clerk create-email subject is `Calling change (sustained)` or `Calling change (released)` when the change request is a Callings Planner hand-off (`handoff === 'callings'` and the subject is exactly one of those two); otherwise `Directory change request (open)`. Closed-request subjects unchanged. Deployed `--only functions:changeRequestNotify`. ACTIVE, us-central1, nodejs22. Home site remains 1.2.95.
 **Functions (prior):** 1.3.0 / changeRequestNotify (LIVE 2026-11-24 3:15:26 PM ET, Duane t478u): emails the Clerk on a new change request and the requester on close, via the existing Trigger Email extension. Deployed `--only functions:changeRequestNotify`. ACTIVE, us-central1. Home site remains 1.2.95.
 **Functions (prior):** 1.2.6 / passkeyApi 1.4.1 (LIVE 2026-11-23 9:51 PM ET, Duane t449u): /password/login also accepts a one-time `sha256-legacy` record in ward_leader_credentials, then rehashes to scrypt.

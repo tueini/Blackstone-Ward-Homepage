@@ -862,3 +862,22 @@ exports.changeRequestNotify = onDocumentWritten(
   { document: 'change_requests/{requestId}', region: 'us-central1' },
   changeRequestNotifyMod.makeHandler({ db })
 );
+
+
+// v1.4.0 (2026-11-27, Duane go-ahead 10:20 PM ET): Horus, the Handbook + site-help assistant relay for the Bishopric Hub (see handbookAssistant.js).
+// Relays a signed-in General Bishopric question to Ollama on the ward Mac mini through Cloudflare Access + Tunnel bw-ai.
+// Who may use it: Firestore doc handbook_assistant_config/main (missing = disabled). No prompts/answers are logged or stored.
+// Deploy ONLY with: firebase deploy --only functions:handbookAssistant --project blackstoneward-b861c
+// (never a broader functions deploy). LIVE production change. Needs Secret Manager CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET.
+const { defineSecret } = require('firebase-functions/params');
+const CF_ACCESS_CLIENT_ID = defineSecret('CF_ACCESS_CLIENT_ID');
+const CF_ACCESS_CLIENT_SECRET = defineSecret('CF_ACCESS_CLIENT_SECRET');
+const handbookAssistantMod = require('./handbookAssistant');
+exports.handbookAssistant = onRequest(
+  { region: 'us-central1', cors: false, secrets: [CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET],
+    timeoutSeconds: 60, memory: '256MiB', maxInstances: 3, concurrency: 1 },
+  handbookAssistantMod.makeHandler({
+    db, admin, setCorsHeaders, isAllowedOrigin,
+    getSecrets: () => ({ id: CF_ACCESS_CLIENT_ID.value(), secret: CF_ACCESS_CLIENT_SECRET.value() })
+  })
+);
