@@ -1,5 +1,6 @@
 # Blackstone Ward homepage project state
 
+**Functions (pending):** 1.4.1 / handbookAssistant (Horus) — Code Complete 2026-11-27 ~11:59 PM ET, NOT deployed (Duane t631u/t632u): full list-aware Handbook excerpts (38.3 and 38.3.1 complete; index 809 KB), corrections re-searched instead of refused, longer questions (1200) and answers (500 tokens). Live function is still 1.4.0. Deploy only `--only functions:handbookAssistant`. Needs config doc `handbook_assistant_config/main` to enable.
 **Functions (pending):** 1.4.0 / handbookAssistant (Horus) — Code Complete 2026-11-27 ~10:45 PM ET, NOT deployed, local branch `chuck/2026-11-27-handbook-assistant`. Deploy only `--only functions:handbookAssistant`. Needs config doc `handbook_assistant_config/main` to enable.
 
 **Functions:** 1.3.1 / changeRequestNotify (LIVE 2026-11-25 10:13:17 PM ET, Duane 10:09 PM ET "approve email fix"): Clerk create-email subject is `Calling change (sustained)` or `Calling change (released)` when the change request is a Callings Planner hand-off (`handoff === 'callings'` and the subject is exactly one of those two); otherwise `Directory change request (open)`. Closed-request subjects unchanged. Deployed `--only functions:changeRequestNotify`. ACTIVE, us-central1, nodejs22. Home site remains 1.2.95.

@@ -1,5 +1,5 @@
 {
- "builtAt": "2026-11-27T22:50:00-05:00",
+ "builtAt": "2026-11-27T23:55:00-05:00",
  "source": "Written by hand from each hub's public HTML/JS (Bish 1.3.16, Home 1.2.97, Youth 7.19.15, Auction 1.15.13). No member data, names, phones or emails.",
  "note": "Private Horus site-help index (blackstoneward.org and all hubs). Functions bundle only; never host publicly. Add a hub by appending a hubs[] block; ids are <HUBCODE>-<n> and are never reused.",
  "hubs": [
@@ -8,7 +8,7 @@
    "code": "BISH",
    "name": "Bishopric Hub",
    "baseUrl": "https://bish.blackstoneward.org",
-   "version": "1.3.16",
+   "version": "1.3.17",
    "entries": [
     {
      "id": "BISH-1",
@@ -73,14 +73,6 @@
      "anchor": "btn-toggle-themes-panel",
      "path": "/",
      "text": "In Sacrament Mtg, the Themes panel holds monthly themes and Rotation shows which bishopric member conducts. Open them with the Themes and Rotation buttons."
-    },
-    {
-     "id": "BISH-9",
-     "title": "Google Sheet sync and CSV exports",
-     "tab": "sacrament",
-     "anchor": "btn-open-sheets-modal",
-     "path": "/",
-     "text": "Spreadsheet Sync & Export (top of the Bishopric Workspace) opens the export dialog: Push All Data to Google Sheet Now, Download Sacrament Meetings (.CSV) for all Sundays, and Download Bishopric Schedule (.CSV) for bishopric meetings and councils."
     },
     {
      "id": "BISH-10",
@@ -168,7 +160,7 @@
      "tab": "sacrament",
      "anchor": "horus-launcher",
      "path": "/",
-     "text": "Horus is the floating assistant button on Bishopric Hub pages. Ask a General Handbook question or how to find or do something on blackstoneward.org or any of its hubs. Answers cite the Handbook section or link to the page or tab. Conversations are not saved; Clear conversation or reloading clears them. Do not type names or private details."
+     "text": "Horus \u2022 Website Guide is the assistant button at the top right of the Bishopric Workspace (a floating Horus head appears when you scroll down). Ask a General Handbook question or how to find or do something on blackstoneward.org or any of its hubs. Answers cite the Handbook section or link to the page or tab. Use the Sound button in its window to turn the sounds on or off. Conversations are not saved; Clear conversation or reloading clears them. Do not type names or private details."
     },
     {
      "id": "BISH-21",

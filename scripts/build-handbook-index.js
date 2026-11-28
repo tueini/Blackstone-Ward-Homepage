@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict';
-// Home functions 1.4.0 (2026-11-27, Duane go-ahead 10:20 PM ET, Q2 "YES"): builds the PRIVATE Handbook index used by
+// Home functions 1.4.1 (2026-11-27, Duane t631u 11:44 PM ET: list-aware, fuller excerpts so a section such as 38.3 keeps every
+// list item; 1.4.0 cut it after the first). First built 1.4.0 (Duane go-ahead 10:20 PM ET, Q2 "YES"): builds the PRIVATE Handbook index used by
 // functions/handbookAssistant.js. Output: functions/handbook-index.json (functions bundle only; never under public/).
 // Reads the PUBLIC General Handbook (https://www.churchofjesuschrist.org/study/manual/general-handbook?lang=eng).
 // Each entry: section number, title, chapter, canonical URL (with the #title_numberN anchor) and a SHORT excerpt.
@@ -10,7 +11,7 @@
 //   cd ~/Documents/0Church/Blackstone_Ward/zzWeb/BW_Home && node scripts/build-handbook-index.js
 //   then review the summary it prints, bump the Home functions version, update CHANGELOG/PROJECT_STATE, run the tests,
 //   and redeploy ONLY the function (separate approval): firebase deploy --only functions:handbookAssistant --project blackstoneward-b861c
-// Options: --chapters 7,10,11  (override the chapter list)   --out <path>   --max-excerpt 420
+// Options: --chapters 7,10,11  (override the chapter list)   --out <path>   --max-excerpt 1400 (soft cap; an open list may run to 1.6x)
 // The second index (site help for blackstoneward.org and all hubs) is functions/site-help-index.json, edited by hand.
 // How to refresh both: scripts/HORUS_INDEXES.md
 const fs = require('fs');
@@ -43,7 +44,10 @@ function arg(name, dflt) {
 }
 const CHAPTERS = String(arg('--chapters', '')).trim() ? arg('--chapters').split(',').map((s) => s.trim()).filter(Boolean) : DEFAULT_CHAPTERS;
 const OUT = path.resolve(arg('--out', path.join(__dirname, '..', 'functions', 'handbook-index.json')));
-const MAX_EXCERPT = Math.max(120, Math.min(800, Number(arg('--max-excerpt', 420)) || 420));
+// Soft cap per excerpt. Whole paragraphs / list items are kept (never cut mid-item); a list that is open at the cap is finished
+// up to HARD_EXCERPT (1.6x) so a section like 38.3 keeps every circumstance. Only a single paragraph longer than the cap is cut.
+const MAX_EXCERPT = Math.max(200, Math.min(2000, Number(arg('--max-excerpt', 1400)) || 1400));
+const HARD_EXCERPT = Math.round(MAX_EXCERPT * 1.6);
 
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', mdash: '—', ndash: '–', hellip: '…' };
 function decode(s) {
@@ -59,6 +63,28 @@ function shorten(s, max) {
   const cut = s.slice(0, max);
   const dot = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('? '), cut.lastIndexOf('! '));
   return (dot > max * 0.5 ? cut.slice(0, dot + 1) : cut.replace(/\s+\S*$/, '') + ' …').trim();
+}
+
+// List-aware excerpt: a section that fits the hard cap is kept whole; otherwise whole paragraphs and list items up to the soft cap; if the cap falls inside a list (its intro ends with
+// ":" or the previous part is a list item) the remaining items are kept up to the hard cap. Never cuts mid-item, except a lone
+// first paragraph longer than the cap (cut at a sentence). A dropped tail is marked with " …".
+function assemble(parts, max, hard) {
+  const list = (parts || []).filter((p) => p && p.t);
+  if (!list.length) return '';
+  const whole = list.reduce((n, p, i) => n + (i ? 1 : 0) + p.t.length, 0);
+  if (whole <= hard) return list.map((p) => p.t).join(' '); // a section that fits the hard cap is kept whole (38.3, 38.3.1)
+  const out = [];
+  let len = 0;
+  for (const p of list) {
+    const add = (out.length ? 1 : 0) + p.t.length;
+    const prev = out[out.length - 1];
+    const inList = Boolean(prev) && p.li && (prev.li || /:$/.test(prev.t));
+    if (len + add <= max || (inList && len + add <= hard)) { out.push(p); len += add; continue; }
+    break;
+  }
+  if (!out.length) return shorten(list[0].t, max);
+  const text = out.map((p) => p.t).join(' ');
+  return out.length < list.length ? `${text} …` : text;
 }
 
 function parseChapter(html, slug) {
@@ -82,10 +108,10 @@ function parseChapter(html, slug) {
     while ((pm = pre.exec(chunk))) {
       if (/class="title-number"/.test(pm[0])) continue;
       const t = text(pm[2]);
-      if (t) parts.push(t);
-      if (parts.join(' ').length > MAX_EXCERPT * 1.5) break;
+      if (t) parts.push({ t, li: pm[1] === 'li' });
+      if (parts.reduce((a, x) => a + x.t.length + 1, 0) > HARD_EXCERPT * 1.5) break;
     }
-    const excerpt = shorten(parts.join(' '), MAX_EXCERPT);
+    const excerpt = assemble(parts, MAX_EXCERPT, HARD_EXCERPT);
     if (!excerpt) continue;
     out.push({ section: h.section, title: h.title, chapter: `${chapterNum ? text(chapterNum).replace(/\.$/, '') + '. ' : ''}${chapterTitle}`, url: `${url}#${h.anchor}`, excerpt });
   }
@@ -112,6 +138,7 @@ async function main() {
     source: `${BASE}?lang=eng`,
     note: 'Short excerpts of the public General Handbook for the private Handbook assistant index. Functions bundle only; never host publicly.',
     maxExcerpt: MAX_EXCERPT,
+    maxExcerptHard: HARD_EXCERPT,
     chapters: CHAPTERS,
     entries: unique
   };
@@ -121,4 +148,4 @@ async function main() {
 }
 
 if (require.main === module) main().catch((e) => { console.error(e.message); process.exit(1); });
-module.exports = { parseChapter, shorten, decode, DEFAULT_CHAPTERS };
+module.exports = { parseChapter, shorten, assemble, decode, DEFAULT_CHAPTERS };
