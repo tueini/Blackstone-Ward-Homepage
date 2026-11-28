@@ -33,3 +33,6 @@ Both live in `BW_Home/functions/` (the functions bundle). Never copy them under 
 2. Bump the Home functions version, update BW_Home CHANGELOG.md / PROJECT_STATE.md and HUBS_NOTES.md.
 3. Deploy ONLY the function, as its own approval (live change):
    `cd BW_Home && firebase deploy --only functions:handbookAssistant --project blackstoneward-b861c`
+
+## Retrieval note (functions 1.4.2)
+No index rebuild is needed for 1.4.2: word families, stop words, fillers, IDF-weighted coverage and follow-up expansion are applied in `functions/handbookAssistant.js` when the index loads and when a question arrives. The JSON files are unchanged.
